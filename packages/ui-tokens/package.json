@@ -1,0 +1,13 @@
+{
+  "name": "@vocal-ai/ui-tokens",
+  "private": true,
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "echo \"Add ui-tokens lint config\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "echo \"Add ui-tokens tests\""
+  }
+}

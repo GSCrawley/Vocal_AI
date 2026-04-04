@@ -1,0 +1,15 @@
+{
+  "name": "@vocal-ai/analytics-worker",
+  "private": true,
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "echo \"Add analytics worker lint config\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "echo \"Add analytics worker tests\""
+  },
+  "dependencies": {
+    "@vocal-ai/shared-types": "workspace:*"
+  }
+}

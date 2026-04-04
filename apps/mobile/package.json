@@ -1,0 +1,21 @@
+{
+  "name": "@vocal-ai/mobile",
+  "private": true,
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "echo \"Hook React Native or Expo app entry here\"",
+    "build": "echo \"No mobile build configured yet\"",
+    "lint": "echo \"Add mobile lint config\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "echo \"Add mobile tests\""
+  },
+  "dependencies": {
+    "@vocal-ai/audio-metrics": "workspace:*",
+    "@vocal-ai/coaching-rules": "workspace:*",
+    "@vocal-ai/content-schema": "workspace:*",
+    "@vocal-ai/exercise-engine": "workspace:*",
+    "@vocal-ai/shared-types": "workspace:*",
+    "@vocal-ai/ui-tokens": "workspace:*"
+  }
+}

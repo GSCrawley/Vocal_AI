@@ -1,0 +1,18 @@
+{
+  "name": "@vocal-ai/admin",
+  "private": true,
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "echo \"Hook admin app shell here\"",
+    "build": "echo \"No admin build configured yet\"",
+    "lint": "echo \"Add admin lint config\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "echo \"Add admin tests\""
+  },
+  "dependencies": {
+    "@vocal-ai/content-schema": "workspace:*",
+    "@vocal-ai/shared-types": "workspace:*",
+    "@vocal-ai/ui-tokens": "workspace:*"
+  }
+}

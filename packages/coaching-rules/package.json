@@ -1,0 +1,16 @@
+{
+  "name": "@vocal-ai/coaching-rules",
+  "private": true,
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "echo \"Add coaching-rules lint config\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "echo \"Add coaching-rules tests\""
+  },
+  "dependencies": {
+    "@vocal-ai/shared-types": "workspace:*"
+  }
+}

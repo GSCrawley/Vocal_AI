@@ -1,0 +1,15 @@
+{
+  "name": "@vocal-ai/notification-worker",
+  "private": true,
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "echo \"Add notification worker lint config\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "echo \"Add notification worker tests\""
+  },
+  "dependencies": {
+    "@vocal-ai/shared-types": "workspace:*"
+  }
+}

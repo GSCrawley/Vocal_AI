@@ -1,0 +1,16 @@
+{
+  "name": "@vocal-ai/exercise-engine",
+  "private": true,
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "echo \"Add exercise-engine lint config\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "echo \"Add exercise-engine tests\""
+  },
+  "dependencies": {
+    "@vocal-ai/shared-types": "workspace:*"
+  }
+}

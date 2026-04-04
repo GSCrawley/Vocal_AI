@@ -1,0 +1,17 @@
+{
+  "name": "@vocal-ai/api",
+  "private": true,
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "node src/index.js",
+    "build": "tsc -p tsconfig.json",
+    "lint": "echo \"Add API lint config\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "echo \"Add API tests\""
+  },
+  "dependencies": {
+    "@vocal-ai/content-schema": "workspace:*",
+    "@vocal-ai/shared-types": "workspace:*"
+  }
+}
