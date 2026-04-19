@@ -1,5 +1,5 @@
 {
-  "name": "@vocal-ai/notification-worker",
+  "name": "@voice/notification-worker",
   "private": true,
   "version": "0.1.0",
   "main": "src/index.ts",
@@ -10,6 +10,6 @@
     "test": "echo \"Add notification worker tests\""
   },
   "dependencies": {
-    "@vocal-ai/shared-types": "workspace:*"
+    "@voice/shared-types": "workspace:*"
   }
 }

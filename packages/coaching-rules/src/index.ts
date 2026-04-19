@@ -1,4 +1,4 @@
-import type { SuccessBand } from '@vocal-ai/shared-types';
+import type { SuccessBand } from '@voice/shared-types';
 
 export interface CoachingPayload {
   praiseMessage: string;

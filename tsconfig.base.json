@@ -10,12 +10,12 @@
     "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {
-      "@vocal-ai/shared-types": ["packages/shared-types/src"],
-      "@vocal-ai/content-schema": ["packages/content-schema/src"],
-      "@vocal-ai/exercise-engine": ["packages/exercise-engine/src"],
-      "@vocal-ai/coaching-rules": ["packages/coaching-rules/src"],
-      "@vocal-ai/audio-metrics": ["packages/audio-metrics/src"],
-      "@vocal-ai/ui-tokens": ["packages/ui-tokens/src"]
+      "@voice/shared-types": ["packages/shared-types/src"],
+      "@voice/content-schema": ["packages/content-schema/src"],
+      "@voice/exercise-engine": ["packages/exercise-engine/src"],
+      "@voice/coaching-rules": ["packages/coaching-rules/src"],
+      "@voice/audio-metrics": ["packages/audio-metrics/src"],
+      "@voice/ui-tokens": ["packages/ui-tokens/src"]
     }
   }
 }

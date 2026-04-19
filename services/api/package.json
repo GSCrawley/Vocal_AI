@@ -1,5 +1,5 @@
 {
-  "name": "@vocal-ai/api",
+  "name": "@voice/api",
   "private": true,
   "version": "0.1.0",
   "main": "src/index.ts",
@@ -11,7 +11,7 @@
     "test": "echo \"Add API tests\""
   },
   "dependencies": {
-    "@vocal-ai/content-schema": "workspace:*",
-    "@vocal-ai/shared-types": "workspace:*"
+    "@voice/content-schema": "workspace:*",
+    "@voice/shared-types": "workspace:*"
   }
 }

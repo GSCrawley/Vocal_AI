@@ -1,5 +1,5 @@
 {
-  "name": "@vocal-ai/mobile",
+  "name": "@voice/mobile",
   "private": true,
   "version": "0.1.0",
   "main": "src/index.ts",
@@ -11,11 +11,11 @@
     "test": "echo \"Add mobile tests\""
   },
   "dependencies": {
-    "@vocal-ai/audio-metrics": "workspace:*",
-    "@vocal-ai/coaching-rules": "workspace:*",
-    "@vocal-ai/content-schema": "workspace:*",
-    "@vocal-ai/exercise-engine": "workspace:*",
-    "@vocal-ai/shared-types": "workspace:*",
-    "@vocal-ai/ui-tokens": "workspace:*"
+    "@voice/audio-metrics": "workspace:*",
+    "@voice/coaching-rules": "workspace:*",
+    "@voice/content-schema": "workspace:*",
+    "@voice/exercise-engine": "workspace:*",
+    "@voice/shared-types": "workspace:*",
+    "@voice/ui-tokens": "workspace:*"
   }
 }

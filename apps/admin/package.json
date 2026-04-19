@@ -1,5 +1,5 @@
 {
-  "name": "@vocal-ai/admin",
+  "name": "@voice/admin",
   "private": true,
   "version": "0.1.0",
   "main": "src/index.ts",
@@ -11,8 +11,8 @@
     "test": "echo \"Add admin tests\""
   },
   "dependencies": {
-    "@vocal-ai/content-schema": "workspace:*",
-    "@vocal-ai/shared-types": "workspace:*",
-    "@vocal-ai/ui-tokens": "workspace:*"
+    "@voice/content-schema": "workspace:*",
+    "@voice/shared-types": "workspace:*",
+    "@voice/ui-tokens": "workspace:*"
   }
 }

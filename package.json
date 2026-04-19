@@ -5,7 +5,7 @@
   "packageManager": "pnpm@9.0.0",
   "scripts": {
     "build": "pnpm -r build",
-    "dev": "pnpm --filter @vocal-ai/mobile dev",
+    "dev": "pnpm --filter @voice/mobile dev",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test"
