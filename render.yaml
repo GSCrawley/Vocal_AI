@@ -12,22 +12,15 @@
 
 version: "1"
 
-previews:
-  generation: manual
-  expireAfterDays: 7
-
 envVarGroups:
   - name: voice-shared-env
     envVars:
       - key: APP_ENV
         value: production
-        previewValue: preview
       - key: NODE_ENV
         value: production
-        previewValue: development
       - key: LOG_LEVEL
         value: info
-        previewValue: debug
       - key: VITE_API_BASE_URL
         sync: false
       - key: AUDIO_STORAGE_OPT_IN_DEFAULT
@@ -92,7 +85,6 @@ services:
     name: voice-redis
     region: oregon
     plan: starter
-    previewPlan: starter
     maxmemoryPolicy: noeviction
     ipAllowList: []
 
@@ -107,10 +99,7 @@ services:
     startCommand: node services/api/dist/index.js
     autoDeployTrigger: checksPass
     maxShutdownDelaySeconds: 60
-    previews:
-      generation: manual
-      plan: starter
-      numInstances: 1
+  
     buildFilter:
       paths:
         - package.json
@@ -141,8 +130,6 @@ services:
     buildCommand: corepack enable && corepack prepare pnpm@9.0.0 --activate && pnpm install --no-frozen-lockfile && pnpm --filter @voice/admin build
     staticPublishPath: apps/admin/dist
     autoDeployTrigger: checksPass
-    previews:
-      generation: manual
     buildFilter:
       paths:
         - package.json
