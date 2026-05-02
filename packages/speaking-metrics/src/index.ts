@@ -208,3 +208,29 @@ function scoreToBand(score: number): SuccessBand {
   if (score >= 50) return 'developing';
   return 'retry';
 }
+
+/**
+ * Generate feedback based on the failure mode.
+ */
+export type SpeakingFailureMode = 'too_fast' | 'too_slow' | 'uptalk' | 'monotone';
+
+export interface SpeakingFeedback {
+  text: string;
+}
+
+export function generateSpeakingFeedback(failureMode: SpeakingFailureMode | null): SpeakingFeedback {
+  if (!failureMode) {
+    return { text: 'Great dynamic expression.' };
+  }
+
+  switch (failureMode) {
+    case 'too_fast':
+      return { text: 'You came in too fast. Slow down and trust the pauses.' };
+    case 'too_slow':
+      return { text: 'You came in too slow. Aim for a more natural, conversational pace.' };
+    case 'uptalk':
+      return { text: 'Your sentences are ending like questions. Bring the pitch down at the end of each statement.' };
+    case 'monotone':
+      return { text: 'Your voice stayed very flat - vary your pitch more to keep listeners engaged.' };
+  }
+}
