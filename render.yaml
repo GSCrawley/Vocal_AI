@@ -105,7 +105,6 @@ services:
     healthCheckPath: /healthz
     buildCommand: corepack enable && corepack prepare pnpm@9.0.0 --activate && pnpm install --no-frozen-lockfile && pnpm --filter @voice/api build
     startCommand: node services/api/dist/index.js
-    autoDeploy: true
     autoDeployTrigger: checksPass
     maxShutdownDelaySeconds: 60
     previews:
@@ -141,7 +140,6 @@ services:
     runtime: static
     buildCommand: corepack enable && corepack prepare pnpm@9.0.0 --activate && pnpm install --no-frozen-lockfile && pnpm --filter @voice/admin build
     staticPublishPath: apps/admin/dist
-    autoDeploy: true
     autoDeployTrigger: checksPass
     previews:
       generation: manual
@@ -172,11 +170,9 @@ services:
     name: voice-audio-processor
     region: oregon
     runtime: docker
-    plan: pro-4gb
+    plan: pro
     dockerContext: .
     dockerfilePath: services/audio-processor/Dockerfile
-    healthCheckPath: /healthz
-    autoDeploy: true
     autoDeployTrigger: checksPass
     disk:
       name: voice-audio-model-cache
@@ -202,11 +198,10 @@ services:
     name: voice-audio-worker
     region: oregon
     runtime: docker
-    plan: pro-4gb
+    plan: pro
     dockerContext: .
     dockerfilePath: services/audio-processor/Dockerfile
     dockerCommand: python -m voice_audio.worker
-    autoDeploy: true
     autoDeployTrigger: checksPass
     disk:
       name: voice-audio-worker-model-cache
@@ -233,7 +228,6 @@ services:
     plan: starter
     buildCommand: corepack enable && corepack prepare pnpm@9.0.0 --activate && pnpm install --no-frozen-lockfile && pnpm --filter @voice/analytics-worker build
     startCommand: node services/analytics-worker/dist/index.js
-    autoDeploy: true
     autoDeployTrigger: checksPass
     buildFilter:
       paths:
@@ -258,7 +252,6 @@ services:
     plan: starter
     buildCommand: corepack enable && corepack prepare pnpm@9.0.0 --activate && pnpm install --no-frozen-lockfile && pnpm --filter @voice/notification-worker build
     startCommand: node services/notification-worker/dist/index.js
-    autoDeploy: true
     autoDeployTrigger: checksPass
     buildFilter:
       paths:
@@ -289,7 +282,6 @@ services:
     schedule: "0 15 * * 1"
     buildCommand: corepack enable && corepack prepare pnpm@9.0.0 --activate && pnpm install --no-frozen-lockfile && pnpm --filter @voice/analytics-worker build
     startCommand: node services/analytics-worker/dist/weekly-summary.js
-    autoDeploy: true
     autoDeployTrigger: checksPass
     buildFilter:
       paths:
@@ -312,7 +304,6 @@ services:
     schedule: "30 9 * * *"
     buildCommand: corepack enable && corepack prepare pnpm@9.0.0 --activate && pnpm install --no-frozen-lockfile && pnpm --filter @voice/api build
     startCommand: node services/api/dist/jobs/data-retention.js
-    autoDeploy: true
     autoDeployTrigger: checksPass
     buildFilter:
       paths:
