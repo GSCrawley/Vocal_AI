@@ -1,10 +1,14 @@
 # Render Blueprint for VOICE.
 # Schema: https://render.com/schema/render.yaml.json
 #
-# This blueprint declares the infrastructure the project will need as the
-# scaffold is fleshed out. Some commands and Dockerfiles referenced here are
-# build targets for the corresponding agents in AGENT.MD and will not deploy
-# successfully until those services are implemented.
+# This blueprint declares the Render-managed infrastructure the project will
+# need as the scaffold is fleshed out. Supabase remains the architecture's
+# database/auth/storage/realtime provider and is configured through synced
+# secrets here rather than provisioned by Render.
+#
+# Some commands and Dockerfiles referenced here are build targets for the
+# corresponding agents in AGENT.MD and will not deploy successfully until those
+# services are implemented.
 
 version: "1"
 
@@ -32,6 +36,8 @@ envVarGroups:
         value: "false"
       - key: FEATURE_STYLE_PACKS
         value: "false"
+      - key: FEATURE_PUSH_NOTIFICATIONS
+        value: "false"
       - key: FEATURE_REALTIME_FILLER_DETECTION
         value: "false"
       - key: FEATURE_AVATAR_TTS
@@ -48,6 +54,8 @@ envVarGroups:
       - key: SUPABASE_ANON_KEY
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: DATABASE_URL
         sync: false
       - key: SUPABASE_STORAGE_BUCKET_AUDIO
         value: user-audio
@@ -78,24 +86,6 @@ envVarGroups:
         value: "1"
       - key: AUDIO_MAX_UPLOAD_MB
         value: "250"
-
-databases:
-  # Render-managed Postgres for API persistence. If the production build uses
-  # Supabase-hosted Postgres exclusively, remove this database and the
-  # DATABASE_URL references below, while keeping the Supabase env vars.
-  - name: voice-postgres
-    databaseName: voice
-    user: voice_app
-    region: oregon
-    plan: starter
-    previewPlan: starter
-    diskSizeGB: 10
-    previewDiskSizeGB: 1
-    postgresMajorVersion: "16"
-    storageAutoscalingEnabled: true
-    highAvailability:
-      enabled: false
-    ipAllowList: []
 
 services:
   - type: keyvalue
@@ -135,10 +125,6 @@ services:
       - fromGroup: voice-secrets
       - key: PORT
         value: "10000"
-      - key: DATABASE_URL
-        fromDatabase:
-          name: voice-postgres
-          property: connectionString
       - key: REDIS_URL
         fromService:
           type: keyvalue
@@ -206,10 +192,6 @@ services:
       - fromGroup: voice-audio-env
       - key: PORT
         value: "10000"
-      - key: DATABASE_URL
-        fromDatabase:
-          name: voice-postgres
-          property: connectionString
       - key: REDIS_URL
         fromService:
           type: keyvalue
@@ -238,10 +220,6 @@ services:
       - fromGroup: voice-shared-env
       - fromGroup: voice-secrets
       - fromGroup: voice-audio-env
-      - key: DATABASE_URL
-        fromDatabase:
-          name: voice-postgres
-          property: connectionString
       - key: REDIS_URL
         fromService:
           type: keyvalue
@@ -267,10 +245,6 @@ services:
     envVars:
       - fromGroup: voice-shared-env
       - fromGroup: voice-secrets
-      - key: DATABASE_URL
-        fromDatabase:
-          name: voice-postgres
-          property: connectionString
       - key: REDIS_URL
         fromService:
           type: keyvalue
@@ -296,10 +270,6 @@ services:
     envVars:
       - fromGroup: voice-shared-env
       - fromGroup: voice-secrets
-      - key: DATABASE_URL
-        fromDatabase:
-          name: voice-postgres
-          property: connectionString
       - key: REDIS_URL
         fromService:
           type: keyvalue
@@ -328,10 +298,6 @@ services:
     envVars:
       - fromGroup: voice-shared-env
       - fromGroup: voice-secrets
-      - key: DATABASE_URL
-        fromDatabase:
-          name: voice-postgres
-          property: connectionString
       - key: REDIS_URL
         fromService:
           type: keyvalue
@@ -355,7 +321,3 @@ services:
     envVars:
       - fromGroup: voice-shared-env
       - fromGroup: voice-secrets
-      - key: DATABASE_URL
-        fromDatabase:
-          name: voice-postgres
-          property: connectionString

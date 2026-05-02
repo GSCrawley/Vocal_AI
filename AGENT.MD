@@ -43,16 +43,42 @@ Implemented or partially implemented:
 - Curriculum sequencing in `packages/curriculum`.
 - Karaoke scoring/snippet helpers in `packages/karaoke-engine`.
 - Audio processor TypeScript job contracts in `services/audio-processor`.
-- Placeholder mobile, admin, API, analytics, notification, Docker, scripts, and Render files.
+- Populated Render Blueprint in `render.yaml` for API, admin, Redis, audio processor, workers, and cron jobs.
+- Placeholder mobile, admin, API, analytics, notification, Docker, and scripts.
 
 Known setup risks:
 
 - `pnpm typecheck` currently fails at `packages/avatar-state` because several package `tsconfig.json` files set `rootDir: "src"` while importing `@voice/shared-types` through path aliases.
-- `render.yaml` is empty and must be authored before Render deployment.
+- `render.yaml` is schema-valid and infrastructure-aligned, but references future Dockerfiles, health checks, and service entrypoints that must be implemented before deployment.
 - Several package scripts are placeholders.
 - `packages/content-schema` defines its own local `ExerciseDefinition`, which conflicts with the shared-types authority.
 - Some imports and path aliases in `tsconfig.base.json` do not yet include every package listed in the docs.
 - No real Expo app, Fastify API, Supabase schema, Python audio processor, tests, lint config, or CI pipeline is implemented yet.
+
+## Render Blueprint Alignment
+
+`render.yaml` intentionally manages only Render-owned runtime resources. The product and architecture docs name Supabase as the database, auth, storage, and realtime provider, so Supabase is represented in the Blueprint as synced secret environment variables, not as a Render-created database.
+
+Render-managed resources:
+
+- `voice-redis`: Redis-compatible key-value service for queues and worker coordination.
+- `voice-api`: Node/Fastify API service for auth-bound product endpoints.
+- `voice-admin`: static internal content and operations app.
+- `voice-audio-processor`: private Python/FastAPI audio processor service.
+- `voice-audio-worker`: Python worker for Demucs, pYIN, Whisper, and DTW jobs.
+- `voice-analytics-worker`: background aggregations and progress summaries.
+- `voice-notification-worker`: Expo push notification orchestration.
+- `voice-weekly-summary-cron`: scheduled progress summary job.
+- `voice-data-retention-cron`: scheduled privacy/data-retention job.
+
+External resources configured by synced secrets:
+
+- Supabase URL, anon key, service role key, and Postgres connection string (`DATABASE_URL`).
+- Supabase Storage buckets for user audio and karaoke assets.
+- Expo project credentials.
+- Sentry, OpenAI, Deepgram, and ElevenLabs provider keys where used by later phases.
+
+Phase gates in `render.yaml` must match product docs: karaoke, style packs, push notifications, realtime filler detection, and avatar TTS default to disabled until their phase-specific agents implement and validate them.
 
 ## Global Build Order
 
@@ -419,6 +445,7 @@ Responsibilities:
 - Implement route groups from `docs/api/openapi-draft.md` and `docs/KNOWLEDGE_GRAPH.md`.
 - Add profile, exercise, session, attempt, reflection, best-take, rewards, and analytics endpoints for Build 0.1.
 - Validate request and response bodies against shared contracts.
+- Treat Supabase as the primary database, auth, storage, and realtime system, matching `docs/architecture/technical-stack.md`.
 - Store audio only with explicit consent.
 - Integrate queue contracts for audio-processor jobs where needed.
 
@@ -531,7 +558,7 @@ Primary skills:
 - Docker
 - Environment variables
 - Service topology
-- Redis, Supabase, worker deployment
+- Redis, Supabase secret wiring, worker deployment
 
 Owned files:
 
@@ -543,7 +570,8 @@ Owned files:
 
 Responsibilities:
 
-- Author `render.yaml` for API, workers, audio processor, Redis, and any static/admin service needed.
+- Maintain `render.yaml` for API, admin, Redis, audio processor, workers, cron jobs, feature flags, and external Supabase/provider secrets.
+- Do not add Render Postgres unless the architecture docs are explicitly changed away from Supabase as the database authority.
 - Add Dockerfiles for API and workers.
 - Document required environment variables.
 - Add bootstrap, migration, and release scripts.
@@ -551,7 +579,7 @@ Responsibilities:
 
 Acceptance checks:
 
-- Render blueprint is non-empty and valid.
+- Render blueprint is schema-valid and matches `docs/architecture/technical-stack.md`.
 - Services have health checks.
 - Local bootstrap steps are documented and reproducible.
 
@@ -763,4 +791,3 @@ Do not implement these until their phase gate opens:
 - Does this add or update tests for changed behavior?
 - Does this update docs when behavior changes?
 - Does this keep Build 0.1 smaller than MVP?
-
