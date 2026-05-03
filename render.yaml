@@ -135,7 +135,7 @@ services:
     region: oregon
     runtime: node
     plan: starter
-    buildCommand: corepack enable && corepack prepare pnpm@9.0.0 --activate && pnpm install --no-frozen-lockfile && pnpm --filter @voice/notification-worker build
+    buildCommand: corepack enable && corepack prepare pnpm@9.0.0 --activate && pnpm install --no-frozen-lockfile && pnpm --filter @voice/api... build
     startCommand: node services/notification-worker/dist/index.js
     autoDeployTrigger: checksPass
     buildFilter:

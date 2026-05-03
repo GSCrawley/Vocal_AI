@@ -2,10 +2,12 @@
   "name": "@voice/api",
   "private": true,
   "version": "0.1.0",
-  "main": "src/index.ts",
+  "type": "module",
+  "main": "dist/index.js",
   "scripts": {
-    "dev": "node src/index.js",
+    "dev": "tsx watch src/index.ts",
     "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
     "lint": "echo \"Add API lint config\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "echo \"Add API tests\""
@@ -13,5 +15,9 @@
   "dependencies": {
     "@voice/content-schema": "workspace:*",
     "@voice/shared-types": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
   }
 }
