@@ -1,10 +1,15 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "rootDir": "src",
-    "outDir": "dist",
-    "ignoreDeprecations": "6.0",
+    "name": "voice-api",
+    "type": "module",
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+    // "baseUrl": ".",
+    // "rootDir": "src",
+    // "outDir": "dist",
+    // "ignoreDeprecations": "6.0",
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src"]
