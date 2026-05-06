@@ -3,8 +3,6 @@
   "compilerOptions": {
     "outDir": "dist",
     "declaration": true,
-    "ignoreDeprecations": "6.0",
-    "rootDir": "src"
   },
   "include": [
     "src"
