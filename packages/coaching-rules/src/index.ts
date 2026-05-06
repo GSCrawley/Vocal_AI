@@ -1,11 +1,4 @@
-import type { SuccessBand } from '@voice/shared-types';
-
-export interface CoachingPayload {
-  praiseMessage: string;
-  correctionMessage: string;
-  actionTip: string;
-  successBand: SuccessBand;
-}
+import type { SuccessBand, CoachingPayload } from '@voice/shared-types';
 
 export function mapScoreToCoaching(score: number): CoachingPayload {
   if (score >= 85) {
