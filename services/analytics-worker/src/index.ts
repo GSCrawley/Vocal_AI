@@ -3,8 +3,12 @@ export const analyticsWorker = {
   jobs: ['progress-snapshots', 'weekly-summaries', 'milestones'],
 };
 
+const heartbeatLogsEnabled = process.env.ANALYTICS_WORKER_HEARTBEAT_LOGS === 'true';
+
 console.log("voice-analytics-worker started");
 
-setInterval(() => {
-  console.log('analytics-worker heartbeat');
-}, 30_000);
+if (heartbeatLogsEnabled) {
+  setInterval(() => {
+    console.log('analytics-worker heartbeat');
+  }, 30_000);
+}
