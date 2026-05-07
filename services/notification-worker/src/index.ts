@@ -5,6 +5,10 @@ export const notificationWorker = {
 
 console.log("voice-notification-worker started");
 
-setInterval(() => {
-  console.log('notification-worker heartbeat');
-}, 30_000);
+const heartbeatLogsEnabled = process.env.NOTIFICATION_WORKER_HEARTBEAT_LOGS === 'true';
+
+if (heartbeatLogsEnabled) {
+  setInterval(() => {
+    console.log('notification-worker heartbeat');
+  }, 30_000);
+}

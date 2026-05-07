@@ -1,4 +1,4 @@
-import type { SuccessBand, CoachingPayload } from '@voice/shared-types';
+import type { CoachingPayload } from '@voice/shared-types';
 
 export function mapScoreToCoaching(score: number): CoachingPayload {
   if (score >= 85) {
