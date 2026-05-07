@@ -10,7 +10,7 @@
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "ignoreDeprecations": "6.0",
-    "types":"node"
+    "types": ["node"]
   },
   "include": [
     "src/**/*"
