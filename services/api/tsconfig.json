@@ -5,12 +5,12 @@
     "moduleResolution": "NodeNext",
     "target": "ES2022",
     "outDir": "dist",
+    "rootDir": "./src",
     "declaration": false,
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
-    "types": [
-      "node"
-    ]
+    "ignoreDeprecations": "6.0",
+    "types": ["node"]
   },
   "include": [
     "src/**/*"

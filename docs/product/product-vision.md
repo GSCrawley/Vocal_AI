@@ -143,11 +143,11 @@ These rules govern every exercise, every piece of feedback copy, every avatar in
 
 ## Phased roadmap
 
-### Build 0.1 — Singing Tier proof of concept
-Single narrow loop: mic check → sustained-note exercise → live pitch guidance → score + best-take replay
-
-### Build 0.2 — Speaking Tier proof of concept
+### Build 0.1 — Speaking Tier proof of concept
 Single narrow loop: mic check → one speaking exercise (passage reading at target pace) → live pace guidance → score + coaching tip
+
+### Build 0.2 — Singing Tier proof of concept
+Single narrow loop: mic check → sustained-note exercise → live pitch guidance → score + best-take replay
 
 ### MVP (Build 1.0)
 - Both tiers fully operational
