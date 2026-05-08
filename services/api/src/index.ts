@@ -1,4 +1,17 @@
-import Fastify from 'fastify';
+require("./instrument.js");
+
+const Sentry = require("@sentry/node");
+const Fastify = require('fastify')
+
+const app = Fastify();
+
+Sentry.setupFastifyErrorHandler(app);
+
+app.get("/", function rootHandler(req, res) {
+  res.send("Hello world!");
+});
+
+app.listen(3000);
 
 export const apiService = {
   service: 'api',

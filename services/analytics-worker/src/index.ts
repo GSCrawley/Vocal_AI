@@ -1,3 +1,13 @@
+require("./instrument.js");
+
+// All other imports below
+const { createServer } = require("node:http");
+
+const server = createServer((req, res) => {
+  // server code
+});
+
+server.listen(3000, "127.0.0.1");
 export const analyticsWorker = {
   service: 'analytics-worker',
   jobs: ['progress-snapshots', 'weekly-summaries', 'milestones'],
