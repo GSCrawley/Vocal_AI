@@ -1549,8 +1549,8 @@ Features gated by release phase. Implement as feature flags keyed on user level 
 
 | Feature | Phase | Gate condition |
 |---|---|---|
-| Speaking Tier (full) | Build 0.1 | Always on |
-| Singing Tier (full) | Build 0.2 / MVP | Always on |
+| Singing Tier (full) | Build 0.1 | Always on |
+| Speaking Tier (full) | Build 0.2 / MVP | Always on |
 | Both tiers simultaneously | MVP | Always on |
 | Onboarding (full 8 steps) | MVP | Always on |
 | Avatar + all states | MVP | Always on |
@@ -1574,3 +1574,7 @@ Features gated by release phase. Implement as feature flags keyed on user level 
 ---
 
 *End of knowledge graph. Last updated: 2026-04-19. If any detail conflicts with a source file in this monorepo, update this document to reflect the resolution — this file is the authority.*
+
+
+### Open Items Resolutions
+- Build 0.1 scope resolution: Build 0.1 is defined as the Singing Tier sustained-note/pitch loop. README.md and product-vision.md have been updated to reflect this.
