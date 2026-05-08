@@ -72,21 +72,22 @@ See `docs/product/product-vision.md` and `docs/product/coaching-philosophy.md` f
 
 ## Build targets
 
-### Build 0.1 — Speaking (Speaking Tier proof of concept)
+### Build 0.1 — Singing (Singing Tier proof of concept)
+Prove one narrow singing coaching loop:
+1. Mic permission
+2. Mic check
+3. Sustained-note exercise
+4. Live pitch guidance
+5. Post-exercise score
+6. Best-take save and replay
+
+### Build 0.2 — Speaking foundation
 Prove one narrow speaking coaching loop:
 1. Mic permission
 2. Mic check
 3. One 60-second speaking exercise (read a passage at a target pace)
 4. Live pace/pitch variability guidance
 5. Post-exercise score and plain-language coaching tip
-
-### Build 0.2 — Singing foundation
-Prove one narrow singing coaching loop:
-1. Mic permission and mic check
-2. Sustained-note exercise
-3. Live pitch guidance (YIN-based pitch tracking)
-4. Post-exercise score (pitch accuracy + stability)
-5. Best-take save and replay
 
 ### MVP
 Both tiers operational with goal selection, daily sessions, progress tracking, avatar coaching, and a reward loop.
