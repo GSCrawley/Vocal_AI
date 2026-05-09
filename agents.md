@@ -791,3 +791,8 @@ Do not implement these until their phase gate opens:
 - Does this add or update tests for changed behavior?
 - Does this update docs when behavior changes?
 - Does this keep Build 0.1 smaller than MVP?
+
+## Postmortem: 2026-05-09 deploy failure
+All three Node services failed to deploy after apps/mobile was populated with a real Expo + Sentry React Native dependency tree. Root cause: pnpm install in each service's Render build command had no --filter flag, so the entire monorepo (including the heavy mobile workspace) was installed before the filtered build step ran. On the Starter plan's 512 MB RAM ceiling, the mobile install OOM-killed the build. Fix: add --filter "@voice/<service>..." to the install command per service. Future agents must never assume that filtering the build step is sufficient — the install step must also be filtered or the entire monorepo gets installed.
+Secondary issue: --no-frozen-lockfile masked the silent introduction of mobile dependencies into the install graph. After Build 0.1 stabilizes, switch to --frozen-lockfile so lockfile drift fails CI rather than reaching production.
+Procedural issue: the breaking commits landed directly on main with no PR review and no CI protection. Branch protection has been enabled on main (see docs/architecture/contribution-rules.md).
