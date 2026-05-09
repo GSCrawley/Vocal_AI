@@ -6,7 +6,7 @@
     "target": "ES2022",
     "outDir": "dist",
     "rootDir": "src",
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
     "declaration": false,
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
