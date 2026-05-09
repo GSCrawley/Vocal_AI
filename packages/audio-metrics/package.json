@@ -8,6 +8,15 @@
     "build": "tsc -p tsconfig.json",
     "lint": "echo \"Add audio-metrics lint config\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "echo \"Add audio-metrics tests\""
+    "test": "jest --passWithNoTests"
+  },
+  "dependencies": {
+    "@voice/shared-types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.4.0"
   }
 }
