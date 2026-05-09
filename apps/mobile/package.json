@@ -10,20 +10,21 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "expo": "~54.0.33",
-    "expo-status-bar": "~3.0.9",
-    "react": "19.1.0",
-    "react-native": "0.81.5",
-    "@sentry/react-native": "^6.0.0",
+    "@sentry/react-native": "^7.2.0",
     "@voice/audio-metrics": "workspace:*",
     "@voice/coaching-rules": "workspace:*",
     "@voice/content-schema": "workspace:*",
     "@voice/exercise-engine": "workspace:*",
     "@voice/shared-types": "workspace:*",
-    "@voice/ui-tokens": "workspace:*"
+    "@voice/ui-tokens": "workspace:*",
+    "expo": "~54.0.33",
+    "expo-status-bar": "~3.0.9",
+    "react": "19.1.0",
+    "react-native": "0.81.5"
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "@types/react-native": "^0.73.0",
     "typescript": "~5.9.2"
   },
   "private": true

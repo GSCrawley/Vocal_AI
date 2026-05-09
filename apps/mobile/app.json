@@ -25,6 +25,16 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "voice-mobile",
+          "organization": "dominican-university-of-cal-s0"
+        }
+      ]
+    ]
   }
 }
