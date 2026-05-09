@@ -1,10 +1,9 @@
-
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
     "declaration": true,
     "forceConsistentCasingInFileNames": true
   },
