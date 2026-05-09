@@ -3,7 +3,7 @@ require("./instrument.js");
 // All other imports below
 const { createServer } = require("node:http");
 
-const server = createServer((req, res) => {
+const server = createServer((req: any, res: any) => {
   // server code
 });
 
