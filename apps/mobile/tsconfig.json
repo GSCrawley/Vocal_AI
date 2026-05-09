@@ -1,10 +1,6 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "./src",
-    "forceConsistentCasingInFileNames": true,
-    "ignoreDeprecations": "6.0"
-  },
-  "include": ["src"]
+    "strict": true
+  }
 }
