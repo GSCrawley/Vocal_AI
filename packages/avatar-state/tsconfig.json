@@ -1,9 +1,13 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+    "rootDir": "src",
+    "ignoreDeprecations": "6.0",
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
     "src"
-  ]
+  ],
+  "exclude": ["src/**/*.test.ts", "src/**/__tests__/**", "dist", "node_modules"]
 }
