@@ -5,7 +5,8 @@
     "rootDir": "src",
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
-    "ignoreDeprecations": "6.0"
+    "ignoreDeprecations": "6.0",
+    "types": ["jest", "node"]
   },
   "include": [
     "src"
