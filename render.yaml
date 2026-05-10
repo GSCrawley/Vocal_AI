@@ -90,7 +90,7 @@ services:
     startCommand: node services/api/dist/index.js
     autoDeployTrigger: checksPass
     maxShutdownDelaySeconds: 60
-  
+
     buildFilter:
       paths:
         - package.json
@@ -109,8 +109,6 @@ services:
           type: keyvalue
           name: voice-redis
           property: connectionString
-      - key: SENTRY_DSN
-        sync: false
       - key: SENTRY_ENVIRONMENT
         value: production
       - key: SENTRY_RELEASE
@@ -145,8 +143,6 @@ services:
           type: keyvalue
           name: voice-redis
           property: connectionString
-      - key: SENTRY_DSN
-        sync: false
       - key: SENTRY_ENVIRONMENT
         value: production
       - key: SENTRY_RELEASE
@@ -186,8 +182,6 @@ services:
           type: web
           name: voice-api
           property: hostport
-      - key: SENTRY_DSN
-        sync: false
       - key: SENTRY_ENVIRONMENT
         value: production
       - key: SENTRY_RELEASE

@@ -1,7 +1,6 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "outDir": "dist"
-  },
-  "include": ["src"]
+    "strict": true
+  }
 }
