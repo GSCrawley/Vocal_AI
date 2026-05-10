@@ -9,7 +9,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "baseUrl": ".",
-    "ignoreDeprecations": "5.6",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@voice/shared-types": [
         "packages/shared-types/src"
