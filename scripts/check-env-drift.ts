@@ -55,7 +55,7 @@ function scan(file: string) {
 }
 
 for (const d of SCAN_DIRS) {
-  try { walk(join(ROOT, d)); } catch (e: any) { if (e.code !== 'ENOENT') throw e; }
+  try { walk(join(ROOT, d)); } catch {}
 }
 
 const missing: { name: string; files: string[] }[] = [];
