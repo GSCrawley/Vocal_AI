@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "ignoreDeprecations": "5.0",
+    "rootDir": "src",
     "types": ["node"],
     "forceConsistentCasingInFileNames": true,
   },
