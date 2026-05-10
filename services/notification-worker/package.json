@@ -11,9 +11,7 @@
     "test": "echo \"Add notification worker tests\""
   },
   "dependencies": {
-    "@voice/shared-types": "workspace:*"
-  },
-  "devDependencies": {
+    "@voice/shared-types": "workspace:*",
     "@types/node": "22.0.0",
     "@sentry/node": "^7.0.0",
     "@sentry/profiling-node": "^7.0.0",
