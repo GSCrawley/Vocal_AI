@@ -791,3 +791,6 @@ Do not implement these until their phase gate opens:
 - Does this add or update tests for changed behavior?
 - Does this update docs when behavior changes?
 - Does this keep Build 0.1 smaller than MVP?
+
+### Postmortem: Render Build Failures
+Deploys broke when mobile dependencies entered the install graph for server services. The fix was per-service workspace filtering at install time (`pnpm install --filter "@voice/<service>..."`) to ensure the mobile workspace is never installed on server environments. Future agents should ensure that any new server services added to `render.yaml` follow this isolated install pattern.

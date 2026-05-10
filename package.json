@@ -2,13 +2,18 @@
   "name": "vocal-ai",
   "private": true,
   "version": "0.1.0",
+  "engines": {
+    "node": ">=22.0.0 <23",
+    "pnpm": "9.0.0"
+  },
   "packageManager": "pnpm@9.0.0",
   "scripts": {
     "build": "pnpm -r build",
     "dev": "pnpm --filter @voice/mobile dev",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test"
+    "test": "pnpm -r test",
+    "check:env": "tsx scripts/check-env-drift.ts"
   },
   "workspaces": [
     "apps/*",
@@ -19,6 +24,10 @@
     "@types/jest": "^29.5.12",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.2",
+    "tsx": "^4.7.0",
     "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
   }
 }
