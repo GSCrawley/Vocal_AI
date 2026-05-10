@@ -11,15 +11,13 @@
     "test": "echo \"Add notification worker tests\""
   },
   "dependencies": {
-    "@voice/shared-types": "workspace:*"
-  },
-  "devDependencies": {
+    "@voice/shared-types": "workspace:*",
     "@types/node": "22.0.0",
     "@sentry/node": "^7.0.0",
     "@sentry/profiling-node": "^7.0.0",
     "@sentry/tracing": "^7.0.0",
     "@sentry/types": "^7.0.0",
     "tsx": "^4.7.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.6.3"
   }
 }
