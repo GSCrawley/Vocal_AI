@@ -3,7 +3,7 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "ignoreDeprecations": [],
+    "ignoreDeprecations": "",
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
