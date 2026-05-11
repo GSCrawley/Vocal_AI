@@ -1,6 +1,28 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true
-  }
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "module": "ESNext",
+    "jsx": "react-native",
+    "baseUrl": "../..",
+    "paths": {
+      "@voice/shared-types": ["packages/shared-types/src"],
+      "@voice/content-schema": ["packages/content-schema/src"],
+      "@voice/exercise-engine": ["packages/exercise-engine/src"],
+      "@voice/coaching-rules": ["packages/coaching-rules/src"],
+      "@voice/audio-metrics": ["packages/audio-metrics/src"],
+      "@voice/ui-tokens": ["packages/ui-tokens/src"],
+      "@voice/avatar-state": ["packages/avatar-state/src"],
+      "@voice/curriculum": ["packages/curriculum/src"],
+      "@voice/karaoke-engine": ["packages/karaoke-engine/src"],
+      "@voice/reward-engine": ["packages/reward-engine/src"],
+      "@voice/speaking-metrics": ["packages/speaking-metrics/src"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ]
 }

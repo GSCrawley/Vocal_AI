@@ -9,6 +9,9 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "declaration": true,
+    "forceConsistentCasingInFileNames": true,
     "paths": {
       "@voice/shared-types": [
         "packages/shared-types/src"

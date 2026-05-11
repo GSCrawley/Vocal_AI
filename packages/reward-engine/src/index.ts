@@ -7,7 +7,7 @@ import type {
   SuccessBand,
   Tier,
   UnlockableContentId,
-} from '@voice/shared-types';
+} from '@voice/shared-types/src/index';
 
 // ------------------------------------------------------------
 // XP TABLE
