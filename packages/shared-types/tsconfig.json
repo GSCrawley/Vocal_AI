@@ -10,9 +10,9 @@
   },
   "include": ["src"],
   "exclude": [
-    "src/**/*.test.ts", 
-    "src/**/__tests__/**", 
-    "dist", 
+    "src/**/*.test.ts",
+    "src/**/__tests__/**",
+    "dist",
     "node_modules"
   ]
 }

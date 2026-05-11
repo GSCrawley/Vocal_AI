@@ -58,6 +58,8 @@ envVarGroups:
         sync: false
       - key: EXPO_PROJECT_ID
         sync: false
+      - key: SENTRY_DSN
+        sync: false
       - key: OPENAI_API_KEY
         sync: false
       - key: DEEPGRAM_API_KEY
@@ -80,11 +82,15 @@ services:
     plan: starter
     numInstances: 1
     healthCheckPath: /healthz
-    buildCommand: corepack enable && corepack prepare pnpm@9.0.0 --activate && pnpm install --filter "@voice/api..." --no-frozen-lockfile && pnpm --filter @voice/api... build
+    buildCommand: |
+      corepack enable &&
+      corepack prepare pnpm@9.0.0 --activate &&
+      pnpm install --filter "@voice/api..." --frozen-lockfile &&
+      pnpm --filter "@voice/api" build
     startCommand: node services/api/dist/index.js
     autoDeployTrigger: checksPass
     maxShutdownDelaySeconds: 60
-  
+
     buildFilter:
       paths:
         - package.json
@@ -96,14 +102,6 @@ services:
     envVars:
       - fromGroup: voice-shared-env
       - fromGroup: voice-secrets
-      - key: SENTRY_DSN
-        sync: false
-      - key: SENTRY_ENVIRONMENT
-        value: production
-      - key: SENTRY_RELEASE
-        sync: false
-      - key: NODE_OPTIONS
-        value: "--max-old-space-size=400"
       - key: PORT
         value: "10000"
       - key: REDIS_URL
@@ -111,13 +109,23 @@ services:
           type: keyvalue
           name: voice-redis
           property: connectionString
+      - key: SENTRY_ENVIRONMENT
+        value: production
+      - key: SENTRY_RELEASE
+        sync: false
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=400"
 
   - type: worker
     name: voice-analytics-worker
     region: oregon
     runtime: node
     plan: starter
-    buildCommand: corepack enable && corepack prepare pnpm@9.0.0 --activate && pnpm install --filter "@voice/analytics-worker..." --no-frozen-lockfile && pnpm --filter @voice/analytics-worker... build
+    buildCommand: |
+      corepack enable &&
+      corepack prepare pnpm@9.0.0 --activate &&
+      pnpm install --filter "@voice/analytics-worker..." --frozen-lockfile &&
+      pnpm --filter "@voice/analytics-worker" build
     startCommand: node services/analytics-worker/dist/index.js
     autoDeployTrigger: checksPass
     buildFilter:
@@ -130,26 +138,28 @@ services:
     envVars:
       - fromGroup: voice-shared-env
       - fromGroup: voice-secrets
-      - key: SENTRY_DSN
-        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: voice-redis
+          property: connectionString
       - key: SENTRY_ENVIRONMENT
         value: production
       - key: SENTRY_RELEASE
         sync: false
       - key: NODE_OPTIONS
         value: "--max-old-space-size=400"
-      - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: voice-redis
-          property: connectionString
 
   - type: worker
     name: voice-notification-worker
     region: oregon
     runtime: node
     plan: starter
-    buildCommand: corepack enable && corepack prepare pnpm@9.0.0 --activate && pnpm install --filter "@voice/notification-worker..." --no-frozen-lockfile && pnpm --filter @voice/notification-worker... build
+    buildCommand: |
+      corepack enable &&
+      corepack prepare pnpm@9.0.0 --activate &&
+      pnpm install --filter "@voice/notification-worker..." --frozen-lockfile &&
+      pnpm --filter "@voice/notification-worker" build
     startCommand: node services/notification-worker/dist/index.js
     autoDeployTrigger: checksPass
     buildFilter:
@@ -162,14 +172,6 @@ services:
     envVars:
       - fromGroup: voice-shared-env
       - fromGroup: voice-secrets
-      - key: SENTRY_DSN
-        sync: false
-      - key: SENTRY_ENVIRONMENT
-        value: production
-      - key: SENTRY_RELEASE
-        sync: false
-      - key: NODE_OPTIONS
-        value: "--max-old-space-size=400"
       - key: REDIS_URL
         fromService:
           type: keyvalue
@@ -180,3 +182,9 @@ services:
           type: web
           name: voice-api
           property: hostport
+      - key: SENTRY_ENVIRONMENT
+        value: production
+      - key: SENTRY_RELEASE
+        sync: false
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=400"

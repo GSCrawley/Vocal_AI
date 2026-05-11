@@ -5,21 +5,21 @@ export const ExerciseDefinitionSchema = z.object({
   exerciseId: z.string(),
   version: z.number().int().positive(),
   tier: z.enum(['speaking', 'singing'] as const),
-  category: z.custom<ExerciseCategory>(),
+  category: z.nativeEnum(ExerciseCategory),
   subcategory: z.string(),
   title: z.string(),
   description: z.string(),
   userInstructionText: z.string(),
   durationTargetSeconds: z.number().positive(),
   repetitionsDefault: z.number().int().positive(),
-  targetPatternType: z.custom<TargetPatternType>(),
+  targetPatternType: z.nativeEnum(TargetPatternType),
   targetPatternPayload: z.record(z.string(), z.unknown()),
   evaluationConfig: z.record(z.string(), z.unknown()),
   scoringWeights: z.record(z.string(), z.number()),
   feedbackRuleSetId: z.string(),
   prerequisiteExerciseIds: z.array(z.string()).optional(),
   minimumLevelRequired: z.number().int().positive().optional(),
-  stylePack: z.custom<any>().optional(), // Use any for SingingStylePack for now to simplify
+  stylePack: z.string().min(1).optional(), // Require a non-empty string so malformed values are rejected at runtime
   activeFlag: z.boolean(),
 }).superRefine((data, ctx) => {
   const sum = Object.values(data.scoringWeights).reduce((acc, weight) => acc + weight, 0);
@@ -65,5 +65,8 @@ export const build01SustainedNoteExercise: ExerciseDefinition = {
   activeFlag: true
 };
 
-// Validate the static exercise definition to ensure it meets our schema
-ExerciseDefinitionSchema.parse(build01SustainedNoteExercise);
+// Expose validation explicitly so importing this module remains side-effect-free.
+// Tests or build-time scripts can call this to validate static exercise definitions.
+export function validateExerciseDefinition(exerciseDefinition: ExerciseDefinition): ExerciseDefinition {
+  return ExerciseDefinitionSchema.parse(exerciseDefinition);
+}

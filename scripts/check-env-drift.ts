@@ -3,7 +3,7 @@
  * Fails CI if any service or app references process.env.X
  * where X is not declared in .env.example.
  *
- * Excludes intrinsic env vars (NODE_ENV, PATH, etc.) and Render-injected vars.
+ * Excludes: NODE_ENV, PATH, HOME, PWD, CI, and other intrinsic env vars.
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -26,7 +26,7 @@ const declared = new Set(
     .filter(Boolean) as string[],
 );
 
-const referenced = new Map<string, string[]>();
+const referenced = new Map<string, string[]>(); // varName -> files referencing it
 const PROCESS_ENV_RE = /process\.env\.([A-Z][A-Z0-9_]*)/g;
 const EXPO_PUBLIC_RE = /Constants\.expoConfig\?\.extra\?\.([A-Z][A-Z0-9_]*)/g;
 
@@ -54,8 +54,18 @@ function scan(file: string) {
   }
 }
 
+let hadScanError = false;
 for (const d of SCAN_DIRS) {
-  try { walk(join(ROOT, d)); } catch {}
+  try {
+    walk(join(ROOT, d));
+  } catch (err) {
+    console.error(`❌ Failed to scan directory "${d}": ${err instanceof Error ? err.message : String(err)}`);
+    hadScanError = true;
+  }
+}
+if (hadScanError) {
+  console.error('\nAborting: scan errors above may produce false-clean results.');
+  process.exit(1);
 }
 
 const missing: { name: string; files: string[] }[] = [];
