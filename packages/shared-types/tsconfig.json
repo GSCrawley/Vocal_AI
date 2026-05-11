@@ -4,7 +4,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "types": [],
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "",
     "declaration": true,
     "forceConsistentCasingInFileNames": true
   },
