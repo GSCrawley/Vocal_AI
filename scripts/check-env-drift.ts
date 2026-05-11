@@ -54,8 +54,18 @@ function scan(file: string) {
   }
 }
 
+let hadScanError = false;
 for (const d of SCAN_DIRS) {
-  try { walk(join(ROOT, d)); } catch {}
+  try {
+    walk(join(ROOT, d));
+  } catch (err) {
+    console.error(`❌ Failed to scan directory "${d}": ${err instanceof Error ? err.message : String(err)}`);
+    hadScanError = true;
+  }
+}
+if (hadScanError) {
+  console.error('\nAborting: scan errors above may produce false-clean results.');
+  process.exit(1);
 }
 
 const missing: { name: string; files: string[] }[] = [];
