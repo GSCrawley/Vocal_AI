@@ -4,11 +4,12 @@
     "outDir": "dist",
     "rootDir": "src",
     "ignoreDeprecations": "6.0",
-        "skipLibCheck": true,
-
     "skipLibCheck": true,
     "composite": true
   },
   "include": ["src"],
+  "references": [
+    { "path": "../shared-types" }
+  ],
   "exclude": ["dist", "node_modules"]
 }

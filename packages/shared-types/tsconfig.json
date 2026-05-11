@@ -4,10 +4,10 @@
     "outDir": "dist",
     "rootDir": "src",
     "ignoreDeprecations": "6.0",
-        "skipLibCheck": true,
-
+    "skipLibCheck": true,
     "declaration": true,
     "composite": true,
+    "module": "ESNext",
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src"],

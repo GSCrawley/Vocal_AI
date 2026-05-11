@@ -4,8 +4,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "ignoreDeprecations": "6.0",
-        "skipLibCheck": true,
-
+    "skipLibCheck": true,
     "types": ["node"],
     "forceConsistentCasingInFileNames": true
   },
