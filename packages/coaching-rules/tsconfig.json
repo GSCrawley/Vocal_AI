@@ -1,14 +1,15 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "composite": true,
     "outDir": "dist",
-    "rootDir": "src",
-    "ignoreDeprecations": "6.0",
     "declaration": true,
+    "ignoreDeprecations": "6.0",
     "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "src"
+  "include": ["src"],
+  "references": [
+    { "path": "../shared-types" }
   ],
   "exclude": ["src/**/*.test.ts", "src/**/__tests__/**", "dist", "node_modules"]
 }

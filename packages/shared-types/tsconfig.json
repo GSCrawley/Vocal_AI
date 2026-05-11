@@ -5,6 +5,7 @@
     "rootDir": "src",
     "ignoreDeprecations": "6.0",
     "declaration": true,
+    "composite": true,
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src"],
