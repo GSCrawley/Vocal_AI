@@ -19,7 +19,7 @@ export const ExerciseDefinitionSchema = z.object({
   feedbackRuleSetId: z.string(),
   prerequisiteExerciseIds: z.array(z.string()).optional(),
   minimumLevelRequired: z.number().int().positive().optional(),
-  stylePack: z.custom<any>().optional(), // Use any for SingingStylePack for now to simplify
+  stylePack: z.string().min(1).optional(), // Require a non-empty string so malformed values are rejected at runtime
   activeFlag: z.boolean(),
 }).superRefine((data, ctx) => {
   const sum = Object.values(data.scoringWeights).reduce((acc, weight) => acc + weight, 0);
