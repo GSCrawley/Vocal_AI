@@ -3,10 +3,13 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    "types": [],
-    "declaration": true,
-    "forceConsistentCasingInFileNames": true
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src"],
-  "exclude": ["src/**/*.test.ts", "src/**/__tests__/**", "dist", "node_modules"]
+  "exclude": [
+    "src/**/*.test.ts", 
+    "src/**/__tests__/**", 
+    "dist", 
+    "node_modules"
+  ]
 }
