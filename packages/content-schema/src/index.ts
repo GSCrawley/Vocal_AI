@@ -65,5 +65,8 @@ export const build01SustainedNoteExercise: ExerciseDefinition = {
   activeFlag: true
 };
 
-// Validate the static exercise definition to ensure it meets our schema
-ExerciseDefinitionSchema.parse(build01SustainedNoteExercise);
+// Expose validation explicitly so importing this module remains side-effect-free.
+// Tests or build-time scripts can call this to validate static exercise definitions.
+export function validateExerciseDefinition(exerciseDefinition: ExerciseDefinition): ExerciseDefinition {
+  return ExerciseDefinitionSchema.parse(exerciseDefinition);
+}
