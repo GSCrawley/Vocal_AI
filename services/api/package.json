@@ -13,12 +13,12 @@
     "test": "echo \"Add API tests\""
   },
   "dependencies": {
+    "@sentry/node": "^8.55.2",
+    "@types/node": "22.0.0",
     "@voice/content-schema": "workspace:*",
     "@voice/shared-types": "workspace:*",
     "fastify": "^5.8.5",
-    "@sentry/node": "^7.0.0",
-    "@types/node": "22.0.0",
     "tsx": "^4.7.0",
     "typescript": "^6.0.2"
   }
-  }
+}

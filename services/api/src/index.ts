@@ -1,7 +1,8 @@
-require("./instrument.js");
+import "../instrument.js";
+import * as Sentry from "@sentry/node";
+import Fastify from "fastify";
 
-const Sentry = require("@sentry/node");
-const Fastify = require('fastify')
+
 
 const app = Fastify();
 
