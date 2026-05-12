@@ -3,7 +3,7 @@ import * as Sentry from "@sentry/node"
 import * as Profiler from "@sentry/profiling-node"
 
 
-const nodeProfilingIntegration = Profiler
+const nodeProfilingIntegration = Profiler.nodeProfilingIntegration
 
 Sentry.init({
   dsn: "https://7bbfe14f3f58f40d2b333b592ca6f685@o4509629278519296.ingest.us.sentry.io/4511355643691008",
