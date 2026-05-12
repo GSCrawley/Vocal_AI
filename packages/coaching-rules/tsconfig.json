@@ -5,8 +5,7 @@
     "outDir": "dist",
     "declaration": true,
     "ignoreDeprecations": "6.0",
-        "skipLibCheck": true,
-
+    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src"],

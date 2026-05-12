@@ -55,22 +55,18 @@ export type SpeakingTrack =
 // STYLE PACKS — Singing Tier
 // ------------------------------------------------------------
 
-// Runtime-safe constant array — consumed by z.enum() in content-schema
-export const SINGING_STYLE_PACKS = [
-  'pop',
-  'jazz',
-  'blues',
-  'classical_opera',
-  'musical_theatre',
-  'rnb_soul',
-  'rock',
-  'heavy_metal',
-  'grindcore',
-  'country',
-  'gospel',
-] as const;
-
-export type SingingStylePack = (typeof SINGING_STYLE_PACKS)[number];
+export type SingingStylePack =
+  | 'pop'
+  | 'jazz'
+  | 'blues'
+  | 'classical_opera'
+  | 'musical_theatre'
+  | 'rnb_soul'
+  | 'rock'
+  | 'heavy_metal'
+  | 'grindcore'
+  | 'country'
+  | 'gospel';
 
 // ------------------------------------------------------------
 // SUCCESS BANDS — shared
@@ -125,47 +121,40 @@ export const initialSessionState: SessionState = 'IDLE';
 // EXERCISE TYPES
 // ------------------------------------------------------------
 
-// Runtime-safe constant arrays — consumed by z.enum() in content-schema
-export const EXERCISE_CATEGORIES = [
+export type ExerciseCategory =
   // Shared / foundational
-  'breathing',
+  | 'breathing'
   // Speaking Tier
-  'pace_control',
-  'prosody',
-  'projection',
-  'resonance_speaking',
-  'articulation',
-  'filler_reduction',
-  'authority_delivery',
-  'speaking_stamina',
+  | 'pace_control'
+  | 'prosody'
+  | 'projection'
+  | 'resonance_speaking'
+  | 'articulation'
+  | 'filler_reduction'
+  | 'authority_delivery'
+  | 'speaking_stamina'
   // Singing Tier
-  'pitch_matching',
-  'sustained_hold',
-  'scale_work',
-  'interval_training',
-  'passaggio',
-  'dynamic_control',
-  'vibrato',
-  'style_specific',
-  'karaoke_snippet',
-] as const;
+  | 'pitch_matching'
+  | 'sustained_hold'
+  | 'scale_work'
+  | 'interval_training'
+  | 'passaggio'
+  | 'dynamic_control'
+  | 'vibrato'
+  | 'style_specific'
+  | 'karaoke_snippet';
 
-export type ExerciseCategory = (typeof EXERCISE_CATEGORIES)[number];
-
-export const TARGET_PATTERN_TYPES = [
-  'sustained_hold',   // Hold a note/pitch for duration
-  'scale_ascending',  // Sing up a scale
-  'scale_descending', // Sing down a scale
-  'interval_jump',    // Jump from note A to note B
-  'passage_read',     // Read a text passage at target pace
-  'free_speech',      // Unscripted speaking for N seconds
-  'phrase_sing',      // Sing a melodic phrase
-  'karaoke_snippet',  // Sing over a reference track snippet
-  'breath_only',      // Breathing exercise (no pitch target)
-  'hum_resonance',    // Hum for resonance placement
-] as const;
-
-export type TargetPatternType = (typeof TARGET_PATTERN_TYPES)[number];
+export type TargetPatternType =
+  | 'sustained_hold'      // Hold a note/pitch for duration
+  | 'scale_ascending'     // Sing up a scale
+  | 'scale_descending'    // Sing down a scale
+  | 'interval_jump'       // Jump from note A to note B
+  | 'passage_read'        // Read a text passage at target pace
+  | 'free_speech'         // Unscripted speaking for N seconds
+  | 'phrase_sing'         // Sing a melodic phrase
+  | 'karaoke_snippet'     // Sing over a reference track snippet
+  | 'breath_only'         // Breathing exercise (no pitch target)
+  | 'hum_resonance';      // Hum for resonance placement
 
 export interface ExerciseDefinition {
   exerciseId: string;
