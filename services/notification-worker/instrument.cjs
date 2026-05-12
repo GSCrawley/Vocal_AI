@@ -18,7 +18,7 @@ Sentry.init({
   profileLifecycle: 'trace',
   // Setting this option to true will send default PII data to Sentry.
   // For example, automatic IP address collection on events
-  sendDefaultPii: true,
+  sendDefaultPii: false,
 });
 
 // Profiling happens automatically after setting it up with `Sentry.init()`.

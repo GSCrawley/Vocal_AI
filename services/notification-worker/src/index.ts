@@ -1,4 +1,4 @@
-require("./instrument.js");
+require("../instrument.cjs");
 
 // All other imports below
 const { createServer } = require("node:http");

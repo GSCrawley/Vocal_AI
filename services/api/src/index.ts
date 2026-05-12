@@ -1,4 +1,4 @@
-require("./instrument.js");
+require("../instrument.cjs");
 
 const Sentry = require("@sentry/node");
 const Fastify = require('fastify')
