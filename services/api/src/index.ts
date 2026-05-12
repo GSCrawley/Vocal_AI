@@ -1,17 +1,16 @@
-require("../instrument.cjs");
-
-const Sentry = require("@sentry/node");
-const Fastify = require('fastify')
+import "../instrument.js";
+import * as Sentry from "@sentry/node";
+import Fastify from "fastify";
 
 const app = Fastify();
 
 Sentry.setupFastifyErrorHandler(app);
 
-app.get("/", function rootHandler(req, res) {
+app.get("/", function rootHandler(req: any, res: any) {
   res.send("Hello world!");
 });
 
-app.listen(3000);
+app.listen({ port: 3000 });
 
 export const apiService = {
   service: 'api',
@@ -33,11 +32,11 @@ const fastify = Fastify({
   logger: false
 });
 
-fastify.get('/healthz', async (request, reply) => {
+fastify.get('/healthz', async (request: any, reply: any) => {
   return { ok: true };
 });
 
-fastify.get('/', async (request, reply) => {
+fastify.get('/', async (request: any, reply: any) => {
   return { service: 'api', status: 'stub' };
 });
 

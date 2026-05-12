@@ -1,14 +1,3 @@
-export interface LivePitchFrame {
-  timestampMs: number;
-  frequencyHz?: number;
-  centsFromTarget?: number;
-  voiced: boolean;
-  confidence: number;
-}
-
-export interface ExerciseScoreBreakdown {
-  pitchAccuracy: number;
-  stability: number;
-  completion: number;
-  overall: number;
-}
+// Re-export only explicitly selected audio-metrics types here.
+// Avoid wildcard re-exports from @voice/shared-types to keep this package's
+// public API limited to audio-metrics concerns.

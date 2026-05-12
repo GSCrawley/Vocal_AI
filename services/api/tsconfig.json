@@ -5,6 +5,10 @@
     "moduleResolution": "NodeNext",
     "target": "ES2022",
     "outDir": "dist",
+    "rootDir": "src",
+    "ignoreDeprecations": "6.0",
+        "skipLibCheck": true,
+
     "declaration": false,
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
@@ -14,5 +18,6 @@
   },
   "include": [
     "src/**/*"
-  ]
+  ],
+  "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts", "src/**/__tests__/**", "dist", "node_modules"]
 }

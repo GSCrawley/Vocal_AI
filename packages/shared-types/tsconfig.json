@@ -2,10 +2,19 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
+    "rootDir": "src",
+    "ignoreDeprecations": "6.0",
+    "skipLibCheck": true,
     "declaration": true,
+    "composite": true,
+    "module": "ESNext",
     "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "src"
+  "include": ["src"],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/__tests__/**",
+    "dist",
+    "node_modules"
   ]
 }

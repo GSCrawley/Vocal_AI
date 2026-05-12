@@ -8,6 +8,10 @@
     "build": "tsc -p tsconfig.json",
     "lint": "echo \"Add content-schema lint config\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "echo \"Add content-schema tests\""
+    "test": "jest --passWithNoTests"
+  },
+  "dependencies": {
+    "@voice/shared-types": "workspace:*",
+    "zod": "^3.23.8"
   }
 }
