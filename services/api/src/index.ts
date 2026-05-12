@@ -2,8 +2,6 @@ import "../instrument.js";
 import * as Sentry from "@sentry/node";
 import Fastify from "fastify";
 
-
-
 const app = Fastify();
 
 Sentry.setupFastifyErrorHandler(app);
