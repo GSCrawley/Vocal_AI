@@ -73,7 +73,7 @@ See `docs/product/product-vision.md` and `docs/product/coaching-philosophy.md` f
 ## Build targets
 
 ### Build 0.1 — Singing (Singing Tier proof of concept)
-Prove one narrow singing coaching loop:
+Prove one narrow singing coaching loop (the Sustained Note primary Trust Signal):
 1. Mic permission
 2. Mic check
 3. Sustained-note exercise

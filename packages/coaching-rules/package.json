@@ -8,9 +8,10 @@
     "build": "tsc -p tsconfig.json",
     "lint": "echo \"Add coaching-rules lint config\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "echo \"Add coaching-rules tests\""
+    "test": "jest --passWithNoTests"
   },
   "dependencies": {
     "@voice/shared-types": "workspace:*"
-  }
+  },
+  "type": "module"
 }

@@ -8,6 +8,6 @@
     "build": "tsc -p tsconfig.json",
     "lint": "echo \"Add ui-tokens lint config\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "echo \"Add ui-tokens tests\""
+    "test": "jest --passWithNoTests"
   }
 }

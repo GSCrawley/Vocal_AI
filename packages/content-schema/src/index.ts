@@ -5,14 +5,14 @@ export const ExerciseDefinitionSchema = z.object({
   exerciseId: z.string(),
   version: z.number().int().positive(),
   tier: z.enum(['speaking', 'singing'] as const),
-  category: z.nativeEnum(ExerciseCategory),
+  category: z.string() as z.ZodType<ExerciseCategory>,
   subcategory: z.string(),
   title: z.string(),
   description: z.string(),
   userInstructionText: z.string(),
   durationTargetSeconds: z.number().positive(),
   repetitionsDefault: z.number().int().positive(),
-  targetPatternType: z.nativeEnum(TargetPatternType),
+  targetPatternType: z.string() as z.ZodType<TargetPatternType>,
   targetPatternPayload: z.record(z.string(), z.unknown()),
   evaluationConfig: z.record(z.string(), z.unknown()),
   scoringWeights: z.record(z.string(), z.number()),
@@ -22,7 +22,8 @@ export const ExerciseDefinitionSchema = z.object({
   stylePack: z.string().min(1).optional(), // Require a non-empty string so malformed values are rejected at runtime
   activeFlag: z.boolean(),
 }).superRefine((data, ctx) => {
-  const sum = Object.values(data.scoringWeights).reduce((acc, weight) => acc + weight, 0);
+  const weights = data.scoringWeights as Record<string, number>;
+  const sum = Object.values(weights).reduce((acc, weight) => acc + weight, 0);
   if (Math.abs(sum - 1.0) > 0.0001) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -68,5 +69,5 @@ export const build01SustainedNoteExercise: ExerciseDefinition = {
 // Expose validation explicitly so importing this module remains side-effect-free.
 // Tests or build-time scripts can call this to validate static exercise definitions.
 export function validateExerciseDefinition(exerciseDefinition: ExerciseDefinition): ExerciseDefinition {
-  return ExerciseDefinitionSchema.parse(exerciseDefinition);
+  return ExerciseDefinitionSchema.parse(exerciseDefinition) as ExerciseDefinition;
 }

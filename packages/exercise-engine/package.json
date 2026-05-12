@@ -8,7 +8,7 @@
     "build": "tsc -p tsconfig.json",
     "lint": "echo \"Add exercise-engine lint config\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "echo \"Add exercise-engine tests\""
+    "test": "jest --passWithNoTests"
   },
   "dependencies": {
     "@voice/shared-types": "workspace:*"
