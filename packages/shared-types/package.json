@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "lint": "echo \"Add shared-types lint config\"",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "tsc -b tsconfig.json",
     "test": "jest --passWithNoTests"
   },
   "devDependencies": {
