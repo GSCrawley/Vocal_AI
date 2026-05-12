@@ -1,25 +1,25 @@
 import { z } from 'zod';
-import { ExerciseDefinition, Tier, ExerciseCategory, TargetPatternType } from '@voice/shared-types';
+import { ExerciseDefinition, EXERCISE_CATEGORIES, TARGET_PATTERN_TYPES, SINGING_STYLE_PACKS } from '@voice/shared-types';
 
 export const ExerciseDefinitionSchema = z.object({
   exerciseId: z.string(),
   version: z.number().int().positive(),
   tier: z.enum(['speaking', 'singing'] as const),
-  category: z.string() as z.ZodType<ExerciseCategory>,
+  category: z.enum(EXERCISE_CATEGORIES),
   subcategory: z.string(),
   title: z.string(),
   description: z.string(),
   userInstructionText: z.string(),
   durationTargetSeconds: z.number().positive(),
   repetitionsDefault: z.number().int().positive(),
-  targetPatternType: z.string() as z.ZodType<TargetPatternType>,
+  targetPatternType: z.enum(TARGET_PATTERN_TYPES),
   targetPatternPayload: z.record(z.string(), z.unknown()),
   evaluationConfig: z.record(z.string(), z.unknown()),
   scoringWeights: z.record(z.string(), z.number()),
   feedbackRuleSetId: z.string(),
   prerequisiteExerciseIds: z.array(z.string()).optional(),
   minimumLevelRequired: z.number().int().positive().optional(),
-  stylePack: z.string().min(1).optional(), // Require a non-empty string so malformed values are rejected at runtime
+  stylePack: z.enum(SINGING_STYLE_PACKS).optional(),
   activeFlag: z.boolean(),
 }).superRefine((data, ctx) => {
   const weights = data.scoringWeights as Record<string, number>;
