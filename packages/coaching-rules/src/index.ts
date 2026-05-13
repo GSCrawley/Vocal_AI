@@ -1,9 +1,9 @@
 import type { CoachingPayload } from '@voice/shared-types';
 
-export function mapScoreToCoaching(score: number): CoachingPayload {
+export function mapSustainedNoteScoreToCoaching(score: number): CoachingPayload {
   if (score >= 85) {
     return {
-      praiseMessage: 'Great control.',
+      praiseMessage: 'Great control on that note.',
       correctionMessage: 'Keep the tone steady through the full hold.',
       actionTip: 'Repeat once and match that consistency again.',
       successBand: 'excellent'

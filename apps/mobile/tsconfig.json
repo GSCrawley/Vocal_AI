@@ -7,6 +7,7 @@
     "module": "ESNext",
     "jsx": "react-native",
     "baseUrl": "../..",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@voice/shared-types": ["packages/shared-types/src"],
       "@voice/content-schema": ["packages/content-schema/src"],
