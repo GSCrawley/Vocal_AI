@@ -1,3 +1,4 @@
+import { scoreToBand } from '@voice/shared-types';
 import type {
   KaraokeSnippet,
   KaraokeAttemptScore,
@@ -234,12 +235,6 @@ export function mapKaraokeScoreToCoaching(
   };
 }
 
-function scoreToBand(score: number): SuccessBand {
-  if (score >= 85) return 'excellent';
-  if (score >= 70) return 'good';
-  if (score >= 50) return 'developing';
-  return 'retry';
-}
 
 // ------------------------------------------------------------
 // SNIPPET SELECTION

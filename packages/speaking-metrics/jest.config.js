@@ -1,3 +1,4 @@
+
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
@@ -6,4 +7,7 @@ module.exports = {
       tsconfig: './tsconfig.test.json',
     },
   },
+  moduleNameMapper: {
+    '^@voice/(.*)$': '<rootDir>/../$1/src'
+  }
 };
