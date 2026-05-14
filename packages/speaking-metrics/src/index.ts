@@ -1,3 +1,4 @@
+import { scoreToBand } from '@voice/shared-types';
 import type {
   SpeakingExerciseScoreBreakdown,
   SpeakingAnalysisResult,
@@ -202,12 +203,6 @@ export function mapSpeakingScoreToCoaching(
   };
 }
 
-function scoreToBand(score: number): SuccessBand {
-  if (score >= 85) return 'excellent';
-  if (score >= 70) return 'good';
-  if (score >= 50) return 'developing';
-  return 'retry';
-}
 
 /**
  * Generate feedback based on the failure mode.

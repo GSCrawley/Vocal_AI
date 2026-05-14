@@ -78,8 +78,14 @@ export type SingingStylePack = (typeof SINGING_STYLE_PACKS)[number];
 
 export type SuccessBand = 'excellent' | 'good' | 'developing' | 'retry';
 
-// Maps score ranges to bands (same for both tiers)
-// excellent: >= 85 | good: >= 70 | developing: >= 50 | retry: < 50
+
+export function scoreToBand(score: number): SuccessBand {
+  if (score >= 85) return 'excellent';
+  if (score >= 70) return 'good';
+  if (score >= 50) return 'developing';
+  return 'retry';
+}
+
 
 // ------------------------------------------------------------
 // USER PROFILE
