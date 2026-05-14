@@ -1,7 +1,3 @@
-🎯 **What:** Extracted the duplicated `scoreToBand` function from both `karaoke-engine` and `speaking-metrics` into the shared package `@voice/shared-types`.
-💡 **Why:** It eliminates code duplication for a pure utility function. By centralizing it next to the `SuccessBand` type definition in `shared-types`, we improve readability, testability, and future maintainability if scoring thresholds change.
-✅ **Verification:**
-- Ran `pnpm typecheck`, `pnpm build`, `pnpm test` successfully across the workspace.
-- Specific packages (`@voice/karaoke-engine`, `@voice/speaking-metrics`, `@voice/shared-types`) tested cleanly.
-- Updated the Jest configuration in `speaking-metrics` to ensure ES Modules load `shared-types` safely during tests.
-✨ **Result:** Both `karaoke-engine` and `speaking-metrics` now import `scoreToBand` natively from the shared utilities package, maintaining consistent behavior with reduced code footprint.
+🎯 **What:** Hardcoded Sentry DSN URLs were present in `services/api/instrument.js`, `services/analytics-worker/instrument.js`, and `services/notification-worker/instrument.js`.
+⚠️ **Risk:** Hardcoding DSN URLs in source code is a security vulnerability because it exposes the credentials to anyone with access to the source code. This could lead to unauthorized submission of errors, quotas exhaustion, or other abuses of the Sentry project.
+🛡️ **Solution:** Replaced the hardcoded strings with `process.env.SENTRY_DSN` in all three `instrument.js` files. The DSN is now securely injected via environment variables (already configured in `render.yaml`), ensuring the application retrieves it dynamically at runtime without exposing the secret in the codebase.
