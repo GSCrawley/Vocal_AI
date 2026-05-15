@@ -33,13 +33,3 @@ if (sentryDsn) {
     sendDefaultPii: false,
   });
 }
-
-// Profiling happens automatically after setting it up with `Sentry.init()`.
-// All spans (unless those discarded by sampling) will have profiling data attached to them.
-if (sentryDsn) {
-  Sentry.startSpan({
-    name: "My Span",
-  }, () => {
-    // The code executed here will be profiled
-  });
-}
