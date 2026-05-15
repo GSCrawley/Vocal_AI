@@ -46,14 +46,19 @@ Implemented or partially implemented:
 - Populated Render Blueprint in `render.yaml` for API, admin, Redis, audio processor, workers, and cron jobs.
 - Placeholder mobile, admin, API, analytics, notification, Docker, and scripts.
 
-Known setup risks:
+Known setup risks (last reviewed 2026-05-12):
 
-- `pnpm typecheck` currently fails at `packages/avatar-state` because several package `tsconfig.json` files set `rootDir: "src"` while importing `@voice/shared-types` through path aliases.
 - `render.yaml` is schema-valid and infrastructure-aligned, but references future Dockerfiles, health checks, and service entrypoints that must be implemented before deployment.
 - Several package scripts are placeholders.
-- `packages/content-schema` defines its own local `ExerciseDefinition`, which conflicts with the shared-types authority.
+- `packages/content-schema` now consumes `ExerciseCategory`, `TargetPatternType`, and `SingingStylePack` from `@voice/shared-types` via `z.enum()` (commit `e173194`); its local `ExerciseDefinition` schema should be re-audited after every shared-types change to confirm no drift remains.
 - Some imports and path aliases in `tsconfig.base.json` do not yet include every package listed in the docs.
-- No real Expo app, Fastify API, Supabase schema, Python audio processor, tests, lint config, or CI pipeline is implemented yet.
+- `packages/audio-metrics/src/index.ts` and `packages/exercise-engine/src/index.ts` are still stubs (3 lines and 1 line respectively); both are required for Build 0.1 and are the next Jules handoff target.
+- The Expo app shell exists at `apps/mobile/App.tsx` (with Sentry) but has no Build 0.1 screens, navigation, or audio capture wired up.
+- `services/api` has a Fastify entrypoint at `services/api/src/index.ts` returning a placeholder route; no auth, profile, session, attempt, or analytics routes are implemented.
+- Supabase migrations are not yet tracked in the repo.
+- The Python implementation of `services/audio-processor` is not in the repo (TypeScript job contracts only).
+- No lint config is present yet; CI workflow exists at `.github/workflows/ci.yml` and runs typecheck + test.
+- Resolved since the prior audit: `pnpm typecheck` passes across all 18 workspace projects (commits `d389006`, `6ca3c9b`); the Build 0.1 sustained-note scope conflict is resolved (PR #25, commit `45284d8`); six packages (`shared-types`, `reward-engine`, `avatar-state`, `speaking-metrics`, `coaching-rules`, `content-schema`) have real Jest tests.
 
 ## Render Blueprint Alignment
 
@@ -322,7 +327,7 @@ Acceptance checks:
 
 - Each active exercise has tier, category, target pattern, evaluation config, scoring weights, and feedback rule set.
 - Exercise IDs are versioned.
-- Build 0.1 can start from a known exercise definition.
+- Build 0.1 can start from a known exercise definition                                                .
 
 ### 8. Coaching Rules And Avatar Behavior Agent
 
@@ -795,4 +800,4 @@ Do not implement these until their phase gate opens:
 ## Postmortem: Render Build Failures (2026-05-09)
 All three Node services failed to deploy after apps/mobile was populated with a real Expo + Sentry React Native dependency tree. Root cause: pnpm install in each service's Render build command had no --filter flag, so the entire monorepo (including the heavy mobile workspace) was installed before the filtered build step ran. On the Starter plan's 512 MB RAM ceiling, the mobile install OOM-killed the build. Fix: add --filter "@voice/<service>..." to the install command per service. Future agents must never assume that filtering the build step is sufficient — the install step must also be filtered or the entire monorepo gets installed.
 Secondary issue: --no-frozen-lockfile masked the silent introduction of mobile dependencies into the install graph. After Build 0.1 stabilizes, switch to --frozen-lockfile so lockfile drift fails CI rather than reaching production.
-Procedural issue: the breaking commits landed directly on main with no PR review and no CI protection. Branch protection has been enabled on main (see docs/architecture/contribution-rules.md).
+Procedural issue: the breaking commits landed directly on main with no PR review and no CI protection. Branch protection has been enabled on main (see docs/architecture/contribution-rules.md). Confirmed still active as of 2026-05-12 — verify before assigning Jules tasks that target `main` directly.
