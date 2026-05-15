@@ -1,3 +1,3 @@
-🎯 **What:** Hardcoded Sentry DSN URLs were present in `services/api/instrument.js`, `services/analytics-worker/instrument.js`, and `services/notification-worker/instrument.js`.
-⚠️ **Risk:** Hardcoding DSN URLs in source code is a security vulnerability because it exposes the credentials to anyone with access to the source code. This could lead to unauthorized submission of errors, quotas exhaustion, or other abuses of the Sentry project.
-🛡️ **Solution:** Replaced the hardcoded strings with `process.env.SENTRY_DSN` in all three `instrument.js` files. The DSN is now securely injected via environment variables (already configured in `render.yaml`), ensuring the application retrieves it dynamically at runtime without exposing the secret in the codebase.
+🎯 **What:** This branch removes hardcoded Sentry DSNs and now preserves explicit runtime guarding in `services/api/instrument.js`, `services/analytics-worker/instrument.js`, and `services/notification-worker/instrument.js`.
+⚠️ **Risk:** Without guarding, a missing/misconfigured `SENTRY_DSN` could silently disable telemetry in deployed services. Hardcoded DSNs are also a credential-exposure risk.
+🛡️ **Solution:** All three services use `process.env.SENTRY_DSN` and enforce configuration checks: throw on missing DSN in production, warn in non-production, and initialize Sentry only when DSN is present.
