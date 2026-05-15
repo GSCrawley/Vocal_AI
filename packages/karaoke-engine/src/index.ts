@@ -70,9 +70,10 @@ export function computePitchSimilarity(
   if (samplesCompared === 0) return 0;
   const avgErrorCents = totalError / samplesCompared;
 
-  // Map avg cents error to 0–100 score
-  // 0 cents error = 100; 50 cents = ~80; 200 cents = ~30
-  // Note: if `avgErrorCents` is < 0, `Math.max` bounds it appropriately.
+  // Map avg cents error to a 0–100 score.
+  // 0 cents error = 100; 50 cents = ~80; 200 cents = ~30.
+  // `avgErrorCents` is non-negative because it is derived from absolute distances;
+  // `Math.max(0, ...)` only clamps the final score at the lower bound.
   return Math.max(0, Math.round(100 - (avgErrorCents / 3)));
 }
 
