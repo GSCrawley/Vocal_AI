@@ -281,10 +281,11 @@ export function computeSnippetUnlocks(
   const sorted = [...snippets].sort((a, b) => a.orderInSong - b.orderInSong);
 
   let lastCompletedIndex = -1;
-  for (let i = 0; i < sorted.length; i++) {
+  for (let i = sorted.length - 1; i >= 0; i--) {
     const s = sorted[i];
     if (s && currentStatuses[s.snippetId] === 'completed') {
       lastCompletedIndex = i;
+      break;
     }
   }
 
