@@ -11,7 +11,9 @@ if (!sentryDsn) {
     throw new Error(errorMessage)
   }
   console.warn(errorMessage)
-} else {
+}
+
+if (sentryDsn) {
   Sentry.init({
     dsn: sentryDsn,
     integrations: [nodeProfilingIntegration()],
