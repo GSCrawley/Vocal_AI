@@ -1,4 +1,4 @@
-import { generateSpeakingFeedback, scoreProsody } from '../index';
+import { generateSpeakingFeedback, scorePace, scoreProsody } from '../index';
 
 describe('scoreProsody', () => {
   describe('F0 range scoring (with 0 uptalk)', () => {
