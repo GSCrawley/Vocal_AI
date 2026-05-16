@@ -29,7 +29,8 @@ export const apiService = {
 };
 
 const fastify = Fastify({
-  logger: true
+  logger: true,
+  disableRequestLogging: true
 });
 
 fastify.get('/healthz', async (request: any, reply: any) => {
