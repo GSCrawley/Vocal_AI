@@ -37,7 +37,7 @@ fastify.get('/healthz', async (request: any, reply: any) => {
 });
 
 fastify.get('/', async (request: any, reply: any) => {
-  return { service: 'api', status: 'stub' };
+  return reply.redirect('/healthz');
 });
 
 const start = async () => {
