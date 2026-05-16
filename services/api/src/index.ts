@@ -2,26 +2,6 @@ import "../instrument.js";
 import * as Sentry from "@sentry/node";
 import Fastify, { FastifyRequest, FastifyReply } from "fastify";
 
-const app = Fastify();
-
-Sentry.setupFastifyErrorHandler(app);
-
-app.get(
-  "/",
-  {
-    schema: {
-      response: {
-        200: { type: "string" },
-      },
-    },
-  },
-  function rootHandler(req: FastifyRequest, res: FastifyReply) {
-    res.send("Hello world!");
-  }
-);
-
-app.listen({ port: 3000 }).catch(console.error);
-
 export const apiService = {
   service: 'api',
   modules: [
@@ -39,8 +19,11 @@ export const apiService = {
 };
 
 const fastify = Fastify({
-  logger: false
+  logger: true,
+  disableRequestLogging: true
 });
+
+Sentry.setupFastifyErrorHandler(fastify);
 
 fastify.get(
   '/healthz',
