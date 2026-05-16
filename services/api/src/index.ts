@@ -6,8 +6,12 @@ const app = Fastify();
 
 Sentry.setupFastifyErrorHandler(app);
 
+app.get("/healthz", function healthHandler(req: any, res: any) {
+  res.send({ ok: true });
+});
+
 app.get("/", function rootHandler(req: any, res: any) {
-  res.send("Hello world!");
+  res.redirect("/healthz");
 });
 
 app.listen({ port: 3000 });
