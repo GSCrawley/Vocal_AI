@@ -72,12 +72,18 @@ describe('buildSessionPlan', () => {
   });
 
   it('includes exercises if level is high enough', () => {
-    const plan = buildSessionPlan('speaking', 4, 'pace', mockExercises, []);
+    const levelEligibleExercises = [
+      createMockExercise('core-speak-1', 'speaking', 'pace_control'),
+      createMockExercise('core-speak-2', 'speaking', 'prosody'),
+      createMockExercise('high-level-speak', 'speaking', 'pace_control', true, 4),
+      createMockExercise('inactive-speak', 'speaking', 'pace_control', false),
+    ];
 
-    // With slice(0, 3) it might not be in the final array depending on sort,
-    // but let's just test that the length is still max 3.
-    expect(plan.coreExerciseIds.length).toBeLessThanOrEqual(3);
+    const plan = buildSessionPlan('speaking', 4, 'pace', levelEligibleExercises, []);
+
+    expect(plan.coreExerciseIds).toContain('high-level-speak');
     expect(plan.coreExerciseIds).not.toContain('inactive-speak'); // Still filters inactive
+    expect(plan.coreExerciseIds.length).toBeLessThanOrEqual(3);
   });
 
   it('prefers uncompleted exercises over completed ones', () => {
