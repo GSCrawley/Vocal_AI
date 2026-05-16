@@ -1,12 +1,12 @@
 import "../instrument.js";
 import * as Sentry from "@sentry/node";
-import Fastify from "fastify";
+import Fastify, { FastifyRequest, FastifyReply } from "fastify";
 
 const app = Fastify();
 
 Sentry.setupFastifyErrorHandler(app);
 
-app.get("/", function rootHandler(req: any, res: any) {
+app.get("/", function rootHandler(req: FastifyRequest, res: FastifyReply) {
   res.send("Hello world!");
 });
 
@@ -32,11 +32,11 @@ const fastify = Fastify({
   logger: false
 });
 
-fastify.get('/healthz', async (request: any, reply: any) => {
+fastify.get('/healthz', async (request: FastifyRequest, reply: FastifyReply) => {
   return { ok: true };
 });
 
-fastify.get('/', async (request: any, reply: any) => {
+fastify.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
   return { service: 'api', status: 'stub' };
 });
 
