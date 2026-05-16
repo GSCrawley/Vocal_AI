@@ -11,10 +11,8 @@
   },
   "dependencies": {
     "@sentry/react-native": "^7.2.0",
-    "@voice/audio-metrics": "workspace:*",
     "@voice/coaching-rules": "workspace:*",
     "@voice/content-schema": "workspace:*",
-    "@voice/exercise-engine": "workspace:*",
     "@voice/shared-types": "workspace:*",
     "@voice/ui-tokens": "workspace:*",
     "expo": "~54.0.33",
