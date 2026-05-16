@@ -39,7 +39,8 @@ export const apiService = {
 };
 
 const fastify = Fastify({
-  logger: false
+  logger: true,
+  disableRequestLogging: true
 });
 
 fastify.get(
@@ -85,9 +86,9 @@ const start = async () => {
   try {
     const port = parseInt(process.env.PORT || '10000', 10);
     await fastify.listen({ port, host: '0.0.0.0' });
-    console.log(`voice-api listening on PORT ${port}`);
+    fastify.log.info({ port }, "voice-api listening on PORT");
   } catch (err) {
-    console.error(err);
+    fastify.log.error(err);
     process.exit(1);
   }
 };
