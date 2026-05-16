@@ -138,10 +138,41 @@ export function computeContourMatch(
 // SCORE AGGREGATION
 // ------------------------------------------------------------
 
+function determineDominantFailureMode(
+  pitchSimilarity: number,
+  timingAccuracy: number,
+  contourMatch: number,
+  signedPitchErrorCents?: number,
+  signedTimingOffsetMs?: number
+): KaraokeAttemptScore['dominantFailureMode'] {
+  if (pitchSimilarity < 60) {
+    if (signedPitchErrorCents !== undefined) {
+      return signedPitchErrorCents < 0 ? 'pitch_flat' : 'pitch_sharp';
+    }
+    // Placeholder fallback when signed error data is not provided
+    return 'pitch_flat';
+  }
+  if (timingAccuracy < 60) {
+    if (signedTimingOffsetMs !== undefined) {
+      return signedTimingOffsetMs < 0 ? 'rushing' : 'dragging';
+    }
+    // Placeholder fallback when signed offset data is not provided
+    return 'rushing';
+  }
+  if (contourMatch < 60) {
+    return 'wrong_contour';
+  }
+  return undefined;
+}
+
 export function computeKaraokeScore(
   pitchSimilarity: number,
   timingAccuracy: number,
-  contourMatch: number
+  contourMatch: number,
+  options?: {
+    signedPitchErrorCents?: number;
+    signedTimingOffsetMs?: number;
+  }
 ): KaraokeAttemptScore {
   const overall = Math.round(
     pitchSimilarity * SCORE_WEIGHTS.pitchSimilarity +
@@ -149,16 +180,13 @@ export function computeKaraokeScore(
     contourMatch    * SCORE_WEIGHTS.contourMatch
   );
 
-  // Determine dominant failure mode
-  let dominantFailureMode: KaraokeAttemptScore['dominantFailureMode'];
-  if (pitchSimilarity < 60) {
-    // Need to determine flat vs sharp — requires signed error data (passed separately)
-    dominantFailureMode = 'pitch_flat'; // Placeholder; real implementation uses signed DTW
-  } else if (timingAccuracy < 60) {
-    dominantFailureMode = 'rushing';     // Placeholder; real implementation uses signed offset
-  } else if (contourMatch < 60) {
-    dominantFailureMode = 'wrong_contour';
-  }
+  const dominantFailureMode = determineDominantFailureMode(
+    pitchSimilarity,
+    timingAccuracy,
+    contourMatch,
+    options?.signedPitchErrorCents,
+    options?.signedTimingOffsetMs
+  );
 
   return { pitchSimilarity, timingAccuracy, contourMatch, overall, dominantFailureMode };
 }
