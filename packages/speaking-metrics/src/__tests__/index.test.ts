@@ -1,4 +1,7 @@
-import { generateSpeakingFeedback, scorePace, scoreProsody } from '../index';
+<<<<<<< HEAD
+import { generateSpeakingFeedback, scorePace } from '../index';
+=======
+import { generateSpeakingFeedback, scoreProsody } from '../index';
 
 describe('scoreProsody', () => {
   describe('F0 range scoring (with 0 uptalk)', () => {
@@ -68,6 +71,7 @@ describe('scoreProsody', () => {
     });
   });
 });
+>>>>>>> origin/main
 
 describe('generateSpeakingFeedback', () => {
   it('returns praise for null failureMode', () => {
