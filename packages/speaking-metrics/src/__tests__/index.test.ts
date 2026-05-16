@@ -1,4 +1,4 @@
-import { generateSpeakingFeedback, scoreProsody } from '../index';
+import { generateSpeakingFeedback, scorePace, scoreProsody } from '../index';
 
 describe('scoreProsody', () => {
   describe('F0 range scoring (with 0 uptalk)', () => {
@@ -21,9 +21,9 @@ describe('scoreProsody', () => {
 
     it('scores dynamically between 90 and 100 for expressive (40-80Hz)', () => {
       expect(scoreProsody(40, 0)).toBe(90);
-      expect(scoreProsody(60, 0)).toBe(95); // 90 + (60 - 40)/4
-      expect(scoreProsody(80, 0)).toBe(100); // 90 + 10
-      expect(scoreProsody(70, 0)).toBe(97.5); // 90 + 30/4 = 97.5
+      expect(scoreProsody(60, 0)).toBe(95);
+      expect(scoreProsody(80, 0)).toBe(100);
+      expect(scoreProsody(70, 0)).toBe(97.5);
     });
 
     it('scores 85 for over-emphatic (> 80Hz)', () => {
@@ -39,31 +39,20 @@ describe('scoreProsody', () => {
     });
 
     it('applies proportional penalty for partial uptalk', () => {
-      // Base score for 60Hz is 95
-      // Penalty for 0.5 is 0.5 * 40 = 20
-      // 95 - 20 = 75
       expect(scoreProsody(60, 0.5)).toBe(75);
     });
 
     it('applies full penalty for 100% uptalk', () => {
-      // Base score for 60Hz is 95
-      // Penalty for 1.0 is 1.0 * 40 = 40
-      // 95 - 40 = 55
       expect(scoreProsody(60, 1.0)).toBe(55);
     });
   });
 
   describe('score boundaries', () => {
     it('caps the score at 100 maximum', () => {
-      // 80Hz gets base 100, no uptalk -> 100
       expect(scoreProsody(80, 0)).toBe(100);
-      // Even if logic somehow tried to exceed 100, it should clamp.
     });
 
     it('floors the score at 0 minimum', () => {
-      // Base score for 5Hz is 20
-      // Penalty for 1.0 uptalk is 40
-      // 20 - 40 = -20, which floors to 0
       expect(scoreProsody(5, 1.0)).toBe(0);
     });
   });
@@ -93,5 +82,41 @@ describe('generateSpeakingFeedback', () => {
   it('returns correct feedback for monotone', () => {
     const feedback = generateSpeakingFeedback('monotone');
     expect(feedback).toEqual({ text: 'Your voice stayed very flat - vary your pitch more to keep listeners engaged.' });
+  });
+});
+
+describe('scorePace', () => {
+  it('uses presentation as default context', () => {
+    expect(scorePace(160)).toEqual(100);
+  });
+
+  it('returns exactly 100 when hitting target exactly', () => {
+    expect(scorePace(155, 'conversational')).toEqual(100);
+    expect(scorePace(125, 'technical')).toEqual(100);
+  });
+
+  it('scores within acceptable range based on proximity', () => {
+    expect(scorePace(150, 'presentation')).toEqual(93);
+    expect(scorePace(140, 'presentation')).toEqual(87);
+    expect(scorePace(185, 'presentation')).toEqual(83);
+  });
+
+  it('scores outside acceptable range by degrading linearly (too slow)', () => {
+    expect(scorePace(139, 'presentation')).toEqual(68);
+    expect(scorePace(130, 'presentation')).toEqual(50);
+  });
+
+  it('scores outside acceptable range by degrading linearly (too fast)', () => {
+    expect(scorePace(186, 'presentation')).toEqual(68);
+    expect(scorePace(190, 'presentation')).toEqual(60);
+  });
+
+  it('scores exactly 0 when very far outside range rather than negative', () => {
+    expect(scorePace(100, 'presentation')).toEqual(0);
+    expect(scorePace(300, 'presentation')).toEqual(0);
+  });
+
+  it('handles invalid context gracefully', () => {
+    expect(scorePace(160, 'invalid_context' as any)).toEqual(50);
   });
 });
