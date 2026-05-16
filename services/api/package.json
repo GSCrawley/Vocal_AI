@@ -6,10 +6,10 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -b tsconfig.json",
     "start": "node dist/index.js",
     "lint": "echo \"Add API lint config\"",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "tsc -b tsconfig.json",
     "test": "echo \"Add API tests\""
   },
   "dependencies": {
