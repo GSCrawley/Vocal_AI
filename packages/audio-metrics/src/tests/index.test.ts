@@ -1,7 +1,8 @@
 import { 
   centsToHz,
   scoreSustainedNote,
-  micCheck
+  micCheck,
+  evaluateFrame
 } from '../index';
 import { LivePitchFrame } from '@voice/shared-types';
 
@@ -18,6 +19,48 @@ describe('audio-metrics', () => {
       ...options
     };
   }
+
+  describe('evaluateFrame', () => {
+    it('returns unusable when confidence is below 0.5', () => {
+      const result = evaluateFrame(440, 440, 50, 0.49);
+      expect(result.usable).toBe(false);
+      expect(result.inTolerance).toBe(false);
+      expect(result.centsFromTarget).toBeUndefined();
+    });
+
+    it('returns unusable when frameHz is 0 or negative', () => {
+      const result1 = evaluateFrame(0, 440, 50, 0.9);
+      expect(result1.usable).toBe(false);
+
+      const result2 = evaluateFrame(-10, 440, 50, 0.9);
+      expect(result2.usable).toBe(false);
+    });
+
+    it('returns usable and in tolerance for exact match', () => {
+      const result = evaluateFrame(440, 440, 50, 0.9);
+      expect(result.usable).toBe(true);
+      expect(result.inTolerance).toBe(true);
+      expect(result.centsFromTarget).toBe(0);
+    });
+
+    it('returns usable and in tolerance when within tolerance boundary', () => {
+      // TARGET_HZ + 40 cents is within 50 cents tolerance
+      const frameHz = centsToHz(40, TARGET_HZ);
+      const result = evaluateFrame(frameHz, TARGET_HZ, 50, 0.9);
+      expect(result.usable).toBe(true);
+      expect(result.inTolerance).toBe(true);
+      expect(result.centsFromTarget).toBeCloseTo(40);
+    });
+
+    it('returns usable but out of tolerance when exceeding tolerance boundary', () => {
+      // TARGET_HZ - 60 cents is outside 50 cents tolerance
+      const frameHz = centsToHz(-60, TARGET_HZ);
+      const result = evaluateFrame(frameHz, TARGET_HZ, 50, 0.9);
+      expect(result.usable).toBe(true);
+      expect(result.inTolerance).toBe(false);
+      expect(result.centsFromTarget).toBeCloseTo(-60);
+    });
+  });
 
   describe('micCheck', () => {
     it('returns low_confidence if all frames are unvoiced or low confidence', () => {
