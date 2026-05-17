@@ -125,9 +125,16 @@ export function scoreStability(frames: LivePitchFrame[]): number {
 
   if (errors.length < 2) return 0;
 
-  const mean = errors.reduce((sum, val) => sum + val, 0) / errors.length;
-  const variance = errors.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / errors.length;
-  const stdDev = Math.sqrt(variance);
+  let sum = 0;
+  let sumSquares = 0;
+  for (let i = 0; i < errors.length; i++) {
+    const val = errors[i];
+    sum += val;
+    sumSquares += val * val;
+  }
+  const mean = sum / errors.length;
+  const variance = (sumSquares / errors.length) - (mean * mean);
+  const stdDev = Math.sqrt(Math.max(0, variance));
 
   let stabilityScore = 100 - (stdDev / 50) * 100;
   if (stabilityScore < 0) stabilityScore = 0;
