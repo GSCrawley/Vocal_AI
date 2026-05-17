@@ -18,12 +18,15 @@
     "@sentry/tracing": "^7.120.4",
     "@sentry/types": "^8.55.2",
     "@types/node": "22.0.0",
-    "@voice/content-schema": "workspace:*",
-    "@voice/shared-types": "workspace:*",
     "@voice/audio-metrics": "workspace:*",
+    "@voice/content-schema": "workspace:*",
     "@voice/exercise-engine": "workspace:*",
+    "@voice/shared-types": "workspace:*",
     "fastify": "^5.8.5",
     "tsx": "^4.7.0",
     "typescript": "^6.0.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12"
   }
 }
