@@ -7,7 +7,7 @@ import {
   SessionEvent
 } from "@voice/shared-types";
 import { micCheck, scoreSustainedNote } from "@voice/audio-metrics";
-import { transition, SessionEvent } from "@voice/exercise-engine";
+import { transition } from "@voice/exercise-engine";
 
 export const apiService = {
   service: 'api',
