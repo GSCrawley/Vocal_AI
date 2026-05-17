@@ -2,7 +2,9 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "types": ["jest"],
-    "ignoreDeprecations": "6.0"
+    "ignoreDeprecations": "6.0",
+    "composite": true,
+    "declaration": true
   },
   "include": ["src/**/*"]
 }
