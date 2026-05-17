@@ -7,8 +7,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "ignoreDeprecations": "6.0",
-        "skipLibCheck": true,
-
+    "skipLibCheck": true,
     "declaration": false,
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,

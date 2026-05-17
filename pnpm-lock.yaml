@@ -265,9 +265,15 @@ importers:
       '@types/node':
         specifier: 22.0.0
         version: 22.0.0
+      '@voice/audio-metrics':
+        specifier: workspace:*
+        version: link:../../packages/audio-metrics
       '@voice/content-schema':
         specifier: workspace:*
         version: link:../../packages/content-schema
+      '@voice/exercise-engine':
+        specifier: workspace:*
+        version: link:../../packages/exercise-engine
       '@voice/shared-types':
         specifier: workspace:*
         version: link:../../packages/shared-types
