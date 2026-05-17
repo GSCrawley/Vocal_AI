@@ -45,12 +45,18 @@ importers:
       '@sentry/react-native':
         specifier: ^7.2.0
         version: 7.13.0(expo@54.0.34(@babel/core@7.29.0)(react-native@0.81.5(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)(typescript@6.0.3))(react-native@0.81.5(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
+      '@voice/audio-metrics':
+        specifier: workspace:*
+        version: link:../../packages/audio-metrics
       '@voice/coaching-rules':
         specifier: workspace:*
         version: link:../../packages/coaching-rules
       '@voice/content-schema':
         specifier: workspace:*
         version: link:../../packages/content-schema
+      '@voice/exercise-engine':
+        specifier: workspace:*
+        version: link:../../packages/exercise-engine
       '@voice/shared-types':
         specifier: workspace:*
         version: link:../../packages/shared-types
@@ -158,9 +164,6 @@ importers:
       '@voice/shared-types':
         specifier: workspace:*
         version: link:../shared-types
-      dynamic-time-warping:
-        specifier: ^1.0.0
-        version: 1.0.0
     devDependencies:
       jest:
         specifier: ^29.7.0
@@ -2218,9 +2221,6 @@ packages:
   dotenv@16.4.7:
     resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
     engines: {node: '>=12'}
-
-  dynamic-time-warping@1.0.0:
-    resolution: {integrity: sha512-/fswVcF+sfm4N2atCwpXR/C21fTEskZ0XVMCTLktjR4eW0toXuTl58sP01DxNBpsllrRMPG5PyD40WJyNHZ4zg==}
 
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
@@ -6486,8 +6486,6 @@ snapshots:
       dotenv: 16.4.7
 
   dotenv@16.4.7: {}
-
-  dynamic-time-warping@1.0.0: {}
 
   ee-first@1.1.1: {}
 

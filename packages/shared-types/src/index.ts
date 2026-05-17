@@ -575,3 +575,19 @@ export interface AnalyticsEvent {
   timestamp: string; // ISO 8601
   properties?: Record<string, unknown>;
 }
+
+export type SessionEvent =
+  | { type: 'LOAD' }
+  | { type: 'LOADED' }
+  | { type: 'START_WARM_UP' }
+  | { type: 'WARM_UP_DONE' }
+  | { type: 'START_ATTEMPT' }
+  | { type: 'SIGNAL_DETECTED' }
+  | { type: 'LISTENING_DONE' }
+  | { type: 'ANALYSIS_DONE' }
+  | { type: 'RETRY' }
+  | { type: 'CONTINUE' }
+  | { type: 'START_REFLECTION' }
+  | { type: 'REFLECTION_DONE' }
+  | { type: 'END_SESSION' }
+  | { type: 'ERROR' };

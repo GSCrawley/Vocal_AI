@@ -9,8 +9,7 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
-    "@voice/shared-types": "workspace:*",
-    "dynamic-time-warping": "^1.0.0"
+    "@voice/shared-types": "workspace:*"
   },
   "devDependencies": {
     "jest": "^29.7.0"

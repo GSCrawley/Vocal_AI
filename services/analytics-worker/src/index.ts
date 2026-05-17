@@ -7,7 +7,7 @@ const server = createServer((req: any, res: any) => {
   // server code
 });
 
-server.listen(3000, "127.0.0.1");
+server.listen(parseInt(process.env.PORT || "3001", 10), "0.0.0.0");
 export const analyticsWorker = {
   service: 'analytics-worker',
   jobs: ['progress-snapshots', 'weekly-summaries', 'milestones'],

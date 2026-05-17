@@ -5,9 +5,9 @@
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -b tsconfig.json",
     "lint": "echo \"Add analytics worker lint config\"",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "tsc -b tsconfig.json",
     "test": "echo \"Add analytics worker tests\""
   },
   "dependencies": {
@@ -20,5 +20,4 @@
     "tsx": "^4.7.0",
     "typescript": "^6.0.2"
   }
-  
 }

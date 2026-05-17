@@ -18,5 +18,10 @@
   "include": [
     "src/**/*"
   ],
+  "references": [
+    { "path": "../../packages/shared-types" },
+    { "path": "../../packages/audio-metrics" },
+    { "path": "../../packages/exercise-engine" }
+  ],
   "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts", "src/**/__tests__/**", "dist", "node_modules"]
 }

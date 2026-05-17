@@ -16,7 +16,7 @@ import type {
  * These inform the pace scoring function.
  */
 export const WPM_TARGETS: Record<string, { min: number; target: number; max: number }> = {
-  presentation:    { min: 140, target: 160, max: 185 },
+  presentation:    { min: 120, target: 145, max: 165 },
   conversational:  { min: 130, target: 155, max: 180 },
   short_form:      { min: 140, target: 165, max: 195 },
   technical:       { min: 100, target: 125, max: 145 },

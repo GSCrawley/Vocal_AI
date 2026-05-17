@@ -6,6 +6,8 @@
     "ignoreDeprecations": "6.0",
     "skipLibCheck": true,
     "declaration": true,
+    "composite": true,
+    "module": "ESNext",
     "forceConsistentCasingInFileNames": true
   },
   "include": [
