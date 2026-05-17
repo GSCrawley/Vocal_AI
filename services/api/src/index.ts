@@ -1,6 +1,24 @@
 import "../instrument.js";
 import * as Sentry from "@sentry/node";
-import Fastify, { FastifyRequest, FastifyReply } from "fastify";
+import Fastify from "fastify";
+import {
+  LivePitchFrame,
+  SessionState,
+  ExerciseDefinition,
+  Tier
+} from "@voice/shared-types";
+import { micCheck, scoreSustainedNote } from "@voice/audio-metrics";
+import { transition, SessionEvent } from "@voice/exercise-engine";
+
+const app = Fastify();
+
+Sentry.setupFastifyErrorHandler(app);
+
+app.get("/", function rootHandler(req: any, res: any) {
+  res.send("Hello world!");
+});
+
+app.listen({ port: 3000 });
 
 export const apiService = {
   service: 'api',
@@ -21,50 +39,16 @@ export const apiService = {
 };
 
 const fastify = Fastify({
-  logger: true,
-  disableRequestLogging: true
+  logger: false
 });
 
-Sentry.setupFastifyErrorHandler(fastify);
+fastify.get('/healthz', async (request: any, reply: any) => {
+  return { ok: true };
+});
 
-fastify.get(
-  '/healthz',
-  {
-    schema: {
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            ok: { type: 'boolean' }
-          }
-        }
-      }
-    }
-  },
-  async (request: FastifyRequest, reply: FastifyReply) => {
-    return { ok: true };
-  }
-);
-
-fastify.get(
-  '/',
-  {
-    schema: {
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            service: { type: 'string' },
-            status: { type: 'string' }
-          }
-        }
-      }
-    }
-  },
-  async (request: FastifyRequest, reply: FastifyReply) => {
-    return { service: 'api', status: 'stub' };
-  }
-);
+fastify.get('/', async (request: any, reply: any) => {
+  return { service: 'api', status: 'stub' };
+});
 
 // Placeholder route for processing audio with audio-metrics
 fastify.post('/process-audio', async (request: any, reply: any) => {
