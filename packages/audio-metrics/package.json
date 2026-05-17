@@ -1,5 +1,5 @@
 {
-  "name": "@voice/shared-types",
+  "name": "@voice/audio-metrics",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -7,9 +7,12 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc -b tsconfig.json",
-    "lint": "echo \"Add shared-types lint config\"",
+    "lint": "echo \"Add audio-metrics lint config\"",
     "typecheck": "tsc -b tsconfig.json",
     "test": "jest --passWithNoTests"
+  },
+  "dependencies": {
+    "@voice/shared-types": "workspace:*"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
