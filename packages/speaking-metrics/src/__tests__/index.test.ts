@@ -1,4 +1,3 @@
-import { generateSpeakingFeedback, scoreProsody } from '../index';
 import { generateSpeakingFeedback, scorePace, scoreProsody } from '../index';
 
 describe('scoreProsody', () => {
