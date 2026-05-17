@@ -1,6 +1,5 @@
-export { type SessionState, initialSessionState } from '@voice/shared-types';
+export { type SessionState, SessionEvent, initialSessionState } from '@voice/shared-types';
 import { SessionState, ExerciseDefinition, Tier, SessionEvent } from '@voice/shared-types';
-
 
 
 export interface Attempt {
