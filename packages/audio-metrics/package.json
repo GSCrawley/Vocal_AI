@@ -2,12 +2,10 @@
   "name": "@voice/audio-metrics",
   "private": true,
   "version": "0.1.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "lint": "echo \"Add audio-metrics lint config\"",
-    "typecheck": "tsc -b tsconfig.json",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
