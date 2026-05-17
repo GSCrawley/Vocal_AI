@@ -12,7 +12,6 @@
     "ignoreDeprecations": "6.0",
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["jest"],
     "paths": {
         "@voice/*": ["packages/*/src"]
     }
