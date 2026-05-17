@@ -4,9 +4,9 @@ import {
   startAttempt,
   completeAttempt,
   canAwardXp,
-  SessionEvent
+
 } from '../index';
-import { SessionState, initialSessionState, ExerciseDefinition } from '@voice/shared-types';
+import { SessionState, initialSessionState, ExerciseDefinition, SessionEvent } from '@voice/shared-types';
 
 describe('exercise-engine', () => {
   describe('transition', () => {

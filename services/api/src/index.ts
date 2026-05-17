@@ -4,11 +4,12 @@ import Fastify from "fastify";
 import {
   LivePitchFrame,
   SessionState,
+  SessionEvent,
   ExerciseDefinition,
   Tier
 } from "@voice/shared-types";
 import { micCheck, scoreSustainedNote } from "@voice/audio-metrics";
-import { transition, SessionEvent } from "@voice/exercise-engine";
+import { transition } from "@voice/exercise-engine";
 
 const app = Fastify();
 

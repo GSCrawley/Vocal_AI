@@ -1,21 +1,7 @@
 export { type SessionState, initialSessionState } from '@voice/shared-types';
-import { SessionState, ExerciseDefinition, Tier } from '@voice/shared-types';
+import { SessionState, ExerciseDefinition, Tier, SessionEvent } from '@voice/shared-types';
 
-export type SessionEvent = 
-  | { type: 'LOAD' }
-  | { type: 'LOADED' }
-  | { type: 'START_WARM_UP' }
-  | { type: 'WARM_UP_DONE' }
-  | { type: 'START_ATTEMPT' }
-  | { type: 'SIGNAL_DETECTED' }
-  | { type: 'LISTENING_DONE' }
-  | { type: 'ANALYSIS_DONE' }
-  | { type: 'RETRY' }
-  | { type: 'CONTINUE' }
-  | { type: 'START_REFLECTION' }
-  | { type: 'REFLECTION_DONE' }
-  | { type: 'END_SESSION' }
-  | { type: 'ERROR' };
+
 
 export interface Attempt {
   attemptId: string;
