@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      typescript:
-        specifier: ^6.0.2
-        version: 6.0.3
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -27,6 +24,9 @@ importers:
       tsx:
         specifier: ^4.7.0
         version: 4.21.0
+      typescript:
+        specifier: ^6.0.2
+        version: 6.0.3
 
   apps/admin:
     dependencies:
