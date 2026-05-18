@@ -1,4 +1,4 @@
-import "../instrument.js";
+import "../instrument.cjs";
 
 // All other imports below
 import { createServer, IncomingMessage, ServerResponse } from "node:http";
