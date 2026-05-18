@@ -28,43 +28,38 @@ export const apiService = {
 };
 
 const fastify = Fastify({
-  logger: false
+  logger: true
 });
 
-fastify.get('/healthz', async (request: any, reply: any) => {
+fastify.get('/healthz', {
+  schema: {
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          ok: { type: 'boolean' }
+        }
+      }
+    }
+  }
+}, async (request: FastifyRequest, reply: FastifyReply) => {
   return { ok: true };
 });
 
-fastify.get('/', async (request: any, reply: any) => {
-  return { service: 'api', status: 'stub' };
-});
-
-// Placeholder route for processing audio with audio-metrics
-fastify.post('/process-audio', async (request: any, reply: any) => {
-  try {
-    const { frames, targetHz, rmsDbFrames } = request.body as { frames: LivePitchFrame[], targetHz: number, rmsDbFrames: number[] };
-
-    const checkResult = micCheck(frames, rmsDbFrames);
-    if (!checkResult.ok) {
-        return reply.code(400).send({ error: checkResult.reason });
+fastify.get('/', {
+  schema: {
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          service: { type: 'string' },
+          status: { type: 'string' }
+        }
+      }
     }
-
-    const score = scoreSustainedNote(frames, targetHz, 50, { pitch: 0.5, stability: 0.5 });
-    return { score };
-  } catch (err: any) {
-    return reply.code(500).send({ error: err.message });
   }
-});
-
-// Placeholder route for transitioning session state with exercise-engine
-fastify.post('/transition-state', async (request: any, reply: any) => {
-  try {
-    const { currentState, event } = request.body as { currentState: SessionState, event: SessionEvent };
-    const nextState = transition(currentState, event);
-    return { nextState };
-  } catch (err: any) {
-     return reply.code(500).send({ error: err.message });
-  }
+}, async (request: FastifyRequest, reply: FastifyReply) => {
+  return { service: 'api', status: 'stub' };
 });
 
 // Placeholder route for processing audio with audio-metrics
@@ -84,13 +79,17 @@ fastify.post(
     }
   },
   async (request: FastifyRequest<{ Body: { frames: LivePitchFrame[]; targetHz: number; rmsDbFrames: number[] } }>, reply: FastifyReply) => {
-    const { frames, targetHz, rmsDbFrames } = request.body;
-    const checkResult = micCheck(frames, rmsDbFrames);
-    if (!checkResult.ok) {
-      return reply.code(400).send({ error: checkResult.reason });
+    try {
+      const { frames, targetHz, rmsDbFrames } = request.body;
+      const checkResult = micCheck(frames, rmsDbFrames);
+      if (!checkResult.ok) {
+        return reply.code(400).send({ error: checkResult.reason });
+      }
+      const score = scoreSustainedNote(frames, targetHz, 50, { pitch: 0.5, stability: 0.5 });
+      return { score };
+    } catch (err: any) {
+      return reply.code(500).send({ error: err.message });
     }
-    const score = scoreSustainedNote(frames, targetHz, 50, { pitch: 0.5, stability: 0.5 });
-    return { score };
   }
 );
 
@@ -110,9 +109,13 @@ fastify.post(
     }
   },
   async (request: FastifyRequest<{ Body: { currentState: SessionState; event: SessionEvent } }>, reply: FastifyReply) => {
-    const { currentState, event } = request.body;
-    const nextState = transition(currentState, event);
-    return { nextState };
+    try {
+      const { currentState, event } = request.body;
+      const nextState = transition(currentState, event);
+      return { nextState };
+    } catch (err: any) {
+      return reply.code(500).send({ error: err.message });
+    }
   }
 );
 
@@ -120,9 +123,9 @@ const start = async () => {
   try {
     const port = parseInt(process.env.PORT || '10000', 10);
     await fastify.listen({ port, host: '0.0.0.0' });
-    console.log(`voice-api listening on PORT ${port}`);
+    fastify.log.info(`voice-api listening on PORT ${port}`);
   } catch (err) {
-    console.error(err);
+    fastify.log.error(err);
     process.exit(1);
   }
 };
