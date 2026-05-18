@@ -1,16 +1,16 @@
-import * as Sentry from "@sentry/node"
-import * as Profiler from "@sentry/profiling-node"
+const Sentry = require("@sentry/node");
+const Profiler = require("@sentry/profiling-node");
 
-const nodeProfilingIntegration = Profiler.nodeProfilingIntegration
+const nodeProfilingIntegration = Profiler.nodeProfilingIntegration;
 
-const sentryDsn = process.env.SENTRY_DSN
+const sentryDsn = process.env.SENTRY_DSN;
 
 if (!sentryDsn) {
-  const errorMessage = "Missing required SENTRY_DSN environment variable for Sentry initialization."
+  const errorMessage = "Missing required SENTRY_DSN environment variable for Sentry initialization.";
   if (process.env.NODE_ENV === "production") {
-    throw new Error(errorMessage)
+    throw new Error(errorMessage);
   }
-  console.warn(errorMessage)
+  console.warn(errorMessage);
 }
 
 if (sentryDsn) {
