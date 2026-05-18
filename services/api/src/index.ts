@@ -1,4 +1,4 @@
-import "../instrument.cjs";
+import "../instrument.js";
 import * as Sentry from "@sentry/node";
 import Fastify, { FastifyRequest, FastifyReply } from "fastify";
 import {
