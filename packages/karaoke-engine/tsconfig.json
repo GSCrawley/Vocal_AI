@@ -11,7 +11,14 @@
     "src"
   ],
   "references": [
-    { "path": "../shared-types" }
+    {
+      "path": "../shared-types"
+    }
   ],
-  "exclude": ["src/**/*.test.ts", "src/**/__tests__/**", "dist", "node_modules"]
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/__tests__/**",
+    "dist",
+    "node_modules"
+  ]
 }
