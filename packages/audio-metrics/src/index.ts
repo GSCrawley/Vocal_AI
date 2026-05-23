@@ -182,20 +182,21 @@ export function scoreSustainedNote(
     throw new Error('Scoring weights must sum to 1.0');
   }
 
-  for (const frame of frames) {
+  const enrichedFrames: LivePitchFrame[] = frames.map(frame => {
     if (frame.frequencyHz && frame.voiced && frame.confidence >= 0.5) {
-        frame.centsFromTarget = hzToCents(frame.frequencyHz, targetHz);
+      return { ...frame, centsFromTarget: hzToCents(frame.frequencyHz, targetHz) };
     }
-  }
+    return frame;
+  });
 
-  const pitchAccuracy = scorePitchAccuracy(frames, targetHz, toleranceCents);
-  const stability = scoreStability(frames);
+  const pitchAccuracy = scorePitchAccuracy(enrichedFrames, targetHz, toleranceCents);
+  const stability = scoreStability(enrichedFrames);
   
   let overall = (pitchAccuracy * scoringWeights.pitch) + (stability * scoringWeights.stability);
 
   let onsetAccuracy;
   if (scoringWeights.onset) {
-      onsetAccuracy = scoreOnset(frames, targetHz, toleranceCents);
+      onsetAccuracy = scoreOnset(enrichedFrames, targetHz, toleranceCents);
       overall += (onsetAccuracy * scoringWeights.onset);
   }
 

@@ -41,32 +41,22 @@ export function computePitchSimilarity(
   userFrames: LivePitchFrame[],
   referenceFrames: LivePitchFrame[]
 ): number {
-  const userVoiced = userFrames.filter(f => f.voiced && f.centsFromTarget !== undefined);
-  const refVoiced = referenceFrames.filter(f => f.voiced && f.frequencyHz !== undefined);
+  const userVoiced = userFrames.filter(f => f.voiced && f.frequencyHz !== undefined && f.frequencyHz > 0);
+  const refVoiced = referenceFrames.filter(f => f.voiced && f.frequencyHz !== undefined && f.frequencyHz > 0);
 
   if (userVoiced.length === 0 || refVoiced.length === 0) return 0;
 
-  // Formula: cents = 1200 * log2(f1 / f2)
-  // Optimization: Pre-calculate log2 values to avoid repeated heavy math in the O(N^2) DTW matrix
-  const userCents = new Float64Array(userVoiced.length);
-  for (let i = 0; i < userVoiced.length; i++) {
-    const f = userVoiced[i]?.frequencyHz;
-    userCents[i] = f ? 1200 * Math.log2(f) : 0;
-  }
-
-  const refCents = new Float64Array(refVoiced.length);
-  for (let i = 0; i < refVoiced.length; i++) {
-    const f = refVoiced[i]?.frequencyHz;
-    refCents[i] = f ? 1200 * Math.log2(f) : 0;
-  }
+  // Formula: cents = 1200 * log2(f)
+  // Pre-calculate log2-scaled values as plain arrays to avoid repeated heavy math in the O(N^2) DTW matrix
+  const userCents: number[] = userVoiced.map(f => 1200 * Math.log2(f.frequencyHz!));
+  const refCents: number[] = refVoiced.map(f => 1200 * Math.log2(f.frequencyHz!));
 
   const distFunc = (uCents: number, rCents: number): number => {
-    if (uCents === 0 || rCents === 0) return 0;
     return Math.abs(uCents - rCents);
   };
 
-  // Convert Float64Array back to normal array as dynamic-time-warping requires normal arrays
-  const dtw = new DynamicTimeWarping(Array.from(userCents), Array.from(refCents), distFunc);
+  // dynamic-time-warping accepts normal arrays
+  const dtw = new DynamicTimeWarping(userCents, refCents, distFunc);
   const totalErrorCents = dtw.getDistance();
   const avgErrorCents = totalErrorCents / Math.max(userVoiced.length, refVoiced.length);
 

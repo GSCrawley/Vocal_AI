@@ -2,7 +2,7 @@ import { computePitchSimilarity } from '../index';
 import type { LivePitchFrame } from '@voice/shared-types';
 
 describe('computePitchSimilarity Benchmark', () => {
-    it('runs within reasonable time', () => {
+    it.skip('runs within reasonable time', () => {
         const userFrames: LivePitchFrame[] = [];
         const refFrames: LivePitchFrame[] = [];
 

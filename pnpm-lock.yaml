@@ -301,10 +301,6 @@ importers:
       typescript:
         specifier: ^6.0.2
         version: 6.0.3
-    devDependencies:
-      '@types/jest':
-        specifier: ^29.5.12
-        version: 29.5.14
 
   services/audio-processor:
     dependencies:
