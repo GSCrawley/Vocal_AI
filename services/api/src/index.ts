@@ -39,21 +39,24 @@ fastify.get('/', async (request: any, reply: any) => {
   return { service: 'api', status: 'stub' };
 });
 
+// Schema for processing audio
+const processAudioSchema = {
+  body: {
+    type: 'object',
+    required: ['frames', 'targetHz', 'rmsDbFrames'],
+    properties: {
+      frames: { type: 'array' },
+      targetHz: { type: 'number' },
+      rmsDbFrames: { type: 'array', items: { type: 'number' } }
+    }
+  }
+};
+
 // Placeholder route for processing audio with audio-metrics
 fastify.post(
   '/process-audio',
   {
-    schema: {
-      body: {
-        type: 'object',
-        required: ['frames', 'targetHz', 'rmsDbFrames'],
-        properties: {
-          frames: { type: 'array' },
-          targetHz: { type: 'number' },
-          rmsDbFrames: { type: 'array', items: { type: 'number' } }
-        }
-      }
-    }
+    schema: processAudioSchema
   },
   async (request: FastifyRequest<{ Body: { frames: LivePitchFrame[]; targetHz: number; rmsDbFrames: number[] } }>, reply: FastifyReply) => {
     const { frames, targetHz, rmsDbFrames } = request.body;
