@@ -60,6 +60,8 @@ export interface MicCheckResult {
   reason?: 'too_quiet' | 'clipping' | 'no_voice' | 'low_confidence';
 }
 
+const TOO_QUIET_THRESHOLD_DB = -60;
+
 export function micCheck(frames: LivePitchFrame[], rmsDbFrames: number[]): MicCheckResult {
   for (const db of rmsDbFrames) {
     if (db >= 0) {
@@ -67,18 +69,20 @@ export function micCheck(frames: LivePitchFrame[], rmsDbFrames: number[]): MicCh
     }
   }
 
-  let hasUsableFrames = false;
-  for (const frame of frames) {
-    if (frame.voiced && frame.confidence >= 0.5) {
-      hasUsableFrames = true;
-      break;
-    }
+  if (rmsDbFrames.length > 0 && rmsDbFrames.every(db => db < TOO_QUIET_THRESHOLD_DB)) {
+    return { ok: false, reason: 'too_quiet' };
   }
 
-  if (!hasUsableFrames) {
-     return { ok: false, reason: 'low_confidence' };
+  const voicedFrames = frames.filter(f => f.voiced);
+  if (voicedFrames.length === 0) {
+    return { ok: false, reason: 'no_voice' };
   }
-  
+
+  const hasUsableFrames = voicedFrames.some(f => f.confidence >= 0.5);
+  if (!hasUsableFrames) {
+    return { ok: false, reason: 'low_confidence' };
+  }
+
   return { ok: true };
 }
 
@@ -182,14 +186,14 @@ export function scoreSustainedNote(
     throw new Error('Scoring weights must sum to 1.0');
   }
 
-  for (const frame of frames) {
-    if (frame.frequencyHz && frame.voiced && frame.confidence >= 0.5) {
-        frame.centsFromTarget = hzToCents(frame.frequencyHz, targetHz);
-    }
-  }
-
   const pitchAccuracy = scorePitchAccuracy(frames, targetHz, toleranceCents);
-  const stability = scoreStability(frames);
+
+  const framesWithCents = frames.map(frame =>
+    frame.frequencyHz && frame.voiced && frame.confidence >= 0.5
+      ? { ...frame, centsFromTarget: hzToCents(frame.frequencyHz, targetHz) }
+      : frame
+  );
+  const stability = scoreStability(framesWithCents);
   
   let overall = (pitchAccuracy * scoringWeights.pitch) + (stability * scoringWeights.stability);
 

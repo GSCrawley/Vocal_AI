@@ -31,6 +31,23 @@ describe('audio-metrics', () => {
       expect(result.reason).toBe('low_confidence');
     });
 
+    it('returns no_voice if all frames are unvoiced', () => {
+      const frames = [
+        createFrame(0, { voiced: false }),
+        createFrame(0, { voiced: false }),
+      ];
+      const result = micCheck(frames, [-30, -35]);
+      expect(result.ok).toBe(false);
+      expect(result.reason).toBe('no_voice');
+    });
+
+    it('returns too_quiet if all RMS frames are below -60 dBFS', () => {
+      const frames = [createFrame(0)];
+      const result = micCheck(frames, [-65, -70, -80]);
+      expect(result.ok).toBe(false);
+      expect(result.reason).toBe('too_quiet');
+    });
+
     it('returns clipping if any RMS frame >= 0', () => {
       const frames = [createFrame(0)];
       const result = micCheck(frames, [-10, 0, -20]);
