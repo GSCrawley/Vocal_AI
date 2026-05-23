@@ -5,13 +5,24 @@
     "rootDir": "src",
     "ignoreDeprecations": "6.0",
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "types": [
+      "jest",
+      "node"
+    ]
   },
   "include": [
     "src"
   ],
   "references": [
-    { "path": "../shared-types" }
+    {
+      "path": "../shared-types"
+    }
   ],
-  "exclude": ["src/**/*.test.ts", "src/**/__tests__/**", "dist", "node_modules"]
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/__tests__/**",
+    "dist",
+    "node_modules"
+  ]
 }
