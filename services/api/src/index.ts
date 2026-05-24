@@ -28,33 +28,66 @@ export const apiService = {
 };
 
 const fastify = Fastify({
-  logger: true,
-  disableRequestLogging: true
+  logger: true
 });
 
-fastify.get('/healthz', async (request: any, reply: any) => {
-  return { ok: true };
-});
+fastify.get(
+  '/healthz',
+  {
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            ok: { type: 'boolean' }
+          }
+        }
+      }
+    }
+  },
+  async (request: FastifyRequest, reply: FastifyReply) => {
+    return { ok: true };
+  }
+);
 
-fastify.get('/', async (request: any, reply: any) => {
-  return { service: 'api', status: 'stub' };
-});
+fastify.get(
+  '/',
+  {
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            service: { type: 'string' },
+            status: { type: 'string' }
+          }
+        }
+      }
+    }
+  },
+  async (request: FastifyRequest, reply: FastifyReply) => {
+    return { service: 'api', status: 'stub' };
+  }
+);
+
+// Schema for processing audio
+const processAudioSchema = {
+  body: {
+    type: 'object',
+    required: ['frames', 'targetHz', 'rmsDbFrames'],
+    properties: {
+      frames: { type: 'array' },
+      targetHz: { type: 'number' },
+      rmsDbFrames: { type: 'array', items: { type: 'number' } }
+    }
+  }
+};
 
 // Placeholder route for processing audio with audio-metrics
 fastify.post(
   '/process-audio',
   {
-    schema: {
-      body: {
-        type: 'object',
-        required: ['frames', 'targetHz', 'rmsDbFrames'],
-        properties: {
-          frames: { type: 'array' },
-          targetHz: { type: 'number' },
-          rmsDbFrames: { type: 'array', items: { type: 'number' } }
-        }
-      }
-    }
+    schema: processAudioSchema
   },
   async (request: FastifyRequest<{ Body: { frames: LivePitchFrame[]; targetHz: number; rmsDbFrames: number[] } }>, reply: FastifyReply) => {
     const { frames, targetHz, rmsDbFrames } = request.body;
