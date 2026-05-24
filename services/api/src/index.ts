@@ -28,16 +28,47 @@ export const apiService = {
 };
 
 const fastify = Fastify({
-  logger: false
+  logger: true
 });
 
-fastify.get('/healthz', async (request: any, reply: any) => {
-  return { ok: true };
-});
+fastify.get(
+  '/healthz',
+  {
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            ok: { type: 'boolean' }
+          }
+        }
+      }
+    }
+  },
+  async (request: FastifyRequest, reply: FastifyReply) => {
+    return { ok: true };
+  }
+);
 
-fastify.get('/', async (request: any, reply: any) => {
-  return { service: 'api', status: 'stub' };
-});
+fastify.get(
+  '/',
+  {
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            service: { type: 'string' },
+            status: { type: 'string' }
+          }
+        }
+      }
+    }
+  },
+  async (request: FastifyRequest, reply: FastifyReply) => {
+    return { service: 'api', status: 'stub' };
+  }
+);
 
 // Schema for processing audio
 const processAudioSchema = {
@@ -95,9 +126,9 @@ const start = async () => {
   try {
     const port = parseInt(process.env.PORT || '10000', 10);
     await fastify.listen({ port, host: '0.0.0.0' });
-    console.log(`voice-api listening on PORT ${port}`);
+    fastify.log.info(`voice-api listening on PORT ${port}`);
   } catch (err) {
-    console.error(err);
+    fastify.log.error(err);
     process.exit(1);
   }
 };
