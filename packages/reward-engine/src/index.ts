@@ -168,7 +168,14 @@ export const BADGE_CHECKS: BadgeCheck[] = [
   { badgeId: 'first_word',     earned: (i) => i.tier === 'speaking' && i.sessionCount >= 1 },
   { badgeId: 'under_control',  earned: (i) => (i.topScoreByExercise['pace'] ?? 0) >= 80 },
   { badgeId: 'no_filler',      earned: (i) => (i.fillerRateMinimum ?? 99) < 1 },
-  { badgeId: 'pause_master',   earned: (i) => (i.exercisesCompleted.filter(e => e.includes('pause')).length) >= 10 },
+  { badgeId: 'pause_master',   earned: (i) => {
+    let count = 0;
+    for (const e of i.exercisesCompleted) {
+      if (e.includes('pause') && ++count >= 10) return true;
+    }
+    return false;
+  }
+},
   { badgeId: 'authority_voice',earned: (i) => (i.downturnRatioMax ?? 0) >= 0.9 },
   { badgeId: 'the_hook',       earned: (i) => (i.topScoreByExercise['hook'] ?? 0) >= 85 },
   { badgeId: 'streak_30_speaking', earned: (i) => i.tier === 'speaking' && i.streakDays >= 30 },
