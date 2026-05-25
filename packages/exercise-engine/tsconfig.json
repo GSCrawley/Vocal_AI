@@ -9,9 +9,7 @@
     "composite": true,
     "module": "ESNext",
     "forceConsistentCasingInFileNames": true,
-    "types": [
-      "jest"
-    ]
+    "types": []
   },
   "include": [
     "src"

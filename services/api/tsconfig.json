@@ -12,8 +12,7 @@
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "types": [
-      "node",
-      "jest"
+      "node"
     ]
   },
   "include": [

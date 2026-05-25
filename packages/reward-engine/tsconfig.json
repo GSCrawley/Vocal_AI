@@ -6,9 +6,7 @@
     "ignoreDeprecations": "6.0",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "types": [
-      "jest"
-    ]
+    "types": []
   },
   "include": [
     "src"

@@ -43,9 +43,7 @@
         "packages/speaking-metrics/src"
       ]
     },
-    "types": [
-      "jest"
-    ]
+    "types": []
   },
   "include": [
     "**/*.ts",

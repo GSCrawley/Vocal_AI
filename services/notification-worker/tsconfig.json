@@ -6,8 +6,7 @@
     "ignoreDeprecations": "6.0",
     "skipLibCheck": true,
     "types": [
-      "node",
-      "jest"
+      "node"
     ],
     "forceConsistentCasingInFileNames": true
   },
