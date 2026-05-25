@@ -9,7 +9,7 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
-    "@voice/shared-types": "workspace: *"
+    "@voice/shared-types": "workspace:*"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

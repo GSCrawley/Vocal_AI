@@ -28,66 +28,32 @@ export const apiService = {
 };
 
 const fastify = Fastify({
-  logger: true
+  logger: false
 });
 
-fastify.get(
-  '/healthz',
-  {
-    schema: {
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            ok: { type: 'boolean' }
-          }
-        }
-      }
-    }
-  },
-  async (request: FastifyRequest, reply: FastifyReply) => {
-    return { ok: true };
-  }
-);
+fastify.get('/healthz', async (request: any, reply: any) => {
+  return { ok: true };
+});
 
-fastify.get(
-  '/',
-  {
-    schema: {
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            service: { type: 'string' },
-            status: { type: 'string' }
-          }
-        }
-      }
-    }
-  },
-  async (request: FastifyRequest, reply: FastifyReply) => {
-    return { service: 'api', status: 'stub' };
-  }
-);
-
-// Schema for processing audio
-const processAudioSchema = {
-  body: {
-    type: 'object',
-    required: ['frames', 'targetHz', 'rmsDbFrames'],
-    properties: {
-      frames: { type: 'array' },
-      targetHz: { type: 'number' },
-      rmsDbFrames: { type: 'array', items: { type: 'number' } }
-    }
-  }
-};
+fastify.get('/', async (request: any, reply: any) => {
+  return { service: 'api', status: 'stub' };
+});
 
 // Placeholder route for processing audio with audio-metrics
 fastify.post(
   '/process-audio',
   {
-    schema: processAudioSchema
+    schema: {
+      body: {
+        type: 'object',
+        required: ['frames', 'targetHz', 'rmsDbFrames'],
+        properties: {
+          frames: { type: 'array' },
+          targetHz: { type: 'number' },
+          rmsDbFrames: { type: 'array', items: { type: 'number' } }
+        }
+      }
+    }
   },
   async (request: FastifyRequest<{ Body: { frames: LivePitchFrame[]; targetHz: number; rmsDbFrames: number[] } }>, reply: FastifyReply) => {
     const { frames, targetHz, rmsDbFrames } = request.body;
@@ -126,9 +92,9 @@ const start = async () => {
   try {
     const port = parseInt(process.env.PORT || '10000', 10);
     await fastify.listen({ port, host: '0.0.0.0' });
-    fastify.log.info(`voice-api listening on PORT ${port}`);
+    console.log(`voice-api listening on PORT ${port}`);
   } catch (err) {
-    fastify.log.error(err);
+    console.error(err);
     process.exit(1);
   }
 };
