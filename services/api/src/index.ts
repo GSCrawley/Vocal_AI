@@ -8,6 +8,7 @@ import {
 } from "@voice/shared-types";
 import { micCheck, scoreSustainedNote } from "@voice/audio-metrics";
 import { transition } from "@voice/exercise-engine";
+import authPlugin from "./plugins/auth.js";
 
 export const apiService = {
   service: 'api',
@@ -31,18 +32,27 @@ const fastify = Fastify({
   logger: true
 });
 
+fastify.register(authPlugin);
+
 fastify.get('/healthz', async () => {
   return { ok: true };
 });
 
-fastify.get('/', async () => {
+fastify.get('/', {
+  preHandler: async (request: FastifyRequest, reply: FastifyReply) => {
+    await fastify.authenticate(request, reply);
+  }
+}, async () => {
   return { service: 'api', status: 'stub' };
 });
 
 // Placeholder route for processing audio with audio-metrics
-fastify.post(
+fastify.post<{ Body: { frames: LivePitchFrame[]; targetHz: number; rmsDbFrames: number[] } }>(
   '/process-audio',
   {
+    preHandler: async (request: FastifyRequest, reply: FastifyReply) => {
+      await fastify.authenticate(request, reply);
+    },
     schema: {
       body: {
         type: 'object',
@@ -55,7 +65,7 @@ fastify.post(
       }
     }
   },
-  async (request: FastifyRequest<{ Body: { frames: LivePitchFrame[]; targetHz: number; rmsDbFrames: number[] } }>, reply: FastifyReply) => {
+  async (request, reply) => {
     const { frames, targetHz, rmsDbFrames } = request.body;
     const checkResult = micCheck(frames, rmsDbFrames);
     if (!checkResult.ok) {
@@ -67,9 +77,12 @@ fastify.post(
 );
 
 // Placeholder route for transitioning session state with exercise-engine
-fastify.post(
+fastify.post<{ Body: { currentState: SessionState; event: SessionEvent } }>(
   '/transition-state',
   {
+    preHandler: async (request: FastifyRequest, reply: FastifyReply) => {
+      await fastify.authenticate(request, reply);
+    },
     schema: {
       body: {
         type: 'object',
@@ -81,7 +94,7 @@ fastify.post(
       }
     }
   },
-  async (request: FastifyRequest<{ Body: { currentState: SessionState; event: SessionEvent } }>, reply: FastifyReply) => {
+  async (request, reply) => {
     const { currentState, event } = request.body;
     const nextState = transition(currentState, event);
     return { nextState };
