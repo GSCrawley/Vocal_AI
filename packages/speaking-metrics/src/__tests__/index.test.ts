@@ -46,34 +46,58 @@ describe('computeSpeakingScore', () => {
 
   it('computes correct score breakdown for a good performance with pace goal', () => {
     const score = computeSpeakingScore(baseAnalysis, 'pace', 'presentation');
+    const expectedPace = scorePace(baseAnalysis.wpm, 'presentation');
+    const expectedProsody = scoreProsody(baseAnalysis.f0RangeHz, baseAnalysis.uptalkRatio);
+    const expectedProjection = scoreProjection(baseAnalysis.meanRmsDb, baseAnalysis.rmsVarianceDb);
+    const expectedFillerRate = scoreFillerRate(baseAnalysis.fillerRate);
+    const expectedOverall =
+      expectedPace * 0.6 +
+      expectedProsody * 0.15 +
+      expectedProjection * 0.15 +
+      expectedFillerRate * 0.1;
 
-    // Pace should be ~100
-    // Prosody should be 90 + Math.min(10, (50 - 40) / 4) = 90 + 2.5 = 92.5 => ~92 (wait, actual math depends on rounding, check implementation)
-    // Actually: 90 + min(10, 10/4) = 92.5, no rounding in scoreProsody? Let's check.
-    // Let's just assert the structure and that it returns numbers, and verify overall logic.
-
-    expect(score.pace!).toBeGreaterThan(90);
-    expect(score.prosody!).toBeGreaterThan(90);
-    expect(score.projection!).toBeGreaterThan(90);
-    expect(score.fillerRate!).toBe(100);
-
-    // Weights: pace: 0.6, prosody: 0.15, projection: 0.15, fillerRate: 0.1
-    expect(score.overall).toBeGreaterThan(90);
+    expect(score.pace!).toBe(expectedPace);
+    expect(score.prosody!).toBeCloseTo(expectedProsody);
+    expect(score.projection!).toBe(expectedProjection);
+    expect(score.fillerRate!).toBe(expectedFillerRate);
+    expect(score.overall).toBeCloseTo(expectedOverall);
   });
 
   it('adjusts overall score based on the primary goal weight (filler_reduction focus)', () => {
     // Bad filler rate, but good everything else
     const highFillerAnalysis: SpeakingAnalysisResult = {
       ...baseAnalysis,
-      fillerRate: 8, // maps to ~35 in scoreFillerRate
+      fillerRate: 8,
     };
 
     const scorePaceGoal = computeSpeakingScore(highFillerAnalysis, 'pace', 'presentation');
     const scoreFillerGoal = computeSpeakingScore(highFillerAnalysis, 'filler_reduction', 'presentation');
+    const expectedPace = scorePace(highFillerAnalysis.wpm, 'presentation');
+    const expectedProsody = scoreProsody(highFillerAnalysis.f0RangeHz, highFillerAnalysis.uptalkRatio);
+    const expectedProjection = scoreProjection(highFillerAnalysis.meanRmsDb, highFillerAnalysis.rmsVarianceDb);
+    const expectedFillerRate = scoreFillerRate(highFillerAnalysis.fillerRate);
+    const expectedPaceGoalOverall =
+      expectedPace * 0.6 +
+      expectedProsody * 0.15 +
+      expectedProjection * 0.15 +
+      expectedFillerRate * 0.1;
+    const expectedFillerGoalOverall =
+      expectedPace * 0.1 +
+      expectedProsody * 0.1 +
+      expectedProjection * 0.1 +
+      expectedFillerRate * 0.7;
 
-    // Filler goal weighs fillerRate at 0.7, pace goal weighs it at 0.1.
-    // Overall score should be significantly lower when the goal is filler_reduction.
-    expect(scoreFillerGoal.overall).toBeLessThan(scorePaceGoal.overall);
+    expect(scorePaceGoal.pace!).toBe(expectedPace);
+    expect(scorePaceGoal.prosody!).toBeCloseTo(expectedProsody);
+    expect(scorePaceGoal.projection!).toBe(expectedProjection);
+    expect(scorePaceGoal.fillerRate!).toBe(expectedFillerRate);
+    expect(scorePaceGoal.overall).toBeCloseTo(expectedPaceGoalOverall);
+
+    expect(scoreFillerGoal.pace!).toBe(expectedPace);
+    expect(scoreFillerGoal.prosody!).toBeCloseTo(expectedProsody);
+    expect(scoreFillerGoal.projection!).toBe(expectedProjection);
+    expect(scoreFillerGoal.fillerRate!).toBe(expectedFillerRate);
+    expect(scoreFillerGoal.overall).toBeCloseTo(expectedFillerGoalOverall);
   });
 
   it('respects the speaking context for pace scoring', () => {
