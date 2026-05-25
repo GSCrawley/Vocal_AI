@@ -28,14 +28,14 @@ export const apiService = {
 };
 
 const fastify = Fastify({
-  logger: false
+  logger: true
 });
 
-fastify.get('/healthz', async (request: any, reply: any) => {
+fastify.get('/healthz', async () => {
   return { ok: true };
 });
 
-fastify.get('/', async (request: any, reply: any) => {
+fastify.get('/', async () => {
   return { service: 'api', status: 'stub' };
 });
 
@@ -92,9 +92,9 @@ const start = async () => {
   try {
     const port = parseInt(process.env.PORT || '10000', 10);
     await fastify.listen({ port, host: '0.0.0.0' });
-    console.log(`voice-api listening on PORT ${port}`);
+    fastify.log.info({ port }, 'voice-api listening');
   } catch (err) {
-    console.error(err);
+    fastify.log.error(err);
     process.exit(1);
   }
 };
