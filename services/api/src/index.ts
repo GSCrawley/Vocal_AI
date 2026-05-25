@@ -1,4 +1,9 @@
-import "../instrument.js";
+import "./instrument.cjs";
+import { validateEnv } from "./config/env.js";
+
+// Validate env vars before anything else runs. This ensures we fail fast.
+const config = validateEnv();
+
 import * as Sentry from "@sentry/node";
 import Fastify, { FastifyRequest, FastifyReply } from "fastify";
 import {
@@ -9,6 +14,8 @@ import {
 import { micCheck, scoreSustainedNote } from "@voice/audio-metrics";
 import { transition } from "@voice/exercise-engine";
 import authPlugin from "./plugins/auth.js";
+import { createClient } from "redis";
+import { enqueueAudioAnalysis } from "./routes/audioProcessorClient.js";
 
 export const apiService = {
   service: 'api',
@@ -34,8 +41,43 @@ const fastify = Fastify({
 
 fastify.register(authPlugin);
 
-fastify.get('/healthz', async () => {
-  return { ok: true };
+let sharedRedisClient: ReturnType<typeof createClient> | null = null;
+async function getRedisClient() {
+  if (!sharedRedisClient) {
+    sharedRedisClient = createClient({ url: config.REDIS_URL });
+    sharedRedisClient.on('error', (err) => {
+      fastify.log.error(err, 'Redis connection error');
+    });
+    await sharedRedisClient.connect();
+  }
+  return sharedRedisClient;
+}
+
+fastify.get('/healthz', async (request, reply) => {
+  let redis;
+  try {
+    // Attempt connecting to Redis to verify it's reachable without leaking memory.
+    // Creating a short-lived client for healthz
+    redis = createClient({ url: config.REDIS_URL });
+    redis.on('error', (err) => {
+      // Catch errors silently here so we don't crash, we'll wait for the connect.
+    });
+    await redis.connect();
+    await redis.ping();
+
+    return { ok: true, status: "healthy" };
+  } catch (err) {
+    fastify.log.error(err, "Health check failed");
+    return reply.code(503).send({ ok: false, error: "Health check failed: Redis unreachable or config issue" });
+  } finally {
+    if (redis) {
+      try {
+        await redis.quit();
+      } catch (e) {
+        // Ignore disconnect errors
+      }
+    }
+  }
 });
 
 fastify.get('/', {
@@ -76,6 +118,37 @@ fastify.post<{ Body: { frames: LivePitchFrame[]; targetHz: number; rmsDbFrames: 
   }
 );
 
+// Route to handle audio upload and enqueue analysis job
+fastify.post<{ Body: { audioUrl: string; jobId: string } }>(
+  '/upload-audio',
+  {
+    preHandler: async (request: FastifyRequest, reply: FastifyReply) => {
+      await fastify.authenticate(request, reply);
+    },
+    schema: {
+      body: {
+        type: 'object',
+        required: ['audioUrl', 'jobId'],
+        properties: {
+          audioUrl: { type: 'string' },
+          jobId: { type: 'string' }
+        }
+      }
+    }
+  },
+  async (request, reply) => {
+    const { audioUrl, jobId } = request.body;
+
+    try {
+      const result = await enqueueAudioAnalysis(jobId, audioUrl, request.user?.id || 'anonymous');
+      return reply.code(202).send(result);
+    } catch (err: any) {
+      request.log.error(err, "Failed to enqueue audio analysis");
+      return reply.code(500).send({ error: "Failed to enqueue audio analysis job" });
+    }
+  }
+);
+
 // Placeholder route for transitioning session state with exercise-engine
 fastify.post<{ Body: { currentState: SessionState; event: SessionEvent } }>(
   '/transition-state',
@@ -101,9 +174,10 @@ fastify.post<{ Body: { currentState: SessionState; event: SessionEvent } }>(
   }
 );
 
+// Only start the server if this file is executed directly (not imported in tests)
 const start = async () => {
   try {
-    const port = parseInt(process.env.PORT || '10000', 10);
+    const port = parseInt(config.PORT || '10000', 10);
     await fastify.listen({ port, host: '0.0.0.0' });
     fastify.log.info({ port }, 'voice-api listening');
   } catch (err) {
@@ -112,4 +186,10 @@ const start = async () => {
   }
 };
 
-start();
+const isMainModule = import.meta.url.startsWith('file:') && process.argv[1] === new URL(import.meta.url).pathname;
+
+if (isMainModule) {
+  start();
+}
+
+export const app = fastify;

@@ -189,7 +189,7 @@ services:
       - key: NODE_OPTIONS
         value: "--max-old-space-size=400"
 
-  - type: pserv
+  - type: web
     name: voice-audio-processor
     region: oregon
     runtime: python
