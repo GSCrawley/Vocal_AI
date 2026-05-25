@@ -195,8 +195,13 @@ export function evaluateBadges(
   const newBadges: EarnedBadge[] = [];
   const now = new Date().toISOString();
 
+  // Optimization: For a large array, building the Set once avoids O(N) array lookups per badge check.
+  // For very small arrays (e.g. initial state), array includes is fast enough that allocating a Set overhead isn't worth it.
+  const existingSet = existingBadges.length > 10 ? new Set(existingBadges) : undefined;
+
   for (const check of BADGE_CHECKS) {
-    if (!existingBadges.includes(check.badgeId) && check.earned(input, existingBadges)) {
+    const hasBadge = existingSet ? existingSet.has(check.badgeId) : existingBadges.includes(check.badgeId);
+    if (!hasBadge && check.earned(input, existingBadges)) {
       newBadges.push({ badgeId: check.badgeId, earnedAt: now });
     }
   }
