@@ -116,18 +116,26 @@ export function scorePitchAccuracy(frames: LivePitchFrame[], targetHz: number, t
 }
 
 export function scoreStability(frames: LivePitchFrame[]): number {
-  const errors: number[] = [];
+  let count = 0;
+  let mean = 0;
+  let m2 = 0;
   
-  for (const frame of frames) {
+  for (let i = 0; i < frames.length; i++) {
+    const frame = frames[i];
     if (!frame.voiced || frame.confidence < 0.5 || frame.centsFromTarget === undefined) continue;
-    errors.push(frame.centsFromTarget);
+
+    const val = frame.centsFromTarget;
+    count++;
+    const delta = val - mean;
+    mean += delta / count;
+    const delta2 = val - mean;
+    m2 += delta * delta2;
   }
 
-  if (errors.length < 2) return 0;
+  if (count < 2) return 0;
 
-  const mean = errors.reduce((sum, val) => sum + val, 0) / errors.length;
-  const variance = errors.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / errors.length;
-  const stdDev = Math.sqrt(variance);
+  const variance = m2 / count; // population variance
+  const stdDev = Math.sqrt(Math.max(0, variance));
 
   let stabilityScore = 100 - (stdDev / 50) * 100;
   if (stabilityScore < 0) stabilityScore = 0;

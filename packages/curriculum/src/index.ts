@@ -3,6 +3,7 @@ import type {
   CurriculumLevel,
   SpeakingGoal,
   SingingGoal,
+  ExerciseCategory,
   ExerciseDefinition,
   LessonPlan,
 } from '@voice/shared-types';
@@ -108,6 +109,26 @@ export interface SessionPlan {
   estimatedDurationMinutes: number;
 }
 
+const GOAL_EXERCISE_CATEGORIES: Record<SpeakingGoal | SingingGoal, ExerciseCategory[]> = {
+  pace: ['pace_control'],
+  prosody: ['prosody'],
+  projection: ['projection'],
+  resonance: ['resonance_speaking'],
+  articulation: ['articulation'],
+  filler_reduction: ['filler_reduction'],
+  authority: ['authority_delivery'],
+  breath_support: ['breathing', 'speaking_stamina'],
+  pitch: ['pitch_matching'],
+  stability: ['sustained_hold'],
+  range: ['scale_work', 'passaggio'],
+  breath_control: ['breathing', 'sustained_hold'],
+  tone: ['sustained_hold'],
+  agility: ['scale_work', 'interval_training'],
+  ear_training: ['interval_training', 'pitch_matching'],
+  dynamics: ['dynamic_control'],
+  vibrato: ['vibrato'],
+};
+
 /**
  * Build a session plan for the given user context.
  * Always: 1 warm-up + 2–4 core exercises.
@@ -151,23 +172,42 @@ function getCoreExercises(
   completed: string[]
 ): string[] {
   const completedSet = new Set(completed);
+  const goalCategories = GOAL_EXERCISE_CATEGORIES[goal];
+
   // Core: 2–4 exercises targeted at the primary goal
   const goalExercises = available
+    .filter(ex =>
+      ex.tier === tier &&
+      ex.activeFlag &&
+      (!ex.minimumLevelRequired || ex.minimumLevelRequired <= level) &&
+      goalCategories.includes(ex.category)
+    )
+    .sort((a, b) => {
+      // Prefer uncompleted exercises; secondarily sort by version (newest)
+      const aNew = !completedSet.has(a.exerciseId) ? 0 : 1;
+      const bNew = !completedSet.has(b.exerciseId) ? 0 : 1;
+      return aNew - bNew || b.version - a.version;
+    })
+    .slice(0, 3)
+    .map(ex => ex.exerciseId);
+
+  if (goalExercises.length > 0) {
+    return goalExercises;
+  }
+
+  return available
     .filter(ex =>
       ex.tier === tier &&
       ex.activeFlag &&
       (!ex.minimumLevelRequired || ex.minimumLevelRequired <= level)
     )
     .sort((a, b) => {
-      // Prefer uncompleted exercises
       const aNew = !completedSet.has(a.exerciseId) ? 0 : 1;
       const bNew = !completedSet.has(b.exerciseId) ? 0 : 1;
-      return aNew - bNew;
+      return aNew - bNew || b.version - a.version;
     })
     .slice(0, 3)
     .map(ex => ex.exerciseId);
-
-  return goalExercises;
 }
 
 // ------------------------------------------------------------
