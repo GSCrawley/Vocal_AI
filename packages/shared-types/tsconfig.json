@@ -8,9 +8,14 @@
     "declaration": true,
     "composite": true,
     "module": "ESNext",
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "types": [
+      "jest"
+    ]
   },
-  "include": ["src"],
+  "include": [
+    "src"
+  ],
   "exclude": [
     "src/**/*.test.ts",
     "src/**/__tests__/**",

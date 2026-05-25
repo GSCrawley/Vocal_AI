@@ -3,7 +3,10 @@
   "compilerOptions": {
     "outDir": "./dist",
     "declaration": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "types": [
+      "jest"
+    ]
   },
   "include": [
     "src"
