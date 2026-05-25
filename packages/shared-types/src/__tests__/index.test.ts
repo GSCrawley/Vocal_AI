@@ -1,4 +1,4 @@
-import { ExerciseDefinition } from '../index';
+import type { ExerciseDefinition } from '../index';
 
 describe('Shared Types', () => {
   it('should have correct versions for exercise definitions if modified', () => {
