@@ -147,6 +147,8 @@ function getCoreExercises(
   available: ExerciseDefinition[],
   completed: string[]
 ): string[] {
+  const completedSet = new Set(completed);
+
   // Core: 2–4 exercises targeted at the primary goal
   const goalExercises = available
     .filter(ex =>
@@ -156,8 +158,8 @@ function getCoreExercises(
     )
     .sort((a, b) => {
       // Prefer uncompleted exercises; secondarily sort by version (newest)
-      const aNew = !completed.includes(a.exerciseId) ? 0 : 1;
-      const bNew = !completed.includes(b.exerciseId) ? 0 : 1;
+      const aNew = !completedSet.has(a.exerciseId) ? 0 : 1;
+      const bNew = !completedSet.has(b.exerciseId) ? 0 : 1;
       return aNew - bNew;
     })
     .slice(0, 3)
