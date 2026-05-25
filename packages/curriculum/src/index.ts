@@ -159,7 +159,7 @@ function getCoreExercises(
       (!ex.minimumLevelRequired || ex.minimumLevelRequired <= level)
     )
     .sort((a, b) => {
-      // Prefer uncompleted exercises; secondarily sort by version (newest)
+      // Prefer uncompleted exercises
       const aNew = !completedSet.has(a.exerciseId) ? 0 : 1;
       const bNew = !completedSet.has(b.exerciseId) ? 0 : 1;
       return aNew - bNew;
