@@ -101,7 +101,7 @@ describe('computeSpeakingScore', () => {
   });
 
   it('respects the speaking context for pace scoring', () => {
-    // 100 WPM is very slow for 'presentation', but perfect for 'technical'
+    // 125 WPM is slow for 'presentation', but better suited to 'technical'
     const slowAnalysis: SpeakingAnalysisResult = {
       ...baseAnalysis,
       wpm: 125,
