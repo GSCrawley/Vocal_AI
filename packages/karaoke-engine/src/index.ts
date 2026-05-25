@@ -1,3 +1,4 @@
+import DynamicTimeWarping from 'dynamic-time-warping';
 import { scoreToBand } from '@voice/shared-types';
 import type {
   KaraokeSnippet,
@@ -40,31 +41,24 @@ export function computePitchSimilarity(
   userFrames: LivePitchFrame[],
   referenceFrames: LivePitchFrame[]
 ): number {
-  const userVoiced = userFrames.filter(f => f.voiced && f.centsFromTarget !== undefined);
-  const refVoiced = referenceFrames.filter(f => f.voiced && f.frequencyHz !== undefined);
+  const userVoiced = userFrames.filter(f => f.voiced && f.frequencyHz !== undefined && f.frequencyHz > 0);
+  const refVoiced = referenceFrames.filter(f => f.voiced && f.frequencyHz !== undefined && f.frequencyHz > 0);
 
   if (userVoiced.length === 0 || refVoiced.length === 0) return 0;
 
-  // Simplified: sample at equal intervals and compare
-  const sampleCount = Math.min(userVoiced.length, refVoiced.length, 50);
-  let totalError = 0;
-  let samplesCompared = 0;
+  // Formula: cents = 1200 * log2(f)
+  // Pre-calculate log2-scaled values as plain arrays to avoid repeated heavy math in the O(N^2) DTW matrix
+  const userCents: number[] = userVoiced.map(f => 1200 * Math.log2(f.frequencyHz!));
+  const refCents: number[] = refVoiced.map(f => 1200 * Math.log2(f.frequencyHz!));
 
-  for (let i = 0; i < sampleCount; i++) {
-    const uIdx = Math.floor((i / sampleCount) * userVoiced.length);
-    const rIdx = Math.floor((i / sampleCount) * refVoiced.length);
+  const distFunc = (uCents: number, rCents: number): number => {
+    return Math.abs(uCents - rCents);
+  };
 
-    const uFrame = userVoiced[uIdx];
-    const rFrame = refVoiced[rIdx];
-
-    if (uFrame?.centsFromTarget !== undefined && rFrame) {
-      totalError += Math.abs(uFrame.centsFromTarget);
-      samplesCompared++;
-    }
-  }
-
-  if (samplesCompared === 0) return 0;
-  const avgErrorCents = totalError / samplesCompared;
+  // dynamic-time-warping accepts normal arrays
+  const dtw = new DynamicTimeWarping(userCents, refCents, distFunc);
+  const totalErrorCents = dtw.getDistance();
+  const avgErrorCents = totalErrorCents / Math.max(userVoiced.length, refVoiced.length);
 
   // Map avg cents error to 0–100 score
   // 0 cents error = 100; 50 cents = ~80; 200 cents = ~30

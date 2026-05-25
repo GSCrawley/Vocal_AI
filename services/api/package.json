@@ -17,12 +17,14 @@
     "@sentry/profiling-node": "^8.55.2",
     "@sentry/tracing": "^7.120.4",
     "@sentry/types": "^8.55.2",
+    "@supabase/supabase-js": "^2.106.1",
     "@types/node": "22.0.0",
-    "@voice/content-schema": "workspace:*",
-    "@voice/shared-types": "workspace:*",
     "@voice/audio-metrics": "workspace:*",
+    "@voice/content-schema": "workspace:*",
     "@voice/exercise-engine": "workspace:*",
+    "@voice/shared-types": "workspace:*",
     "fastify": "^5.8.5",
+    "fastify-plugin": "^5.1.0",
     "tsx": "^4.7.0",
     "typescript": "^6.0.2"
   }

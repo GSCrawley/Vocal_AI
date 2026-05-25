@@ -78,7 +78,7 @@ export function micCheck(frames: LivePitchFrame[], rmsDbFrames: number[]): MicCh
   if (!hasUsableFrames) {
      return { ok: false, reason: 'low_confidence' };
   }
-  
+
   return { ok: true };
 }
 
@@ -116,24 +116,25 @@ export function scorePitchAccuracy(frames: LivePitchFrame[], targetHz: number, t
 }
 
 export function scoreStability(frames: LivePitchFrame[]): number {
-  const errors: number[] = [];
+  let count = 0;
+  let mean = 0;
+  let m2 = 0;
   
-  for (const frame of frames) {
+  for (let i = 0; i < frames.length; i++) {
+    const frame = frames[i];
     if (!frame.voiced || frame.confidence < 0.5 || frame.centsFromTarget === undefined) continue;
-    errors.push(frame.centsFromTarget);
+
+    const val = frame.centsFromTarget;
+    count++;
+    const delta = val - mean;
+    mean += delta / count;
+    const delta2 = val - mean;
+    m2 += delta * delta2;
   }
 
-  if (errors.length < 2) return 0;
+  if (count < 2) return 0;
 
-  let sum = 0;
-  let sumSquares = 0;
-  for (let i = 0; i < errors.length; i++) {
-    const val = errors[i];
-    sum += val;
-    sumSquares += val * val;
-  }
-  const mean = sum / errors.length;
-  const variance = (sumSquares / errors.length) - (mean * mean);
+  const variance = m2 / count; // population variance
   const stdDev = Math.sqrt(Math.max(0, variance));
 
   let stabilityScore = 100 - (stdDev / 50) * 100;
@@ -189,20 +190,21 @@ export function scoreSustainedNote(
     throw new Error('Scoring weights must sum to 1.0');
   }
 
-  for (const frame of frames) {
+  const enrichedFrames: LivePitchFrame[] = frames.map(frame => {
     if (frame.frequencyHz && frame.voiced && frame.confidence >= 0.5) {
-        frame.centsFromTarget = hzToCents(frame.frequencyHz, targetHz);
+      return { ...frame, centsFromTarget: hzToCents(frame.frequencyHz, targetHz) };
     }
-  }
+    return frame;
+  });
 
-  const pitchAccuracy = scorePitchAccuracy(frames, targetHz, toleranceCents);
-  const stability = scoreStability(frames);
+  const pitchAccuracy = scorePitchAccuracy(enrichedFrames, targetHz, toleranceCents);
+  const stability = scoreStability(enrichedFrames);
   
   let overall = (pitchAccuracy * scoringWeights.pitch) + (stability * scoringWeights.stability);
 
   let onsetAccuracy;
   if (scoringWeights.onset) {
-      onsetAccuracy = scoreOnset(frames, targetHz, toleranceCents);
+      onsetAccuracy = scoreOnset(enrichedFrames, targetHz, toleranceCents);
       overall += (onsetAccuracy * scoringWeights.onset);
   }
 
