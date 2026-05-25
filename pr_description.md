@@ -1,5 +1,3 @@
-🎯 **What:** This branch replaces the hardcoded Sentry DSN in `apps/mobile/App.tsx` with the `EXPO_PUBLIC_SENTRY_DSN` environment variable.
-
-⚠️ **Risk:** Hardcoding the DSN exposes it in the version control history and makes it accessible to anyone who can view the codebase. This can lead to unauthorized reporting, cluttering Sentry projects, and potentially exhausting event quotas.
-
-🛡️ **Solution:** By injecting the DSN via an Expo public environment variable (`EXPO_PUBLIC_SENTRY_DSN`), the value is separated from the source code, allowing for distinct configuration across different environments (development, staging, production) and improving the overall security posture.
+🎯 **What:** This branch removes hardcoded Sentry DSNs from runtime code and keeps explicit runtime guarding in `services/api/instrument.js`, `services/analytics-worker/instrument.js`, and `services/notification-worker/instrument.js`.
+⚠️ **Risk:** Hardcoded DSNs in client code are a credential/config leak risk, and missing/misconfigured DSNs in services can silently disable telemetry.
+🛡️ **Solution:** Node services keep environment-based DSN checks (`SENTRY_DSN`) with production enforcement. Mobile Sentry initialization now uses `process.env.EXPO_PUBLIC_SENTRY_DSN`, API startup logging uses Fastify’s structured logger, and unused environment examples were removed.
