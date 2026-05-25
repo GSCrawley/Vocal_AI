@@ -1,4 +1,4 @@
-import { generateSpeakingFeedback, computeSpeakingScore, scorePace, scoreProsody, scoreProjection, scoreFillerRate } from '../index';
+import { generateSpeakingFeedback, computeSpeakingScore } from '../index';
 
 describe('generateSpeakingFeedback', () => {
   it('returns praise for null failureMode', () => {
