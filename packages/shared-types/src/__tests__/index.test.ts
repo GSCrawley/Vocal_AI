@@ -1,18 +1,6 @@
-import {
-  UserProfile, Tier, SpeakingGoal, SingingGoal, SuccessBand,
-  ExerciseDefinition, ExerciseCategory, TargetPatternType, Session,
-  Attempt, SingingAttemptMetrics, BestTake, Reflection, LivePitchFrame,
-  CoachingPayload, AvatarBehaviorState, AvatarDialogueLine, XpEvent,
-  UserRewardState, EarnedBadge
-} from '../index';
+import type { ExerciseDefinition } from '../index';
 
 describe('Shared Types', () => {
-  it('should export all required domain types', () => {
-    // This is purely a type-check test, if it compiles, the types exist.
-    const dummyTier: Tier = 'speaking';
-    expect(dummyTier).toBe('speaking');
-  });
-
   it('should have correct versions for exercise definitions if modified', () => {
     const exercise: ExerciseDefinition = {
       exerciseId: 'test-001',

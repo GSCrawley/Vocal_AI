@@ -1,3 +1,3 @@
-🎯 **What:** This branch removes hardcoded Sentry DSNs and keeps explicit runtime guarding in `services/api/instrument.js`, `services/analytics-worker/instrument.js`, and `services/notification-worker/instrument.js`.
-⚠️ **Risk:** Without guarding, a missing/misconfigured `SENTRY_DSN` could silently disable telemetry in deployed services. Hardcoded DSNs are also a credential-exposure risk.
-🛡️ **Solution:** All three services use `process.env.SENTRY_DSN` and enforce configuration checks: throw on missing DSN in production, warn in non-production, and initialize Sentry only when DSN is present.
+🎯 **What:** This branch removes hardcoded Sentry DSNs from runtime code and keeps explicit runtime guarding in `services/api/instrument.js`, `services/analytics-worker/instrument.js`, and `services/notification-worker/instrument.js`.
+⚠️ **Risk:** Hardcoded DSNs in client code are a credential/config leak risk, and missing/misconfigured DSNs in services can silently disable telemetry.
+🛡️ **Solution:** Node services keep environment-based DSN checks (`SENTRY_DSN`) with production enforcement. Mobile Sentry initialization now uses `process.env.EXPO_PUBLIC_SENTRY_DSN`, API startup logging uses Fastify’s structured logger, and unused environment examples were removed.
