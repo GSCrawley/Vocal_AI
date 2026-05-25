@@ -2,9 +2,7 @@ import "../instrument.js";
 
 // All other imports below
 import { createServer, IncomingMessage, ServerResponse } from "node:http";
-import pino from "pino";
-
-const logger = pino();
+import { logger } from "./logger.js";
 
 const server = createServer((req: any, res: any) => {
   // server code
@@ -17,12 +15,12 @@ export const notificationWorker = {
   jobs: ['daily-reminders', 'weekly-summaries', 'milestone-notifications'],
 };
 
-logger.info({ service: "notification-worker" }, "voice-notification-worker started");
+logger.info("voice-notification-worker started");
 
 const heartbeatLogsEnabled = process.env.NOTIFICATION_WORKER_HEARTBEAT_LOGS === 'true';
 
 if (heartbeatLogsEnabled) {
   setInterval(() => {
-    logger.info({ service: 'notification-worker', type: 'heartbeat' }, 'notification-worker heartbeat');
+    logger.info('notification-worker heartbeat');
   }, 30_000);
 }
