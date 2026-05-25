@@ -60,7 +60,8 @@ export function meetsPrerequisites(
     return false;
   }
   if (exercise.prerequisiteExerciseIds && exercise.prerequisiteExerciseIds.length > 0) {
-    return exercise.prerequisiteExerciseIds.every(id => completedExerciseIds.includes(id));
+    const completedSet = new Set(completedExerciseIds);
+    return exercise.prerequisiteExerciseIds.every(id => completedSet.has(id));
   }
   return true;
 }
@@ -82,17 +83,19 @@ export function selectNextExercise(
     (!ex.minimumLevelRequired || ex.minimumLevelRequired <= currentLevel)
   );
 
+  const completedSet = new Set(completedExerciseIds);
+
   // For the first exercise in a session, prefer exercises matching the primary goal
   if (sessionCountToday === 0) {
     const goalMatch = eligible.find(ex =>
-      !completedExerciseIds.includes(ex.exerciseId) &&
+      !completedSet.has(ex.exerciseId) &&
       ex.category.includes(primaryGoal.replace('_', ''))
     );
     if (goalMatch) return goalMatch;
   }
 
   // Otherwise, select the next uncompleted exercise in level order
-  const uncompleted = eligible.filter(ex => !completedExerciseIds.includes(ex.exerciseId));
+  const uncompleted = eligible.filter(ex => !completedSet.has(ex.exerciseId));
   return uncompleted[0] ?? eligible[0] ?? null; // Fall back to replay if all done
 }
 
