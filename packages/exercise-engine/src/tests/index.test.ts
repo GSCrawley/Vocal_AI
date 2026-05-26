@@ -1,116 +1,130 @@
 import {
-  transition,
+  SessionState,
+  createSession,
+  nextState,
   buildSessionPlan,
-  startAttempt,
-  completeAttempt,
+  submitAttempt,
   canAwardXp,
-
+  InvalidTransitionError
 } from '../index';
-import { SessionState, initialSessionState, ExerciseDefinition, SessionEvent } from '@voice/shared-types';
+import { SessionEvent, AttemptResult, CurriculumEntry, UserSessionContext } from '@voice/shared-types';
 
 describe('exercise-engine', () => {
-  describe('transition', () => {
-    it('handles ERROR event from any state', () => {
-      expect(transition('IDLE', { type: 'ERROR' })).toBe('SESSION_ERROR');
-      expect(transition('LISTENING', { type: 'ERROR' })).toBe('SESSION_ERROR');
-    });
 
-    it('throws on illegal transitions (e.g. LISTENING -> SESSION_COMPLETE directly)', () => {
-      expect(() => {
-        transition('LISTENING', { type: 'END_SESSION' });
-      }).toThrow('Invalid transition: state LISTENING, event END_SESSION');
-    });
+  const mockCurriculum: CurriculumEntry[] = [
+    { exerciseId: 'warmup', title: 'Warmup', category: 'breathing', tier: 'singing', minimumLevelRequired: 1 },
+    { exerciseId: 'sustain_01', title: 'Sustain A4', category: 'pitch_matching', tier: 'singing', minimumLevelRequired: 1 }
+  ];
 
-    it('throws on RESULT_REVIEW -> SESSION_COMPLETE directly', () => {
-      expect(() => {
-        transition('RESULT_REVIEW', { type: 'END_SESSION' });
-      }).toThrow('Invalid transition: state RESULT_REVIEW, event END_SESSION');
-    });
+  const mockContext: UserSessionContext = {
+    userId: 'user1',
+    tier: 'singing',
+    currentLevel: 1,
+    sessionCountToday: 0
+  };
 
-    it('supports sustained-note Build 0.1 happy path', () => {
-      let state = initialSessionState;
-      
-      const events: SessionEvent[] = [
-        { type: 'LOAD' },
-        { type: 'LOADED' },
-        { type: 'START_ATTEMPT' }, // Goes to EXERCISE_INTRO
-        { type: 'START_ATTEMPT' }, // User clicks start -> AWAITING_SIGNAL
-        { type: 'SIGNAL_DETECTED' },
-        { type: 'LISTENING_DONE' },
-        { type: 'ANALYSIS_DONE' },
-        { type: 'START_REFLECTION' },
-        { type: 'REFLECTION_DONE' }
-      ];
+  const mockAttempt: AttemptResult = {
+    attemptId: 'att1',
+    score: {
+      overallScore: 90,
+      pitchAccuracy: 90,
+      stability: 90,
+      completion: 1.0,
+      onset: 0.8,
+      confidence: 'high'
+    },
+    durationMs: 5000
+  };
 
-      const expectedStates: SessionState[] = [
-        'LOADING_SESSION',
-        'READY',
-        'EXERCISE_INTRO',
-        'AWAITING_SIGNAL',
-        'LISTENING',
-        'ANALYZING',
-        'RESULT_REVIEW',
-        'REFLECTION',
-        'SESSION_COMPLETE'
-      ];
-
-      events.forEach((event, i) => {
-        state = transition(state, event);
-        expect(state).toBe(expectedStates[i]);
-      });
+  describe('buildSessionPlan & createSession', () => {
+    it('creates a session successfully', () => {
+      const plan = buildSessionPlan(mockCurriculum, mockContext);
+      const session = createSession(plan);
+      expect(session.state).toBe('IDLE');
+      expect(session.attempts).toHaveLength(0);
+      expect(session.reflectionProcessed).toBe(false);
     });
   });
 
-  describe('session plan', () => {
-    const mockExercise = {
-      exerciseId: 'ex-1',
-      version: 1,
-      tier: 'singing',
-      category: 'pitch_matching',
-      subcategory: 'sustained_note',
-      title: 'Sustain A4',
-      description: 'Hold the note A4 for 5 seconds.',
-      userInstructionText: 'Sing A4',
-      durationTargetSeconds: 5,
-      repetitionsDefault: 1,
-      targetPatternType: 'sustained_note' as any,
-      targetPatternPayload: {} as any,
-      evaluationConfig: {} as any,
-      scoringWeights: { pitch: 1.0, stability: 0.0, onset: 0.0 } as any,
-      tags: [],
-      status: 'published' as any
-    } as unknown as ExerciseDefinition;
+  describe('nextState invariant enforcements', () => {
+    let session: ReturnType<typeof createSession>;
 
-    it('buildSessionPlan returns initial plan where canAwardXp is false', () => {
-      const plan = buildSessionPlan({
-        sessionId: 'session-1',
-        tier: 'singing',
-        exercises: [mockExercise]
-      });
-
-      expect(plan.sessionId).toBe('session-1');
-      expect(plan.attempts).toHaveLength(0);
-      expect(canAwardXp(plan)).toBe(false);
+    beforeEach(() => {
+      const plan = buildSessionPlan(mockCurriculum, mockContext);
+      session = createSession(plan);
     });
 
-    it('startAttempt and completeAttempt correctly update the plan and canAwardXp becomes true', () => {
-      let plan = buildSessionPlan({
-        sessionId: 'session-1',
-        tier: 'singing',
-        exercises: [mockExercise]
-      });
+    it('rejects invalid transitions (e.g. LISTENING -> SESSION_COMPLETE)', () => {
+      session.state = 'LISTENING';
+      expect(() => nextState(session, { type: 'END_SESSION' })).toThrow(InvalidTransitionError);
+    });
 
-      const now = Date.now();
-      plan = startAttempt(plan, 'attempt-1', now);
-      
-      expect(plan.attempts).toHaveLength(1);
-      expect(plan.attempts[0].status).toBe('in_progress');
-      expect(canAwardXp(plan)).toBe(false);
+    it('mic-check failures route back to mic_check', () => {
+      session.state = 'MIC_CHECK';
+      const updated = nextState(session, { type: 'MIC_CHECK_FAIL' });
+      expect(updated.state).toBe('MIC_CHECK');
+    });
 
-      plan = completeAttempt(plan, 'attempt-1', now + 5000);
+    it('strain warnings force transition to reflection', () => {
+      session.state = 'LISTENING';
+      const updated = nextState(session, { type: 'STRAIN_WARNING' });
+      expect(updated.state).toBe('REFLECTION');
+    });
+
+    it('session with zero attempts cannot reach complete', () => {
+      session.state = 'REFLECTION';
+      expect(() => nextState(session, { type: 'REFLECTION_DONE' })).toThrow(InvalidTransitionError);
+    });
+  });
+
+  describe('submitAttempt and canAwardXp', () => {
+    let session: ReturnType<typeof createSession>;
+
+    beforeEach(() => {
+      const plan = buildSessionPlan(mockCurriculum, mockContext);
+      session = createSession(plan);
+    });
+
+    it('only allows submitAttempt in ANALYZING', () => {
+      session.state = 'LISTENING';
+      expect(() => submitAttempt(session, mockAttempt)).toThrow(InvalidTransitionError);
+
+      session.state = 'ANALYZING';
+      const updated = submitAttempt(session, mockAttempt);
+      expect(updated.state).toBe('RESULT_REVIEW');
+      expect(updated.attempts).toHaveLength(1);
+    });
+
+    it('canAwardXp is true only after attempt AND reflection', () => {
+      session.state = 'ANALYZING';
+      let updated = submitAttempt(session, mockAttempt);
+      expect(canAwardXp(updated)).toBe(false); // No reflection yet
       
-      expect(plan.attempts[0].status).toBe('completed');
-      expect(canAwardXp(plan)).toBe(true);
+      updated = nextState(updated, { type: 'START_REFLECTION' });
+      updated = nextState(updated, { type: 'REFLECTION_DONE' });
+      expect(updated.reflectionProcessed).toBe(true);
+      expect(canAwardXp(updated)).toBe(true);
+    });
+  });
+
+  describe('Integration Test: Build 0.1 sustained-note loop', () => {
+    it('runs end-to-end and asserts canAwardXp returns true', () => {
+      const plan = buildSessionPlan(mockCurriculum, mockContext);
+      let s = createSession(plan);
+      
+      s = nextState(s, { type: 'LOAD' });
+      s = nextState(s, { type: 'LOADED' });
+      s = nextState(s, { type: 'START_ATTEMPT' }); // EXERCISE_INTRO
+      s = nextState(s, { type: 'DO_MIC_CHECK' }); // MIC_CHECK
+      s = nextState(s, { type: 'MIC_CHECK_PASS' }); // AWAITING_SIGNAL
+      s = nextState(s, { type: 'SIGNAL_DETECTED' }); // LISTENING
+      s = nextState(s, { type: 'LISTENING_DONE' }); // ANALYZING
+      s = submitAttempt(s, mockAttempt); // RESULT_REVIEW
+      s = nextState(s, { type: 'START_REFLECTION' }); // REFLECTION
+      s = nextState(s, { type: 'REFLECTION_DONE' }); // SESSION_COMPLETE
+
+      expect(s.state).toBe('SESSION_COMPLETE');
+      expect(canAwardXp(s)).toBe(true);
     });
   });
 });

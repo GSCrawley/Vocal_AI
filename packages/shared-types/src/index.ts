@@ -117,10 +117,12 @@ export type SessionState =
   | 'READY'
   | 'WARM_UP'
   | 'EXERCISE_INTRO'
+  | 'MIC_CHECK'
   | 'AWAITING_SIGNAL'
   | 'LISTENING'
   | 'ANALYZING'
   | 'RESULT_REVIEW'
+  | 'RETRY_PROMPT'
   | 'REFLECTION'
   | 'SESSION_COMPLETE'
   | 'SESSION_ERROR';
@@ -205,6 +207,8 @@ export interface LivePitchFrame {
   centsFromTarget?: number;
   voiced: boolean;
   confidence: number;
+  rmsDb?: number;
+  noiseFloorDb?: number;
 }
 
 export interface SingingExerciseScoreBreakdown {
@@ -581,6 +585,9 @@ export type SessionEvent =
   | { type: 'LOADED' }
   | { type: 'START_WARM_UP' }
   | { type: 'WARM_UP_DONE' }
+  | { type: 'DO_MIC_CHECK' }
+  | { type: 'MIC_CHECK_PASS' }
+  | { type: 'MIC_CHECK_FAIL' }
   | { type: 'START_ATTEMPT' }
   | { type: 'SIGNAL_DETECTED' }
   | { type: 'LISTENING_DONE' }
@@ -590,4 +597,61 @@ export type SessionEvent =
   | { type: 'START_REFLECTION' }
   | { type: 'REFLECTION_DONE' }
   | { type: 'END_SESSION' }
-  | { type: 'ERROR' };
+  | { type: 'ERROR' }
+  | { type: 'STRAIN_WARNING' }
+  | { type: 'SUBMIT_ATTEMPT', attempt: AttemptResult };
+
+// ------------------------------------------------------------
+// NEW BUILD 0.1 METRIC TYPES
+// ------------------------------------------------------------
+
+export interface SustainedNoteTarget {
+  frequencyHz: number;
+  durationMs: number;
+  toleranceCents?: number;
+}
+
+export interface ScoringWeights {
+  accuracy: number;
+  stability: number;
+  completion: number;
+  onset: number;
+}
+
+export interface MicCheckOpts {
+  minRmsDb?: number;
+  maxRmsDb?: number;
+  minVoicedRatio?: number;
+}
+
+export interface SingingScore {
+  overallScore: number;
+  pitchAccuracy: number;
+  stability: number;
+  completion: number;
+  onset: number;
+  confidence: 'high' | 'low';
+  degradedReason?: string;
+}
+
+export interface AttemptResult {
+  attemptId: string;
+  score: SingingScore | null;
+  durationMs: number;
+  strainWarning?: boolean;
+}
+
+export interface UserSessionContext {
+  userId: string;
+  tier: Tier;
+  currentLevel: number;
+  sessionCountToday: number;
+}
+
+export interface CurriculumEntry {
+  exerciseId: string;
+  title: string;
+  category: string;
+  tier: Tier;
+  minimumLevelRequired?: number;
+}

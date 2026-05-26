@@ -11,8 +11,8 @@ import {
   SessionState,
   SessionEvent
 } from "@voice/shared-types";
-import { micCheck, scoreSustainedNote } from "@voice/audio-metrics";
-import { transition } from "@voice/exercise-engine";
+import { runMicCheck, computeSustainedNoteScore } from "@voice/audio-metrics";
+import { nextState } from "@voice/exercise-engine";
 import authPlugin from "./plugins/auth.js";
 import { createClient } from "redis";
 import { enqueueAudioAnalysis } from "./routes/audioProcessorClient.js";
@@ -109,11 +109,11 @@ fastify.post<{ Body: { frames: LivePitchFrame[]; targetHz: number; rmsDbFrames: 
   },
   async (request, reply) => {
     const { frames, targetHz, rmsDbFrames } = request.body;
-    const checkResult = micCheck(frames, rmsDbFrames);
-    if (!checkResult.ok) {
-      return reply.code(400).send({ error: checkResult.reason });
+    const checkResult = runMicCheck(frames);
+    if (checkResult.status !== 'ok') {
+      return reply.code(400).send({ error: checkResult.status });
     }
-    const score = scoreSustainedNote(frames, targetHz, 50, { pitch: 0.5, stability: 0.5 });
+    const score = computeSustainedNoteScore(request.body.frames, { frequencyHz: request.body.targetHz, durationMs: 1000 });
     return { score };
   }
 );
@@ -169,8 +169,9 @@ fastify.post<{ Body: { currentState: SessionState; event: SessionEvent } }>(
   },
   async (request, reply) => {
     const { currentState, event } = request.body;
-    const nextState = transition(currentState, event);
-    return { nextState };
+    const sessionMock: any = { state: currentState };
+    const newState = nextState(sessionMock, event).state;
+    return { nextState: newState };
   }
 );
 
