@@ -11,14 +11,14 @@
     "test": "echo \"Add notification worker tests\""
   },
   "dependencies": {
-    "@sentry/node": "^7.0.0",
-    "@sentry/profiling-node": "^7.0.0",
-    "@sentry/tracing": "^7.0.0",
-    "@sentry/types": "^7.0.0",
+    "@sentry/node": "^8.55.2",
+    "@sentry/profiling-node": "^8.55.2",
+    "@sentry/tracing": "^7.120.4",
+    "@sentry/types": "^8.55.2",
     "@types/node": "22.0.0",
     "@voice/shared-types": "workspace:*",
     "pino": "^10.3.1",
-    "tsx": "4.22.3",
+    "tsx": "^4.7.0",
     "typescript": "^6.0.2"
   }
 }
