@@ -28,8 +28,5 @@
     "redis": "^5.12.1",
     "tsx": "^4.7.0",
     "typescript": "^6.0.2"
-  },
-  "devDependencies": {
-    "@types/redis": "^4.0.11"
   }
 }

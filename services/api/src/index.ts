@@ -53,30 +53,25 @@ async function getRedisClient() {
   return sharedRedisClient;
 }
 
+fastify.addHook('onClose', async () => {
+  if (sharedRedisClient) {
+    try {
+      await sharedRedisClient.quit();
+    } finally {
+      sharedRedisClient = null;
+    }
+  }
+});
+
 fastify.get('/healthz', async (request, reply) => {
-  let redis;
   try {
-    // Attempt connecting to Redis to verify it's reachable without leaking memory.
-    // Creating a short-lived client for healthz
-    redis = createClient({ url: config.REDIS_URL });
-    redis.on('error', (err) => {
-      // Catch errors silently here so we don't crash, we'll wait for the connect.
-    });
-    await redis.connect();
+    const redis = await getRedisClient();
     await redis.ping();
 
     return { ok: true, status: "healthy" };
   } catch (err) {
     fastify.log.error(err, "Health check failed");
     return reply.code(503).send({ ok: false, error: "Health check failed: Redis unreachable or config issue" });
-  } finally {
-    if (redis) {
-      try {
-        await redis.quit();
-      } catch (e) {
-        // Ignore disconnect errors
-      }
-    }
   }
 });
 

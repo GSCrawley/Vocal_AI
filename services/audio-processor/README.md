@@ -7,5 +7,5 @@ This service uses Python and FastAPI to provide backend processing for audio fil
 `cd services/audio-processor`
 `python3 -m venv venv`
 `source venv/bin/activate`
-`pip install -r requirements.txt`
+`pip install -r requirements-dev.txt`
 `uvicorn main:app --reload`

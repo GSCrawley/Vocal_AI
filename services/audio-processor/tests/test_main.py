@@ -1,4 +1,3 @@
-import pytest
 from fastapi.testclient import TestClient
 import os
 from unittest.mock import AsyncMock, patch
@@ -9,41 +8,61 @@ os.environ["PORT"] = "8000"
 
 from main import app
 
-client = TestClient(app)
+
+def build_redis_client_mock():
+    redis_client = AsyncMock()
+    redis_client.ping = AsyncMock(return_value=True)
+    redis_client.rpush = AsyncMock()
+    redis_client.blpop = AsyncMock(return_value=None)
+    redis_client.aclose = AsyncMock()
+    return redis_client
 
 def test_healthz_error_without_redis():
-    response = client.get("/healthz")
-    # By default, mock won't have redis configured unless we run startup event
-    # Let's test the endpoint response
-    assert response.status_code == 200 or response.status_code == 503
+    with patch("main.worker_loop", new=AsyncMock()):
+        with TestClient(app) as client:
+            with patch("main.redis_client", None), patch("main.supabase_client", None):
+                response = client.get("/healthz")
 
-@pytest.mark.asyncio
-async def test_analyze_audio_unauthorized():
-    response = client.post("/jobs/analyze", json={
-        "jobId": "123",
-        "audioUrl": "http://example.com/audio.wav",
-        "userId": "user1"
-    })
-    assert response.status_code == 401
+    assert response.status_code == 200
+    assert response.json() == {
+        "status": "ok",
+        "checks": {
+            "supabase": "unconfigured",
+            "redis": "unconfigured",
+        },
+    }
 
-    response = client.post("/jobs/analyze", json={
-        "jobId": "123",
-        "audioUrl": "http://example.com/audio.wav",
-        "userId": "user1"
-    }, headers={"X-Internal-Token": "wrong-token"})
-    assert response.status_code == 401
 
-@pytest.mark.asyncio
-@patch('main.redis_client')
-async def test_analyze_audio_success(mock_redis):
-    # Mock redis client rpush
-    mock_redis.rpush = AsyncMock()
+def test_analyze_audio_unauthorized():
+    mock_redis = build_redis_client_mock()
 
-    response = client.post("/jobs/analyze", json={
-        "jobId": "123",
-        "audioUrl": "http://example.com/audio.wav",
-        "userId": "user1"
-    }, headers={"X-Internal-Token": "test-token"})
+    with patch("main.worker_loop", new=AsyncMock()), patch("main.redis.from_url", return_value=mock_redis):
+        with TestClient(app) as client:
+            response = client.post("/jobs/analyze", json={
+                "jobId": "123",
+                "audioUrl": "http://example.com/audio.wav",
+                "userId": "user1"
+            })
+            assert response.status_code == 401
+
+            response = client.post("/jobs/analyze", json={
+                "jobId": "123",
+                "audioUrl": "http://example.com/audio.wav",
+                "userId": "user1"
+            }, headers={"X-Internal-Token": "wrong-token"})
+            assert response.status_code == 401
+
+
+def test_analyze_audio_success():
+    mock_redis = build_redis_client_mock()
+
+    with patch("main.worker_loop", new=AsyncMock()), patch("main.redis.from_url", return_value=mock_redis):
+        with TestClient(app) as client:
+            response = client.post("/jobs/analyze", json={
+                "jobId": "123",
+                "audioUrl": "http://example.com/audio.wav",
+                "userId": "user1"
+            }, headers={"X-Internal-Token": "test-token"})
 
     assert response.status_code == 202
     assert response.json() == {"status": "queued", "jobId": "123"}
