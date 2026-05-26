@@ -68,7 +68,7 @@ describe('audio-metrics', () => {
       const frames = Array(10).fill(0).map(() => createFrame(0));
       const result = scoreSustainedNote(frames, TARGET_HZ, TOLERANCE_CENTS, weights);
       expect(result.pitchAccuracy).toBe(100);
-      expect(result.stability).toBeCloseTo(100);
+      expect(result.stability).toBe(100);
       expect(result.overall).toBe(100);
     });
 
@@ -76,7 +76,7 @@ describe('audio-metrics', () => {
       const frames = Array(10).fill(0).map(() => createFrame(20));
       const result = scoreSustainedNote(frames, TARGET_HZ, TOLERANCE_CENTS, weights);
       expect(result.pitchAccuracy).toBeCloseTo(90);
-      expect(result.stability).toBeCloseTo(100);
+      expect(result.stability).toBe(100);
       expect(result.overall).toBeCloseTo((90 * 0.5) + (100 * 0.5));
     });
 

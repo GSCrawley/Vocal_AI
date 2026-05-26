@@ -3,7 +3,6 @@ import type {
   CurriculumLevel,
   SpeakingGoal,
   SingingGoal,
-  ExerciseCategory,
   ExerciseDefinition,
   LessonPlan,
 } from '@voice/shared-types';
@@ -60,8 +59,7 @@ export function meetsPrerequisites(
     return false;
   }
   if (exercise.prerequisiteExerciseIds && exercise.prerequisiteExerciseIds.length > 0) {
-    const completedSet = new Set(completedExerciseIds);
-    return exercise.prerequisiteExerciseIds.every(id => completedSet.has(id));
+    return exercise.prerequisiteExerciseIds.every(id => completedExerciseIds.includes(id));
   }
   return true;
 }
@@ -83,19 +81,17 @@ export function selectNextExercise(
     (!ex.minimumLevelRequired || ex.minimumLevelRequired <= currentLevel)
   );
 
-  const completedSet = new Set(completedExerciseIds);
-
   // For the first exercise in a session, prefer exercises matching the primary goal
   if (sessionCountToday === 0) {
     const goalMatch = eligible.find(ex =>
-      !completedSet.has(ex.exerciseId) &&
+      !completedExerciseIds.includes(ex.exerciseId) &&
       ex.category.includes(primaryGoal.replace('_', ''))
     );
     if (goalMatch) return goalMatch;
   }
 
   // Otherwise, select the next uncompleted exercise in level order
-  const uncompleted = eligible.filter(ex => !completedSet.has(ex.exerciseId));
+  const uncompleted = eligible.filter(ex => !completedExerciseIds.includes(ex.exerciseId));
   return uncompleted[0] ?? eligible[0] ?? null; // Fall back to replay if all done
 }
 
@@ -108,26 +104,6 @@ export interface SessionPlan {
   coreExerciseIds: string[];
   estimatedDurationMinutes: number;
 }
-
-const GOAL_EXERCISE_CATEGORIES: Record<SpeakingGoal | SingingGoal, ExerciseCategory[]> = {
-  pace: ['pace_control'],
-  prosody: ['prosody'],
-  projection: ['projection'],
-  resonance: ['resonance_speaking'],
-  articulation: ['articulation'],
-  filler_reduction: ['filler_reduction'],
-  authority: ['authority_delivery'],
-  breath_support: ['breathing', 'speaking_stamina'],
-  pitch: ['pitch_matching'],
-  stability: ['sustained_hold'],
-  range: ['scale_work', 'passaggio'],
-  breath_control: ['breathing', 'sustained_hold'],
-  tone: ['sustained_hold'],
-  agility: ['scale_work', 'interval_training'],
-  ear_training: ['interval_training', 'pitch_matching'],
-  dynamics: ['dynamic_control'],
-  vibrato: ['vibrato'],
-};
 
 /**
  * Build a session plan for the given user context.
@@ -171,43 +147,23 @@ function getCoreExercises(
   available: ExerciseDefinition[],
   completed: string[]
 ): string[] {
-  const completedSet = new Set(completed);
-  const goalCategories = GOAL_EXERCISE_CATEGORIES[goal];
-
   // Core: 2–4 exercises targeted at the primary goal
   const goalExercises = available
-    .filter(ex =>
-      ex.tier === tier &&
-      ex.activeFlag &&
-      (!ex.minimumLevelRequired || ex.minimumLevelRequired <= level) &&
-      goalCategories.includes(ex.category)
-    )
-    .sort((a, b) => {
-      // Prefer uncompleted exercises; secondarily sort by version (newest)
-      const aNew = !completedSet.has(a.exerciseId) ? 0 : 1;
-      const bNew = !completedSet.has(b.exerciseId) ? 0 : 1;
-      return aNew - bNew || b.version - a.version;
-    })
-    .slice(0, 3)
-    .map(ex => ex.exerciseId);
-
-  if (goalExercises.length > 0) {
-    return goalExercises;
-  }
-
-  return available
     .filter(ex =>
       ex.tier === tier &&
       ex.activeFlag &&
       (!ex.minimumLevelRequired || ex.minimumLevelRequired <= level)
     )
     .sort((a, b) => {
-      const aNew = !completedSet.has(a.exerciseId) ? 0 : 1;
-      const bNew = !completedSet.has(b.exerciseId) ? 0 : 1;
-      return aNew - bNew || b.version - a.version;
+      // Prefer uncompleted exercises; secondarily sort by version (newest)
+      const aNew = !completed.includes(a.exerciseId) ? 0 : 1;
+      const bNew = !completed.includes(b.exerciseId) ? 0 : 1;
+      return aNew - bNew;
     })
     .slice(0, 3)
     .map(ex => ex.exerciseId);
+
+  return goalExercises;
 }
 
 // ------------------------------------------------------------

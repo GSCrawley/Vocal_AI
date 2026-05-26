@@ -116,26 +116,18 @@ export function scorePitchAccuracy(frames: LivePitchFrame[], targetHz: number, t
 }
 
 export function scoreStability(frames: LivePitchFrame[]): number {
-  let count = 0;
-  let mean = 0;
-  let m2 = 0;
+  const errors: number[] = [];
   
-  for (let i = 0; i < frames.length; i++) {
-    const frame = frames[i];
+  for (const frame of frames) {
     if (!frame.voiced || frame.confidence < 0.5 || frame.centsFromTarget === undefined) continue;
-
-    const val = frame.centsFromTarget;
-    count++;
-    const delta = val - mean;
-    mean += delta / count;
-    const delta2 = val - mean;
-    m2 += delta * delta2;
+    errors.push(frame.centsFromTarget);
   }
 
-  if (count < 2) return 0;
+  if (errors.length < 2) return 0;
 
-  const variance = m2 / count; // population variance
-  const stdDev = Math.sqrt(Math.max(0, variance));
+  const mean = errors.reduce((sum, val) => sum + val, 0) / errors.length;
+  const variance = errors.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / errors.length;
+  const stdDev = Math.sqrt(variance);
 
   let stabilityScore = 100 - (stdDev / 50) * 100;
   if (stabilityScore < 0) stabilityScore = 0;
@@ -190,21 +182,20 @@ export function scoreSustainedNote(
     throw new Error('Scoring weights must sum to 1.0');
   }
 
-  const enrichedFrames: LivePitchFrame[] = frames.map(frame => {
+  for (const frame of frames) {
     if (frame.frequencyHz && frame.voiced && frame.confidence >= 0.5) {
-      return { ...frame, centsFromTarget: hzToCents(frame.frequencyHz, targetHz) };
+        frame.centsFromTarget = hzToCents(frame.frequencyHz, targetHz);
     }
-    return frame;
-  });
+  }
 
-  const pitchAccuracy = scorePitchAccuracy(enrichedFrames, targetHz, toleranceCents);
-  const stability = scoreStability(enrichedFrames);
+  const pitchAccuracy = scorePitchAccuracy(frames, targetHz, toleranceCents);
+  const stability = scoreStability(frames);
   
   let overall = (pitchAccuracy * scoringWeights.pitch) + (stability * scoringWeights.stability);
 
   let onsetAccuracy;
   if (scoringWeights.onset) {
-      onsetAccuracy = scoreOnset(enrichedFrames, targetHz, toleranceCents);
+      onsetAccuracy = scoreOnset(frames, targetHz, toleranceCents);
       overall += (onsetAccuracy * scoringWeights.onset);
   }
 
