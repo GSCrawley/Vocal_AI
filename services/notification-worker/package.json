@@ -18,7 +18,7 @@
     "@types/node": "22.0.0",
     "@voice/shared-types": "workspace:*",
     "pino": "^10.3.1",
-    "tsx": "^4.7.0",
+    "tsx": "4.22.3",
     "typescript": "^6.0.2"
   }
 }
