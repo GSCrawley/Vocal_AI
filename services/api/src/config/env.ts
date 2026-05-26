@@ -4,11 +4,12 @@ const envSchema = z.object({
   SUPABASE_URL: z.string().url(),
   SUPABASE_ANON_KEY: z.string().min(1),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
-  DATABASE_URL: z.string().url().optional(), // Marking DB_URL optional because not mentioned in prompt
+  DATABASE_URL: z.string().url(),
   OPENAI_API_KEY: z.string().min(1),
   DEEPGRAM_API_KEY: z.string().min(1),
   ELEVENLABS_API_KEY: z.string().min(1),
   REDIS_URL: z.string().min(1),
+  AUDIO_PROCESSOR_URL: z.string().url().optional(),
   INTERNAL_SERVICE_TOKEN: z.string().min(1),
   SENTRY_DSN: z.string().url().optional(),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),

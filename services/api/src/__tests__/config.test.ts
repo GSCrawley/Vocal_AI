@@ -5,6 +5,7 @@ describe('Config Validation', () => {
     SUPABASE_URL: 'https://example.supabase.co',
     SUPABASE_ANON_KEY: 'anon-key',
     SUPABASE_SERVICE_ROLE_KEY: 'service-role-key',
+    DATABASE_URL: 'https://example.supabase.co/database',
     OPENAI_API_KEY: 'sk-123',
     DEEPGRAM_API_KEY: 'dg-123',
     ELEVENLABS_API_KEY: 'el-123',
