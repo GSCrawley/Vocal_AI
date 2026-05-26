@@ -1,6 +1,7 @@
 import fp from 'fastify-plugin';
 import { FastifyRequest, FastifyReply, FastifyInstance } from 'fastify';
 import { createClient, User } from '@supabase/supabase-js';
+import { getConfig } from '../config/env.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -12,23 +13,9 @@ declare module 'fastify' {
 }
 
 export default fp(async (fastify: FastifyInstance) => {
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
-  const missingSupabaseConfig = !supabaseUrl || !supabaseAnonKey;
-  const missingConfigMessage =
-    'Missing required SUPABASE_URL or SUPABASE_ANON_KEY environment variable for auth initialization.';
+  const config = getConfig();
 
-  if (missingSupabaseConfig) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error(missingConfigMessage);
-    }
-    fastify.log.warn(missingConfigMessage);
-  }
-
-  const supabase =
-    !missingSupabaseConfig && supabaseUrl && supabaseAnonKey
-      ? createClient(supabaseUrl, supabaseAnonKey)
-      : null;
+  const supabase = createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
 
   fastify.decorateRequest('user', null);
 
@@ -36,11 +23,6 @@ export default fp(async (fastify: FastifyInstance) => {
     request.user = null;
 
     try {
-      if (!supabase) {
-        reply.code(503).send({ error: 'Authentication service unavailable' });
-        return;
-      }
-
       const authHeader = request.headers.authorization;
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         reply.code(401).send({ error: 'Unauthorized: Missing or invalid token' });
