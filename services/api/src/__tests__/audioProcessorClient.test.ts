@@ -2,8 +2,6 @@ import { enqueueAudioAnalysis } from '../routes/audioProcessorClient.js';
 import { validateEnv } from '../config/env.js';
 
 describe('audioProcessorClient', () => {
-  const originalFetch = global.fetch;
-
   beforeEach(() => {
     process.env.INTERNAL_SERVICE_TOKEN = 'test-token';
     process.env.AUDIO_PROCESSOR_URL = 'http://localhost:8000';
@@ -19,7 +17,6 @@ describe('audioProcessorClient', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
-    global.fetch = originalFetch;
   });
 
   it('should send correctly formatted request to audio processor', async () => {

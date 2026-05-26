@@ -2,7 +2,7 @@ import { getConfig } from '../config/env.js';
 
 export async function enqueueAudioAnalysis(jobId: string, audioUrl: string, userId: string) {
   const config = getConfig();
-  const audioProcessorUrl = config.AUDIO_PROCESSOR_URL ?? 'http://voice-audio-processor:8000';
+  const audioProcessorUrl = process.env.AUDIO_PROCESSOR_URL || 'http://voice-audio-processor:8000';
 
   const response = await fetch(`${audioProcessorUrl}/jobs/analyze`, {
     method: 'POST',

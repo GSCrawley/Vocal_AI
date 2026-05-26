@@ -29,4 +29,4 @@ jobs:
       - name: Run tests
         run: |
           cd services/audio-processor
-          pytest
+          python -m pytest

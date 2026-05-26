@@ -2,7 +2,6 @@ import os
 import asyncio
 import json
 import uuid
-from contextlib import suppress
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.responses import JSONResponse
 import uvicorn
@@ -41,35 +40,14 @@ async def startup_event():
     else:
         logger.warning("Supabase URL or Key not set. Supabase client will not be initialized.")
 
-    app.state.worker_task = asyncio.create_task(worker_loop())
+    asyncio.create_task(worker_loop())
     logger.info("Service started")
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    worker_task = getattr(app.state, "worker_task", None)
-    if worker_task:
-        worker_task.cancel()
-        with suppress(asyncio.CancelledError):
-            await worker_task
-        app.state.worker_task = None
     if redis_client:
         await redis_client.aclose()
     logger.info("Service stopped")
-
-def _download_audio(bucket_name: str, filename: str):
-    return supabase_client.storage.from_(bucket_name).download(filename)
-
-def _save_result(job_id: str, user_id: str, bucket_name: str):
-    return (
-        supabase_client.table("audio_analysis_results")
-        .insert({
-            "job_id": job_id,
-            "user_id": user_id,
-            "status": "completed",
-            "result": {"analysis": "ok", "bucket_used": bucket_name},
-        })
-        .execute()
-    )
 
 async def worker_loop():
     logger.info("Worker loop started")
@@ -100,7 +78,7 @@ async def worker_loop():
 
                     # Download audio from storage bucket
                     try:
-                        await asyncio.to_thread(_download_audio, bucket_name, filename)
+                        supabase_client.storage.from_(bucket_name).download(filename)
                         logger.info("Successfully downloaded audio from bucket", bucket=bucket_name, file=filename)
                         # Process audio... (simulated here)
                     except Exception as download_e:
@@ -110,7 +88,12 @@ async def worker_loop():
                     await asyncio.sleep(2)
 
                     # Update table with results
-                    await asyncio.to_thread(_save_result, job_id, user_id, bucket_name)
+                    supabase_client.table("audio_analysis_results").insert({
+                        "job_id": job_id,
+                        "user_id": user_id,
+                        "status": "completed",
+                        "result": {"analysis": "ok", "bucket_used": bucket_name}
+                    }).execute()
                     logger.info("Job results saved", job_id=job_id)
                 except Exception as e:
                     logger.error("Failed to process job or save results", error=str(e), job_id=job_id)

@@ -257,7 +257,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/shared-types
       tsx:
-        specifier: 4.22.3
+        specifier: ^4.7.0
         version: 4.22.3
       typescript:
         specifier: ^6.0.2
@@ -305,11 +305,15 @@ importers:
         specifier: ^5.12.1
         version: 5.12.1(@opentelemetry/api@1.9.1)
       tsx:
-        specifier: 4.22.3
+        specifier: ^4.7.0
         version: 4.22.3
       typescript:
         specifier: ^6.0.2
         version: 6.0.3
+    devDependencies:
+      '@types/redis':
+        specifier: ^4.0.11
+        version: 4.0.11(@opentelemetry/api@1.9.1)
 
   services/audio-processor:
     dependencies:
@@ -341,7 +345,7 @@ importers:
         specifier: ^10.3.1
         version: 10.3.1
       tsx:
-        specifier: 4.22.3
+        specifier: ^4.7.0
         version: 4.22.3
       typescript:
         specifier: ^6.0.2
@@ -1813,6 +1817,10 @@ packages:
 
   '@types/react@19.1.17':
     resolution: {integrity: sha512-Qec1E3mhALmaspIrhWt9jkQMNdw6bReVu64mjvhbhq2NFPftLPVr+l1SZgmw/66WwBNpDh7ao5AT6gF5v41PFA==}
+
+  '@types/redis@4.0.11':
+    resolution: {integrity: sha512-bI+gth8La8Wg/QCR1+V1fhrL9+LZUSWfcqpOj2Kc80ZQ4ffbdL173vQd5wovmoV9i071FU9oP2g6etLuEwb6Rg==}
+    deprecated: This is a stub types definition. redis provides its own type definitions, so you do not need this installed.
 
   '@types/shimmer@1.2.0':
     resolution: {integrity: sha512-UE7oxhQLLd9gub6JKIAhDq06T0F6FnztwMNRvYgjeQSBeMc1ZG/tA47EwfduvkuQS8apbkM/lpLpWsaCeYsXVg==}
@@ -6111,6 +6119,13 @@ snapshots:
   '@types/react@19.1.17':
     dependencies:
       csstype: 3.2.3
+
+  '@types/redis@4.0.11(@opentelemetry/api@1.9.1)':
+    dependencies:
+      redis: 5.12.1(@opentelemetry/api@1.9.1)
+    transitivePeerDependencies:
+      - '@node-rs/xxhash'
+      - '@opentelemetry/api'
 
   '@types/shimmer@1.2.0': {}
 
