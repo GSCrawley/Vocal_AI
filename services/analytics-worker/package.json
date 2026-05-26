@@ -13,11 +13,11 @@
   "dependencies": {
     "@voice/shared-types": "workspace:*",
     "@types/node": "22.0.0",
-    "@sentry/node": "^7.0.0",
-    "@sentry/profiling-node": "^7.0.0",
-    "@sentry/tracing": "^7.0.0",
-    "@sentry/types": "^7.0.0",
-    "tsx": "^4.7.0",
+    "@sentry/node": "^8.55.2",
+    "@sentry/profiling-node": "^8.55.2",
+    "@sentry/tracing": "^7.120.4",
+    "@sentry/types": "^8.55.2",
+    "tsx": "4.22.3",
     "typescript": "^6.0.2"
   }
 }
