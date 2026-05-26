@@ -1,4 +1,4 @@
-import "./instrument.cjs";
+import "./instrument.js";
 import { validateEnv } from "./config/env.js";
 
 // Validate env vars before anything else runs. This ensures we fail fast.
