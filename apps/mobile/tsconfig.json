@@ -22,8 +22,5 @@
       "@voice/speaking-metrics": ["packages/speaking-metrics/src"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
-  ]
+  "include": ["**/*.ts", "**/*.tsx"]
 }

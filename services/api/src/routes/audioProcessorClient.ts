@@ -13,12 +13,14 @@ export async function enqueueAudioAnalysis(jobId: string, audioUrl: string, user
     body: JSON.stringify({
       jobId,
       audioUrl,
-      userId
-    })
+      userId,
+    }),
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to enqueue audio analysis job: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Failed to enqueue audio analysis job: ${response.status} ${response.statusText}`
+    );
   }
 
   return response.json();

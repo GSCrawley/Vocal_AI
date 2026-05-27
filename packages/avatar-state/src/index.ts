@@ -17,20 +17,20 @@ import type {
  */
 export function sessionStateToAvatarState(sessionState: SessionState): AvatarBehaviorState {
   const map: Record<SessionState, AvatarBehaviorState> = {
-    IDLE:             'IDLE',
-    LOADING_SESSION:  'IDLE',
-    READY:            'IDLE',
-    WARM_UP:          'INTRO',
-    EXERCISE_INTRO:   'INTRO',
-    MIC_CHECK:        'INTRO',
-    AWAITING_SIGNAL:  'INTRO',
-    LISTENING:        'LISTENING',
-    ANALYZING:        'ANALYZING',
-    RESULT_REVIEW:    'COACHING',
-    RETRY_PROMPT:     'COACHING',
-    REFLECTION:       'COACHING',
+    IDLE: 'IDLE',
+    LOADING_SESSION: 'IDLE',
+    READY: 'IDLE',
+    WARM_UP: 'INTRO',
+    EXERCISE_INTRO: 'INTRO',
+    MIC_CHECK: 'INTRO',
+    AWAITING_SIGNAL: 'INTRO',
+    LISTENING: 'LISTENING',
+    ANALYZING: 'ANALYZING',
+    RESULT_REVIEW: 'COACHING',
+    RETRY_PROMPT: 'COACHING',
+    REFLECTION: 'COACHING',
     SESSION_COMPLETE: 'IDLE',
-    SESSION_ERROR:    'COACHING',
+    SESSION_ERROR: 'COACHING',
   };
   return map[sessionState];
 }
@@ -63,7 +63,7 @@ export interface DialogueContext {
   exerciseTitle?: string;
   exerciseInstruction?: string;
   coaching?: CoachingPayload;
-  sessionCount?: number;       // How many sessions the user has completed total
+  sessionCount?: number; // How many sessions the user has completed total
   isPersonalBest?: boolean;
   isMilestone?: boolean;
   milestoneDescription?: string;
@@ -81,9 +81,10 @@ export function buildIntroDialogue(ctx: DialogueContext): AvatarDialogueLine[] {
   // First session greeting vs returning user
   if (sessionCount === 0) {
     lines.push({
-      text: tier === 'speaking'
-        ? "Let's start with something simple. We're just going to get a baseline for your voice — no pressure."
-        : "Welcome. Let's find out where your voice is today. We'll start easy.",
+      text:
+        tier === 'speaking'
+          ? "Let's start with something simple. We're just going to get a baseline for your voice — no pressure."
+          : "Welcome. Let's find out where your voice is today. We'll start easy.",
       state: 'INTRO',
       durationMs: 4000,
     });
@@ -155,9 +156,7 @@ export function buildCoachingDialogue(
 /**
  * Generate CELEBRATING dialogue for milestones.
  */
-export function buildCelebrationDialogue(
-  ctx: DialogueContext
-): AvatarDialogueLine[] {
+export function buildCelebrationDialogue(ctx: DialogueContext): AvatarDialogueLine[] {
   const { isMilestone, milestoneDescription, tier } = ctx;
 
   if (!isMilestone && !ctx.isPersonalBest) return [];
@@ -172,9 +171,10 @@ export function buildCelebrationDialogue(
     });
   } else {
     lines.push({
-      text: tier === 'speaking'
-        ? "That's a milestone. Your voice is building something real."
-        : "That's a milestone. Listen to how far you've come.",
+      text:
+        tier === 'speaking'
+          ? "That's a milestone. Your voice is building something real."
+          : "That's a milestone. Listen to how far you've come.",
       state: 'CELEBRATING',
       durationMs: 3500,
     });
@@ -189,7 +189,7 @@ export function buildCelebrationDialogue(
 export function buildReflectionDialogue(tier: Tier): AvatarDialogueLine[] {
   return [
     {
-      text: "Two quick questions before you go.",
+      text: 'Two quick questions before you go.',
       state: 'COACHING',
       durationMs: 2000,
     },
@@ -199,7 +199,7 @@ export function buildReflectionDialogue(tier: Tier): AvatarDialogueLine[] {
       awaitUserAction: true,
     },
     {
-      text: "And what will you focus on next time you practice?",
+      text: 'And what will you focus on next time you practice?',
       state: 'COACHING',
       awaitUserAction: true,
     },
@@ -212,7 +212,8 @@ export function buildReflectionDialogue(tier: Tier): AvatarDialogueLine[] {
 export function buildListeningPrompt(tier: Tier, isRetry: boolean): AvatarDialogueLine {
   if (isRetry) {
     return {
-      text: tier === 'speaking' ? "Go ahead when you're ready." : "Try again — take a breath first.",
+      text:
+        tier === 'speaking' ? "Go ahead when you're ready." : 'Try again — take a breath first.',
       state: 'LISTENING',
       durationMs: 1500,
     };
@@ -271,12 +272,12 @@ export const SESSION_ERROR_DIALOGUE: AvatarDialogueLine = {
  * Actual file paths will be resolved in the mobile app.
  */
 export const AVATAR_ANIMATION_ASSETS: Record<AvatarBehaviorState, string> = {
-  IDLE:       'avatar_idle.json',
-  INTRO:      'avatar_intro.json',
-  LISTENING:  'avatar_listening.json',
-  ANALYZING:  'avatar_analyzing.json',
-  COACHING:   'avatar_coaching.json',
-  CELEBRATING:'avatar_celebrating.json',
+  IDLE: 'avatar_idle.json',
+  INTRO: 'avatar_intro.json',
+  LISTENING: 'avatar_listening.json',
+  ANALYZING: 'avatar_analyzing.json',
+  COACHING: 'avatar_coaching.json',
+  CELEBRATING: 'avatar_celebrating.json',
 };
 
 export type AvatarTierColor = {
@@ -291,13 +292,13 @@ export type AvatarTierColor = {
  */
 export const AVATAR_TIER_COLORS: Record<Tier, AvatarTierColor> = {
   speaking: {
-    primary:    '#D97706', // Amber
-    accent:     '#F59E0B', // Gold
+    primary: '#D97706', // Amber
+    accent: '#F59E0B', // Gold
     background: '#FEF3C7', // Warm cream
   },
   singing: {
-    primary:    '#6D28D9', // Violet
-    accent:     '#8B5CF6', // Purple
+    primary: '#6D28D9', // Violet
+    accent: '#8B5CF6', // Purple
     background: '#EDE9FE', // Lavender
   },
 };

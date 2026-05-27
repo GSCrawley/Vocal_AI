@@ -11,7 +11,7 @@ describe('Config Validation', () => {
     REDIS_URL: 'redis://localhost:6379',
     INTERNAL_SERVICE_TOKEN: 'internal-token',
     NODE_ENV: 'test',
-    PORT: '10000'
+    PORT: '10000',
   };
 
   it('should parse valid env successfully', () => {
@@ -23,6 +23,8 @@ describe('Config Validation', () => {
     const invalidEnv = { ...validEnv } as any;
     delete invalidEnv.SUPABASE_URL;
 
-    expect(() => validateEnv(invalidEnv)).toThrowError(/Missing or invalid required environment variables: SUPABASE_URL/);
+    expect(() => validateEnv(invalidEnv)).toThrowError(
+      /Missing or invalid required environment variables: SUPABASE_URL/
+    );
   });
 });

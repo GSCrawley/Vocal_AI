@@ -1,21 +1,17 @@
-import "./instrument.js";
-import { validateEnv } from "./config/env.js";
+import './instrument.js';
+import { validateEnv } from './config/env.js';
 
 // Validate env vars before anything else runs. This ensures we fail fast.
 const config = validateEnv();
 
-import * as Sentry from "@sentry/node";
-import Fastify, { FastifyRequest, FastifyReply } from "fastify";
-import {
-  LivePitchFrame,
-  SessionState,
-  SessionEvent
-} from "@voice/shared-types";
-import { runMicCheck, computeSustainedNoteScore } from "@voice/audio-metrics";
-import { nextState } from "@voice/exercise-engine";
-import authPlugin from "./plugins/auth.js";
-import { createClient } from "redis";
-import { enqueueAudioAnalysis } from "./routes/audioProcessorClient.js";
+import * as Sentry from '@sentry/node';
+import Fastify, { FastifyRequest, FastifyReply } from 'fastify';
+import { LivePitchFrame, SessionState, SessionEvent } from '@voice/shared-types';
+import { runMicCheck, computeSustainedNoteScore } from '@voice/audio-metrics';
+import { nextState } from '@voice/exercise-engine';
+import authPlugin from './plugins/auth.js';
+import { createClient } from 'redis';
+import { enqueueAudioAnalysis } from './routes/audioProcessorClient.js';
 
 export const apiService = {
   service: 'api',
@@ -31,12 +27,12 @@ export const apiService = {
     'admin',
     'analytics-events',
     'audio-metrics',
-    'exercise-engine'
+    'exercise-engine',
   ],
 };
 
 const fastify = Fastify({
-  logger: true
+  logger: true,
 });
 
 fastify.register(authPlugin);
@@ -65,10 +61,12 @@ fastify.get('/healthz', async (request, reply) => {
     await redis.connect();
     await redis.ping();
 
-    return { ok: true, status: "healthy" };
+    return { ok: true, status: 'healthy' };
   } catch (err) {
-    fastify.log.error(err, "Health check failed");
-    return reply.code(503).send({ ok: false, error: "Health check failed: Redis unreachable or config issue" });
+    fastify.log.error(err, 'Health check failed');
+    return reply
+      .code(503)
+      .send({ ok: false, error: 'Health check failed: Redis unreachable or config issue' });
   } finally {
     if (redis) {
       try {
@@ -80,13 +78,17 @@ fastify.get('/healthz', async (request, reply) => {
   }
 });
 
-fastify.get('/', {
-  preHandler: async (request: FastifyRequest, reply: FastifyReply) => {
-    await fastify.authenticate(request, reply);
+fastify.get(
+  '/',
+  {
+    preHandler: async (request: FastifyRequest, reply: FastifyReply) => {
+      await fastify.authenticate(request, reply);
+    },
+  },
+  async () => {
+    return { service: 'api', status: 'stub' };
   }
-}, async () => {
-  return { service: 'api', status: 'stub' };
-});
+);
 
 // Placeholder route for processing audio with audio-metrics
 fastify.post<{ Body: { frames: LivePitchFrame[]; targetHz: number; rmsDbFrames: number[] } }>(
@@ -102,23 +104,27 @@ fastify.post<{ Body: { frames: LivePitchFrame[]; targetHz: number; rmsDbFrames: 
         properties: {
           frames: { type: 'array' },
           targetHz: { type: 'number' },
-          rmsDbFrames: { type: 'array', items: { type: 'number' } }
-        }
-      }
-    }
+          rmsDbFrames: { type: 'array', items: { type: 'number' } },
+        },
+      },
+    },
   },
   async (request, reply) => {
     const { frames, targetHz, rmsDbFrames } = request.body;
     // Thread rmsDb into frames before mic check
     const framesWithRms = frames.map((frame, index) => {
-      const rmsDb = rmsDbFrames && rmsDbFrames[index] !== undefined ? rmsDbFrames[index] : undefined;
+      const rmsDb =
+        rmsDbFrames && rmsDbFrames[index] !== undefined ? rmsDbFrames[index] : undefined;
       return { ...frame, rmsDb };
     });
     const checkResult = runMicCheck(framesWithRms);
     if (checkResult.status !== 'ok') {
       return reply.code(400).send({ error: checkResult.status });
     }
-    const score = computeSustainedNoteScore(request.body.frames, { frequencyHz: request.body.targetHz, durationMs: 1000 });
+    const score = computeSustainedNoteScore(request.body.frames, {
+      frequencyHz: request.body.targetHz,
+      durationMs: 1000,
+    });
     return { score };
   }
 );
@@ -136,10 +142,10 @@ fastify.post<{ Body: { audioUrl: string; jobId: string } }>(
         required: ['audioUrl', 'jobId'],
         properties: {
           audioUrl: { type: 'string' },
-          jobId: { type: 'string' }
-        }
-      }
-    }
+          jobId: { type: 'string' },
+        },
+      },
+    },
   },
   async (request, reply) => {
     const { audioUrl, jobId } = request.body;
@@ -148,8 +154,8 @@ fastify.post<{ Body: { audioUrl: string; jobId: string } }>(
       const result = await enqueueAudioAnalysis(jobId, audioUrl, request.user?.id || 'anonymous');
       return reply.code(202).send(result);
     } catch (err: any) {
-      request.log.error(err, "Failed to enqueue audio analysis");
-      return reply.code(500).send({ error: "Failed to enqueue audio analysis job" });
+      request.log.error(err, 'Failed to enqueue audio analysis');
+      return reply.code(500).send({ error: 'Failed to enqueue audio analysis job' });
     }
   }
 );
@@ -167,10 +173,10 @@ fastify.post<{ Body: { currentState: SessionState; event: SessionEvent } }>(
         required: ['currentState', 'event'],
         properties: {
           currentState: { type: 'object' },
-          event: { type: 'string' }
-        }
-      }
-    }
+          event: { type: 'string' },
+        },
+      },
+    },
   },
   async (request, reply) => {
     const { currentState, event } = request.body;
@@ -192,7 +198,8 @@ const start = async () => {
   }
 };
 
-const isMainModule = import.meta.url.startsWith('file:') && process.argv[1] === new URL(import.meta.url).pathname;
+const isMainModule =
+  import.meta.url.startsWith('file:') && process.argv[1] === new URL(import.meta.url).pathname;
 
 if (isMainModule) {
   start();

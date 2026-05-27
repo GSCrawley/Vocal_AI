@@ -10,11 +10,7 @@
     "module": "ESNext",
     "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "src"
-  ],
-  "references": [
-    { "path": "../shared-types" }
-  ],
+  "include": ["src"],
+  "references": [{ "path": "../shared-types" }],
   "exclude": ["src/**/*.test.ts", "src/**/__tests__/**", "dist", "node_modules"]
 }

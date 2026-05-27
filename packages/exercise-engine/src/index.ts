@@ -1,4 +1,11 @@
-import { SessionState, SessionEvent, AttemptResult, Tier, CurriculumEntry, UserSessionContext } from '@voice/shared-types';
+import {
+  SessionState,
+  SessionEvent,
+  AttemptResult,
+  Tier,
+  CurriculumEntry,
+  UserSessionContext,
+} from '@voice/shared-types';
 
 export { SessionState, SessionEvent };
 
@@ -24,18 +31,25 @@ export class InvalidTransitionError extends Error {
   }
 }
 
-export function buildSessionPlan(curriculum: CurriculumEntry[], userContext: UserSessionContext): SessionPlan {
+export function buildSessionPlan(
+  curriculum: CurriculumEntry[],
+  userContext: UserSessionContext
+): SessionPlan {
   // Picks the Build 0.1 sustained-note exercise and any required warm-up/mic-check entries from curriculum
   // Tier-aware (singing tier for Build 0.1).
-  const tierEligible = curriculum.filter(c => c.tier === userContext.tier && (!c.minimumLevelRequired || c.minimumLevelRequired <= userContext.currentLevel));
+  const tierEligible = curriculum.filter(
+    (c) =>
+      c.tier === userContext.tier &&
+      (!c.minimumLevelRequired || c.minimumLevelRequired <= userContext.currentLevel)
+  );
   // In a real implementation this would sort and pick based on context.
   // Let's pick up to 3 exercises for the session.
-  const exerciseIds = tierEligible.slice(0, 3).map(e => e.exerciseId);
+  const exerciseIds = tierEligible.slice(0, 3).map((e) => e.exerciseId);
   return {
     sessionId: `session-${Date.now()}`,
     tier: userContext.tier,
     exerciseIds,
-    currentExerciseIndex: 0
+    currentExerciseIndex: 0,
   };
 }
 
@@ -45,7 +59,7 @@ export function createSession(plan: SessionPlan): Session {
     state: 'IDLE',
     plan,
     attempts: [],
-    reflectionProcessed: false
+    reflectionProcessed: false,
   };
 }
 
@@ -62,7 +76,9 @@ export function nextState(session: Session, event: SessionEvent): Session {
   const newState = getNextState(session.state, event);
 
   if (!newState) {
-    throw new InvalidTransitionError(`Invalid transition: state ${session.state}, event ${event.type}`);
+    throw new InvalidTransitionError(
+      `Invalid transition: state ${session.state}, event ${event.type}`
+    );
   }
 
   // Additional invariant checks

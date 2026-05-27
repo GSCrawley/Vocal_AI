@@ -30,7 +30,10 @@ export default fp(async (fastify: FastifyInstance) => {
       }
 
       const token = authHeader.replace('Bearer ', '');
-      const { data: { user }, error } = await supabase.auth.getUser(token);
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser(token);
 
       if (error) {
         const status = (error as { status?: number }).status;

@@ -5,14 +5,10 @@ import {
   SustainedNoteTarget,
   ScoringWeights,
   SingingScore,
-  MicCheckOpts
+  MicCheckOpts,
 } from '@voice/shared-types';
 
-export {
-  LivePitchFrame,
-  SingingExerciseScoreBreakdown,
-  ExerciseMetricResult
-};
+export { LivePitchFrame, SingingExerciseScoreBreakdown, ExerciseMetricResult };
 
 export function hzToCents(hz: number, refHz: number): number {
   if (hz <= 0 || refHz <= 0 || isNaN(hz) || isNaN(refHz)) return NaN;
@@ -65,7 +61,11 @@ export function runMicCheck(frames: LivePitchFrame[], opts: MicCheckOpts = {}): 
   return { status: 'ok' };
 }
 
-export function scorePitchAccuracy(frames: LivePitchFrame[], targetHz: number, opts: { toleranceCents?: number } = {}): number {
+export function scorePitchAccuracy(
+  frames: LivePitchFrame[],
+  targetHz: number,
+  opts: { toleranceCents?: number } = {}
+): number {
   const toleranceCents = opts.toleranceCents ?? 25;
 
   let usableFrames = 0;
@@ -74,7 +74,7 @@ export function scorePitchAccuracy(frames: LivePitchFrame[], targetHz: number, o
 
   for (const frame of frames) {
     if (!frame.voiced || frame.confidence < 0.5 || !frame.frequencyHz) continue;
-    
+
     usableFrames++;
     const centsError = hzToCents(frame.frequencyHz, targetHz);
     if (isNaN(centsError)) continue;
@@ -92,11 +92,11 @@ export function scorePitchAccuracy(frames: LivePitchFrame[], targetHz: number, o
   absoluteErrors.sort((a, b) => a - b);
   const medianError = absoluteErrors[Math.floor(absoluteErrors.length / 2)];
 
-  let errorScore = 1 - (medianError / (toleranceCents * 2));
+  let errorScore = 1 - medianError / (toleranceCents * 2);
   if (errorScore < 0) errorScore = 0;
   if (errorScore > 1) errorScore = 1;
 
-  return (timeInToleranceRatio * 0.5) + (errorScore * 0.5);
+  return timeInToleranceRatio * 0.5 + errorScore * 0.5;
 }
 
 export function scorePitchStability(frames: LivePitchFrame[]): number {
@@ -109,7 +109,7 @@ export function scorePitchStability(frames: LivePitchFrame[]): number {
 
   if (validHz.length < 2) return 0;
 
-  const validHzSorted = [...validHz].sort((a,b) => a - b);
+  const validHzSorted = [...validHz].sort((a, b) => a - b);
   const medianHz = validHzSorted[Math.floor(validHzSorted.length / 2)];
 
   let count = 0;
@@ -132,14 +132,18 @@ export function scorePitchStability(frames: LivePitchFrame[]): number {
   const stdDev = Math.sqrt(Math.max(0, variance));
 
   // Mapping std_cents to a score: 1 - clamp(stdDev / 100, 0, 1)
-  let stabilityScore = 1 - (stdDev / 100);
+  let stabilityScore = 1 - stdDev / 100;
   if (stabilityScore < 0) stabilityScore = 0;
   if (stabilityScore > 1) stabilityScore = 1;
 
   return stabilityScore;
 }
 
-export function scoreOnset(frames: LivePitchFrame[], targetHz: number, opts: { settleMs?: number, toleranceCents?: number } = {}): number {
+export function scoreOnset(
+  frames: LivePitchFrame[],
+  targetHz: number,
+  opts: { settleMs?: number; toleranceCents?: number } = {}
+): number {
   const settleMs = opts.settleMs ?? 500;
   const toleranceCents = opts.toleranceCents ?? 50;
 
@@ -153,7 +157,7 @@ export function scoreOnset(frames: LivePitchFrame[], targetHz: number, opts: { s
   for (let i = 0; i < frames.length; i++) {
     const frame = frames[i];
     if (!frame.voiced || frame.confidence < 0.5 || !frame.frequencyHz) continue;
-    
+
     if (firstUsableTimestamp === -1) firstUsableTimestamp = frame.timestampMs;
 
     const centsError = hzToCents(frame.frequencyHz, targetHz);
@@ -174,15 +178,20 @@ export function scoreOnset(frames: LivePitchFrame[], targetHz: number, opts: { s
   if (firstUsableTimestamp === -1 || lockedTimestamp === -1) return 0;
 
   const timeToLockMs = lockedTimestamp - firstUsableTimestamp;
-  
-  let onsetScore = 1 - (timeToLockMs / settleMs);
+
+  let onsetScore = 1 - timeToLockMs / settleMs;
   if (onsetScore < 0) onsetScore = 0;
   if (onsetScore > 1) onsetScore = 1;
-  
+
   return onsetScore;
 }
 
-export function scoreCompletion(frames: LivePitchFrame[], targetDurationMs: number, targetHz: number, opts: { toleranceCents?: number } = {}): number {
+export function scoreCompletion(
+  frames: LivePitchFrame[],
+  targetDurationMs: number,
+  targetHz: number,
+  opts: { toleranceCents?: number } = {}
+): number {
   if (targetDurationMs <= 0) return 0;
 
   // Assume frames are sorted by timestamp. The duration is simply the amount of time
@@ -193,12 +202,12 @@ export function scoreCompletion(frames: LivePitchFrame[], targetDurationMs: numb
 
   const toleranceCents = opts.toleranceCents ?? 50;
   for (const frame of frames) {
-     if (frame.voiced && frame.confidence >= 0.5 && frame.frequencyHz) {
-        const centsError = hzToCents(frame.frequencyHz, targetHz);
-        if (!isNaN(centsError) && Math.abs(centsError) <= toleranceCents) {
-          voicedMs += FRAME_DURATION_MS;
-        }
-     }
+    if (frame.voiced && frame.confidence >= 0.5 && frame.frequencyHz) {
+      const centsError = hzToCents(frame.frequencyHz, targetHz);
+      if (!isNaN(centsError) && Math.abs(centsError) <= toleranceCents) {
+        voicedMs += FRAME_DURATION_MS;
+      }
+    }
   }
 
   let completion = voicedMs / targetDurationMs;
@@ -212,7 +221,7 @@ const DEFAULT_WEIGHTS: ScoringWeights = {
   accuracy: 0.5,
   stability: 0.3,
   completion: 0.15,
-  onset: 0.05
+  onset: 0.05,
 };
 
 export function computeSustainedNoteScore(
@@ -220,22 +229,25 @@ export function computeSustainedNoteScore(
   target: SustainedNoteTarget,
   weights: ScoringWeights = DEFAULT_WEIGHTS
 ): SingingScore {
-
   const sumWeights = weights.accuracy + weights.stability + weights.completion + weights.onset;
   if (Math.abs(sumWeights - 1.0) > 0.001) {
     throw new Error('Scoring weights must sum to 1.0');
   }
 
-  const accuracy = scorePitchAccuracy(frames, target.frequencyHz, { toleranceCents: target.toleranceCents });
+  const accuracy = scorePitchAccuracy(frames, target.frequencyHz, {
+    toleranceCents: target.toleranceCents,
+  });
   const stability = scorePitchStability(frames);
-  const completion = scoreCompletion(frames, target.durationMs, target.frequencyHz, { toleranceCents: target.toleranceCents });
+  const completion = scoreCompletion(frames, target.durationMs, target.frequencyHz, {
+    toleranceCents: target.toleranceCents,
+  });
   const onset = scoreOnset(frames, target.frequencyHz, { toleranceCents: target.toleranceCents });
 
   const overallScore =
-    (accuracy * weights.accuracy) +
-    (stability * weights.stability) +
-    (completion * weights.completion) +
-    (onset * weights.onset);
+    accuracy * weights.accuracy +
+    stability * weights.stability +
+    completion * weights.completion +
+    onset * weights.onset;
 
   // Default to high confidence; this function assumes clean input, degradedScore is used otherwise
   return {
@@ -244,7 +256,7 @@ export function computeSustainedNoteScore(
     stability,
     completion,
     onset,
-    confidence: 'high'
+    confidence: 'high',
   };
 }
 
@@ -256,6 +268,6 @@ export function degradedScore(reason: string): SingingScore {
     completion: 0,
     onset: 0,
     confidence: 'low',
-    degradedReason: reason
+    degradedReason: reason,
   };
 }

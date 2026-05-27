@@ -341,7 +341,7 @@ Acceptance checks:
 
 - Each active exercise has tier, category, target pattern, evaluation config, scoring weights, and feedback rule set.
 - Exercise IDs are versioned.
-- Build 0.1 can start from a known exercise definition                                                .
+- Build 0.1 can start from a known exercise definition .
 
 ### 8. Coaching Rules And Avatar Behavior Agent
 
@@ -750,7 +750,7 @@ task_groups:
       - reward-progress
       - mobile-app
       - qa-test-automation
-    deliverable: "Local Build 0.1 sustained-note coaching loop"
+    deliverable: 'Local Build 0.1 sustained-note coaching loop'
 
   backend_persistence:
     agents:
@@ -758,7 +758,7 @@ task_groups:
       - security-privacy-compliance
       - analytics-notification
       - infrastructure-render
-    deliverable: "Authenticated session, attempt, best-take, reflection, reward, and event persistence"
+    deliverable: 'Authenticated session, attempt, best-take, reflection, reward, and event persistence'
 
   phase_2_karaoke:
     agents:
@@ -768,7 +768,7 @@ task_groups:
       - mobile-app
       - infrastructure-render
       - qa-test-automation
-    deliverable: "Licensed educational karaoke snippet practice pipeline"
+    deliverable: 'Licensed educational karaoke snippet practice pipeline'
 ```
 
 ## Build 0.1 Acceptance Target
@@ -812,6 +812,7 @@ Do not implement these until their phase gate opens:
 - Does this keep Build 0.1 smaller than MVP?
 
 ## Postmortem: Render Build Failures (2026-05-09)
+
 All three Node services failed to deploy after apps/mobile was populated with a real Expo + Sentry React Native dependency tree. Root cause: pnpm install in each service's Render build command had no --filter flag, so the entire monorepo (including the heavy mobile workspace) was installed before the filtered build step ran. On the Starter plan's 512 MB RAM ceiling, the mobile install OOM-killed the build. Fix: add --filter "@voice/<service>..." to the install command per service. Future agents must never assume that filtering the build step is sufficient — the install step must also be filtered or the entire monorepo gets installed.
 Secondary issue: --no-frozen-lockfile masked the silent introduction of mobile dependencies into the install graph. After Build 0.1 stabilizes, switch to --frozen-lockfile so lockfile drift fails CI rather than reaching production.
 Procedural issue: the breaking commits landed directly on main with no PR review and no CI protection. Branch protection has been enabled on main (see docs/architecture/contribution-rules.md). Confirmed still active as of 2026-05-12 — verify before assigning Jules tasks that target `main` directly.

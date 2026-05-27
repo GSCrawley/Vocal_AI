@@ -11,13 +11,9 @@
     "declaration": false,
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
-    "types": [
-      "node"
-    ]
+    "types": ["node"]
   },
-  "include": [
-    "src/**/*"
-  ],
+  "include": ["src/**/*"],
   "references": [
     { "path": "../../packages/shared-types" },
     { "path": "../../packages/audio-metrics" },

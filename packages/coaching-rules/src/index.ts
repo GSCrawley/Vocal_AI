@@ -6,7 +6,7 @@ export function mapSustainedNoteScoreToCoaching(score: number): CoachingPayload 
       praiseMessage: 'Great control on that note.',
       correctionMessage: 'Keep the tone steady through the full hold.',
       actionTip: 'Repeat once and match that consistency again.',
-      successBand: 'excellent'
+      successBand: 'excellent',
     };
   }
 
@@ -15,7 +15,7 @@ export function mapSustainedNoteScoreToCoaching(score: number): CoachingPayload 
       praiseMessage: 'Nice work.',
       correctionMessage: 'You drifted a little near the end.',
       actionTip: 'Focus on steady airflow through the whole note.',
-      successBand: 'good'
+      successBand: 'good',
     };
   }
 
@@ -24,7 +24,7 @@ export function mapSustainedNoteScoreToCoaching(score: number): CoachingPayload 
       praiseMessage: 'Good effort.',
       correctionMessage: 'The note moved sharp and flat during the hold.',
       actionTip: 'Try again with a lighter, steadier delivery.',
-      successBand: 'developing'
+      successBand: 'developing',
     };
   }
 
@@ -32,6 +32,6 @@ export function mapSustainedNoteScoreToCoaching(score: number): CoachingPayload 
     praiseMessage: 'You got through the rep.',
     correctionMessage: 'The signal was unstable or far from the target note.',
     actionTip: 'Retry after taking a breath and matching the reference tone first.',
-    successBand: 'retry'
+    successBand: 'retry',
   };
 }

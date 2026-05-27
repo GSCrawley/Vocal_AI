@@ -5,22 +5,38 @@ import {
   buildSessionPlan,
   submitAttempt,
   canAwardXp,
-  InvalidTransitionError
+  InvalidTransitionError,
 } from '../index';
-import { SessionEvent, AttemptResult, CurriculumEntry, UserSessionContext } from '@voice/shared-types';
+import {
+  SessionEvent,
+  AttemptResult,
+  CurriculumEntry,
+  UserSessionContext,
+} from '@voice/shared-types';
 
 describe('exercise-engine', () => {
-
   const mockCurriculum: CurriculumEntry[] = [
-    { exerciseId: 'warmup', title: 'Warmup', category: 'breathing', tier: 'singing', minimumLevelRequired: 1 },
-    { exerciseId: 'sustain_01', title: 'Sustain A4', category: 'pitch_matching', tier: 'singing', minimumLevelRequired: 1 }
+    {
+      exerciseId: 'warmup',
+      title: 'Warmup',
+      category: 'breathing',
+      tier: 'singing',
+      minimumLevelRequired: 1,
+    },
+    {
+      exerciseId: 'sustain_01',
+      title: 'Sustain A4',
+      category: 'pitch_matching',
+      tier: 'singing',
+      minimumLevelRequired: 1,
+    },
   ];
 
   const mockContext: UserSessionContext = {
     userId: 'user1',
     tier: 'singing',
     currentLevel: 1,
-    sessionCountToday: 0
+    sessionCountToday: 0,
   };
 
   const mockAttempt: AttemptResult = {
@@ -31,9 +47,9 @@ describe('exercise-engine', () => {
       stability: 90,
       completion: 1.0,
       onset: 0.8,
-      confidence: 'high'
+      confidence: 'high',
     },
-    durationMs: 5000
+    durationMs: 5000,
   };
 
   describe('buildSessionPlan & createSession', () => {
@@ -99,7 +115,7 @@ describe('exercise-engine', () => {
       session.state = 'ANALYZING';
       let updated = submitAttempt(session, mockAttempt);
       expect(canAwardXp(updated)).toBe(false); // No reflection yet
-      
+
       updated = nextState(updated, { type: 'START_REFLECTION' });
       updated = nextState(updated, { type: 'REFLECTION_DONE' });
       expect(updated.reflectionProcessed).toBe(true);
@@ -111,7 +127,7 @@ describe('exercise-engine', () => {
     it('runs end-to-end and asserts canAwardXp returns true', () => {
       const plan = buildSessionPlan(mockCurriculum, mockContext);
       let s = createSession(plan);
-      
+
       s = nextState(s, { type: 'LOAD' });
       s = nextState(s, { type: 'LOADED' });
       s = nextState(s, { type: 'START_ATTEMPT' }); // EXERCISE_INTRO

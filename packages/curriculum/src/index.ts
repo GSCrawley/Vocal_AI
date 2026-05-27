@@ -29,7 +29,7 @@ export const CURRICULUM_LEVEL_NAMES: Record<Tier, Record<CurriculumLevel, string
 
 export const CURRICULUM_LEVEL_SESSION_COUNTS: Record<Tier, Record<CurriculumLevel, number>> = {
   speaking: { 1: 10, 2: 20, 3: 30, 4: Infinity },
-  singing:  { 1: 15, 2: 25, 3: 40, 4: Infinity },
+  singing: { 1: 15, 2: 25, 3: 40, 4: Infinity },
 };
 
 // ------------------------------------------------------------
@@ -61,7 +61,7 @@ export function meetsPrerequisites(
   }
   if (exercise.prerequisiteExerciseIds && exercise.prerequisiteExerciseIds.length > 0) {
     const completedSet = new Set(completedExerciseIds);
-    return exercise.prerequisiteExerciseIds.every(id => completedSet.has(id));
+    return exercise.prerequisiteExerciseIds.every((id) => completedSet.has(id));
   }
   return true;
 }
@@ -78,24 +78,22 @@ export function selectNextExercise(
   sessionCountToday: number
 ): ExerciseDefinition | null {
   // Filter to exercises the user can do
-  const eligible = availableExercises.filter(ex =>
-    ex.activeFlag &&
-    (!ex.minimumLevelRequired || ex.minimumLevelRequired <= currentLevel)
+  const eligible = availableExercises.filter(
+    (ex) => ex.activeFlag && (!ex.minimumLevelRequired || ex.minimumLevelRequired <= currentLevel)
   );
 
   const completedSet = new Set(completedExerciseIds);
 
   // For the first exercise in a session, prefer exercises matching the primary goal
   if (sessionCountToday === 0) {
-    const goalMatch = eligible.find(ex =>
-      !completedSet.has(ex.exerciseId) &&
-      ex.category.includes(primaryGoal.replace('_', ''))
+    const goalMatch = eligible.find(
+      (ex) => !completedSet.has(ex.exerciseId) && ex.category.includes(primaryGoal.replace('_', ''))
     );
     if (goalMatch) return goalMatch;
   }
 
   // Otherwise, select the next uncompleted exercise in level order
-  const uncompleted = eligible.filter(ex => !completedSet.has(ex.exerciseId));
+  const uncompleted = eligible.filter((ex) => !completedSet.has(ex.exerciseId));
   return uncompleted[0] ?? eligible[0] ?? null; // Fall back to replay if all done
 }
 
@@ -141,7 +139,13 @@ export function buildSessionPlan(
   completedExerciseIds: string[]
 ): SessionPlan {
   const warmUpIds = getWarmUpExercises(tier, level);
-  const coreIds = getCoreExercises(tier, level, primaryGoal, availableExercises, completedExerciseIds);
+  const coreIds = getCoreExercises(
+    tier,
+    level,
+    primaryGoal,
+    availableExercises,
+    completedExerciseIds
+  );
 
   const estimatedMinutes = warmUpIds.length * 2 + coreIds.length * 5;
 
@@ -176,11 +180,12 @@ function getCoreExercises(
 
   // Core: 2–4 exercises targeted at the primary goal
   const goalExercises = available
-    .filter(ex =>
-      ex.tier === tier &&
-      ex.activeFlag &&
-      (!ex.minimumLevelRequired || ex.minimumLevelRequired <= level) &&
-      goalCategories.includes(ex.category)
+    .filter(
+      (ex) =>
+        ex.tier === tier &&
+        ex.activeFlag &&
+        (!ex.minimumLevelRequired || ex.minimumLevelRequired <= level) &&
+        goalCategories.includes(ex.category)
     )
     .sort((a, b) => {
       // Prefer uncompleted exercises; secondarily sort by version (newest)
@@ -189,17 +194,18 @@ function getCoreExercises(
       return aNew - bNew || b.version - a.version;
     })
     .slice(0, 3)
-    .map(ex => ex.exerciseId);
+    .map((ex) => ex.exerciseId);
 
   if (goalExercises.length > 0) {
     return goalExercises;
   }
 
   return available
-    .filter(ex =>
-      ex.tier === tier &&
-      ex.activeFlag &&
-      (!ex.minimumLevelRequired || ex.minimumLevelRequired <= level)
+    .filter(
+      (ex) =>
+        ex.tier === tier &&
+        ex.activeFlag &&
+        (!ex.minimumLevelRequired || ex.minimumLevelRequired <= level)
     )
     .sort((a, b) => {
       const aNew = !completedSet.has(a.exerciseId) ? 0 : 1;
@@ -207,7 +213,7 @@ function getCoreExercises(
       return aNew - bNew || b.version - a.version;
     })
     .slice(0, 3)
-    .map(ex => ex.exerciseId);
+    .map((ex) => ex.exerciseId);
 }
 
 // ------------------------------------------------------------
