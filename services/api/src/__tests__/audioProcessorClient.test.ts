@@ -9,6 +9,7 @@ describe('audioProcessorClient', () => {
     process.env.SUPABASE_ANON_KEY = 'test'; process.env.SENTRY_DSN = 'https://test@sentry.io/1';
     process.env.SUPABASE_SERVICE_ROLE_KEY = 'test';
     process.env.OPENAI_API_KEY = 'sk-123';
+    process.env.DATABASE_URL = 'postgres://user:pass@localhost:5432/db';
     process.env.DEEPGRAM_API_KEY = 'dg-123';
     process.env.ELEVENLABS_API_KEY = 'el-123';
     process.env.REDIS_URL = 'redis://localhost:6379';
