@@ -15,7 +15,7 @@ describe('audio-metrics', () => {
       frequencyHz: centsToHz(centsOffset, TARGET_HZ),
       voiced: true,
       confidence: 0.9,
-      ...options
+      ...options,
     };
   }
 

@@ -13,16 +13,22 @@ describe('generateSpeakingFeedback', () => {
 
   it('returns correct feedback for too_slow', () => {
     const feedback = generateSpeakingFeedback('too_slow');
-    expect(feedback).toEqual({ text: 'You came in too slow. Aim for a more natural, conversational pace.' });
+    expect(feedback).toEqual({
+      text: 'You came in too slow. Aim for a more natural, conversational pace.',
+    });
   });
 
   it('returns correct feedback for uptalk', () => {
     const feedback = generateSpeakingFeedback('uptalk');
-    expect(feedback).toEqual({ text: 'Your sentences are ending like questions. Bring the pitch down at the end of each statement.' });
+    expect(feedback).toEqual({
+      text: 'Your sentences are ending like questions. Bring the pitch down at the end of each statement.',
+    });
   });
 
   it('returns correct feedback for monotone', () => {
     const feedback = generateSpeakingFeedback('monotone');
-    expect(feedback).toEqual({ text: 'Your voice stayed very flat - vary your pitch more to keep listeners engaged.' });
+    expect(feedback).toEqual({
+      text: 'Your voice stayed very flat - vary your pitch more to keep listeners engaged.',
+    });
   });
 });

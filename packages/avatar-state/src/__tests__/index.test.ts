@@ -1,4 +1,10 @@
-import { sessionStateToAvatarState, resolveAvatarState, AVATAR_ANIMATION_ASSETS, buildIntroDialogue, buildCoachingDialogue } from '../index';
+import {
+  sessionStateToAvatarState,
+  resolveAvatarState,
+  AVATAR_ANIMATION_ASSETS,
+  buildIntroDialogue,
+  buildCoachingDialogue,
+} from '../index';
 import type { CoachingPayload } from '@voice/shared-types';
 
 describe('Avatar State', () => {
@@ -54,7 +60,11 @@ describe('Avatar State', () => {
     });
 
     it('returns last session focus for returning user', () => {
-      const lines = buildIntroDialogue({ tier: 'singing', sessionCount: 1, lastSessionFocus: 'breath control' });
+      const lines = buildIntroDialogue({
+        tier: 'singing',
+        sessionCount: 1,
+        lastSessionFocus: 'breath control',
+      });
       expect(lines.length).toBe(1);
       expect(lines[0]).toEqual({
         text: "Last time you were working on breath control. Let's pick up from there.",
@@ -69,7 +79,11 @@ describe('Avatar State', () => {
     });
 
     it('appends exercise title if provided', () => {
-      const lines = buildIntroDialogue({ tier: 'singing', sessionCount: 1, exerciseTitle: 'Vocal Warmup' });
+      const lines = buildIntroDialogue({
+        tier: 'singing',
+        sessionCount: 1,
+        exerciseTitle: 'Vocal Warmup',
+      });
       expect(lines.length).toBe(1);
       expect(lines[0]).toEqual({
         text: "Today's exercise: Vocal Warmup.",
@@ -79,7 +93,11 @@ describe('Avatar State', () => {
     });
 
     it('appends exercise instruction if provided', () => {
-      const lines = buildIntroDialogue({ tier: 'singing', sessionCount: 1, exerciseInstruction: 'Take a deep breath and start.' });
+      const lines = buildIntroDialogue({
+        tier: 'singing',
+        sessionCount: 1,
+        exerciseInstruction: 'Take a deep breath and start.',
+      });
       expect(lines.length).toBe(1);
       expect(lines[0]).toEqual({
         text: 'Take a deep breath and start.',
@@ -120,7 +138,7 @@ describe('Avatar State', () => {
       praiseMessage: 'Great job!',
       correctionMessage: 'Try to keep your pitch steady.',
       actionTip: 'Take a deep breath and go again.',
-      successBand: 'good'
+      successBand: 'good',
     };
 
     it('builds dialogue for a personal best', () => {
@@ -175,7 +193,7 @@ describe('Avatar State', () => {
       praiseMessage: 'Great job!',
       correctionMessage: 'Try to keep your pitch steady.',
       actionTip: 'Take a deep breath and go again.',
-      successBand: 'good'
+      successBand: 'good',
     };
 
     it('builds dialogue for a personal best', () => {

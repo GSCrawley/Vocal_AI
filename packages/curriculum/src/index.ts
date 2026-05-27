@@ -28,7 +28,7 @@ export const CURRICULUM_LEVEL_NAMES: Record<Tier, Record<CurriculumLevel, string
 
 export const CURRICULUM_LEVEL_SESSION_COUNTS: Record<Tier, Record<CurriculumLevel, number>> = {
   speaking: { 1: 10, 2: 20, 3: 30, 4: Infinity },
-  singing:  { 1: 15, 2: 25, 3: 40, 4: Infinity },
+  singing: { 1: 15, 2: 25, 3: 40, 4: Infinity },
 };
 
 // ------------------------------------------------------------
@@ -76,9 +76,8 @@ export function selectNextExercise(
   sessionCountToday: number
 ): ExerciseDefinition | null {
   // Filter to exercises the user can do
-  const eligible = availableExercises.filter(ex =>
-    ex.activeFlag &&
-    (!ex.minimumLevelRequired || ex.minimumLevelRequired <= currentLevel)
+  const eligible = availableExercises.filter(
+    (ex) => ex.activeFlag && (!ex.minimumLevelRequired || ex.minimumLevelRequired <= currentLevel)
   );
 
   // For the first exercise in a session, prefer exercises matching the primary goal
@@ -117,7 +116,13 @@ export function buildSessionPlan(
   completedExerciseIds: string[]
 ): SessionPlan {
   const warmUpIds = getWarmUpExercises(tier, level);
-  const coreIds = getCoreExercises(tier, level, primaryGoal, availableExercises, completedExerciseIds);
+  const coreIds = getCoreExercises(
+    tier,
+    level,
+    primaryGoal,
+    availableExercises,
+    completedExerciseIds
+  );
 
   const estimatedMinutes = warmUpIds.length * 2 + coreIds.length * 5;
 

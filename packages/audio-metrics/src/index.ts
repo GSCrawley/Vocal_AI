@@ -8,11 +8,7 @@ import {
   ExerciseMetricResult
 } from '@voice/shared-types';
 
-export {
-  LivePitchFrame,
-  SingingExerciseScoreBreakdown,
-  ExerciseMetricResult
-};
+export { LivePitchFrame, SingingExerciseScoreBreakdown, ExerciseMetricResult };
 
 export function hzToCents(frequencyHz: number, referenceHz: number): number {
   if (frequencyHz <= 0 || referenceHz <= 0) return 0;
@@ -89,7 +85,7 @@ export function scorePitchAccuracy(frames: LivePitchFrame[], targetHz: number, t
 
   for (const frame of frames) {
     if (!frame.voiced || frame.confidence < 0.5 || !frame.frequencyHz) continue;
-    
+
     usableFrames++;
     const evaluation = evaluateFrame(frame.frequencyHz, targetHz, toleranceCents, frame.confidence);
 

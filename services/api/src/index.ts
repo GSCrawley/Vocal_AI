@@ -23,7 +23,7 @@ export const apiService = {
     'admin',
     'analytics-events',
     'audio-metrics',
-    'exercise-engine'
+    'exercise-engine',
   ],
 };
 
@@ -78,10 +78,10 @@ fastify.post(
         properties: {
           frames: { type: 'array' },
           targetHz: { type: 'number' },
-          rmsDbFrames: { type: 'array', items: { type: 'number' } }
-        }
-      }
-    }
+          rmsDbFrames: { type: 'array', items: { type: 'number' } },
+        },
+      },
+    },
   },
   async (request: FastifyRequest<{ Body: { frames: LivePitchFrame[]; targetHz: number; rmsDbFrames: number[] } }>, reply: FastifyReply) => {
     const { frames, targetHz, rmsDbFrames } = request.body;
@@ -104,10 +104,10 @@ fastify.post(
         required: ['currentState', 'event'],
         properties: {
           currentState: { type: 'object' },
-          event: { type: 'string' }
-        }
-      }
-    }
+          event: { type: 'string' },
+        },
+      },
+    },
   },
   async (request: FastifyRequest<{ Body: { currentState: SessionState; event: SessionEvent } }>, reply: FastifyReply) => {
     const { currentState, event } = request.body;

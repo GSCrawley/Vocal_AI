@@ -53,17 +53,22 @@ VOCAL_AI/
 ## Architectural rules
 
 ### 1. Shared types are the authority
+
 All domain types live in `packages/shared-types`. No package or app should define its own versions of `Tier`, `ExerciseDefinition`, `SuccessBand`, etc. Import from `@voice/shared-types`.
 
 ### 2. No domain logic in the mobile app
+
 Business logic (scoring, coaching rules, curriculum sequencing, reward computation) belongs in the shared packages. The mobile app calls functions from these packages — it does not re-implement them.
 
 ### 3. Audio processing is server-side for heavy operations
+
 Real-time pitch detection (pYIN, < 80ms latency) runs on-device via JS/WASM.
 Heavy operations — vocal separation (Demucs), ASR (Whisper), and DTW comparison — run server-side via the audio-processor service.
 
 ### 4. The audio-processor service is Python-first
+
 The `services/audio-processor` package contains only TypeScript job contracts (the interface between Node.js API and the Python service). The actual Python implementation lives in a separate directory:
+
 ```
 services/audio-processor/
 ├── src/           # TypeScript job contract types (used by API service)
@@ -72,10 +77,13 @@ services/audio-processor/
 ```
 
 ### 5. Content schema is versioned
+
 Exercise definitions are stored in the backend database but described by versioned schemas in `packages/content-schema`. Exercise IDs include a version number. Never change an existing exercise's behavior — create a new version.
 
 ### 6. Package naming convention
+
 All packages use the `@voice/` scope:
+
 - `@voice/shared-types`
 - `@voice/exercise-engine`
 - `@voice/coaching-rules`
@@ -93,6 +101,7 @@ All packages use the `@voice/` scope:
 ## Data flow overview
 
 ### Speaking session (real-time)
+
 ```
 Mobile mic → PCM frames → JS VAD + pYIN (F0)
                                  ↓
@@ -110,6 +119,7 @@ Mobile mic → PCM frames → JS VAD + pYIN (F0)
 ```
 
 ### Singing session (real-time)
+
 ```
 Mobile mic → PCM frames → JS pYIN (Hz → cents)
                                  ↓
@@ -127,6 +137,7 @@ Mobile mic → PCM frames → JS pYIN (Hz → cents)
 ```
 
 ### Karaoke session (Phase 2)
+
 ```
 User selects song
        ↓
@@ -149,10 +160,10 @@ Mobile receives KaraokeAttemptScore → karaoke-engine → avatar dialogue
 
 ## Build targets
 
-| Target | Command | Description |
-|---|---|---|
-| Mobile dev | `pnpm dev` | Starts Expo dev server |
-| Type check all | `pnpm typecheck` | Runs tsc --noEmit across all packages |
-| Build all packages | `pnpm build` | Compiles all shared packages |
-| Test all | `pnpm test` | Runs Jest across all packages |
-| Filter to package | `pnpm --filter @voice/reward-engine test` | Run tests in one package |
+| Target             | Command                                   | Description                           |
+| ------------------ | ----------------------------------------- | ------------------------------------- |
+| Mobile dev         | `pnpm dev`                                | Starts Expo dev server                |
+| Type check all     | `pnpm typecheck`                          | Runs tsc --noEmit across all packages |
+| Build all packages | `pnpm build`                              | Compiles all shared packages          |
+| Test all           | `pnpm test`                               | Runs Jest across all packages         |
+| Filter to package  | `pnpm --filter @voice/reward-engine test` | Run tests in one package              |

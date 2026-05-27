@@ -23,7 +23,12 @@ Sentry.init({
 export default Sentry.wrap(function App() {
   return (
     <View style={styles.container}>
-        <Button title='Try!' onPress={ () => { Sentry.captureException(new Error('First error')) }}/>
+      <Button
+        title="Try!"
+        onPress={() => {
+          Sentry.captureException(new Error('First error'));
+        }}
+      />
       <Text>Open up App.tsx to start working on your app!</Text>
       <StatusBar style="auto" />
     </View>
