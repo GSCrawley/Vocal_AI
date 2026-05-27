@@ -66,7 +66,7 @@ export function runMicCheck(frames: LivePitchFrame[], opts: MicCheckOpts = {}): 
 }
 
 export function scorePitchAccuracy(frames: LivePitchFrame[], targetHz: number, opts: { toleranceCents?: number } = {}): number {
-  const toleranceCents = opts.toleranceCents ?? 50;
+  const toleranceCents = opts.toleranceCents ?? 25;
 
   let usableFrames = 0;
   let framesInTolerance = 0;
