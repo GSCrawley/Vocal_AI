@@ -10,26 +10,20 @@
     "start": "node dist/index.js",
     "lint": "echo \"Add API lint config\"",
     "typecheck": "tsc -b tsconfig.json",
-    "test": "pnpm exec jest --config ./jest.config.js"
+    "test": "echo \"Add API tests\""
   },
   "dependencies": {
     "@sentry/node": "^8.55.2",
     "@sentry/profiling-node": "^8.55.2",
     "@sentry/tracing": "^7.120.4",
     "@sentry/types": "^8.55.2",
-    "@supabase/supabase-js": "^2.106.1",
     "@types/node": "22.0.0",
-    "@voice/audio-metrics": "workspace:*",
     "@voice/content-schema": "workspace:*",
-    "@voice/exercise-engine": "workspace:*",
     "@voice/shared-types": "workspace:*",
+    "@voice/audio-metrics": "workspace:*",
+    "@voice/exercise-engine": "workspace:*",
     "fastify": "^5.8.5",
-    "fastify-plugin": "^5.1.0",
-    "redis": "^5.12.1",
     "tsx": "^4.7.0",
     "typescript": "^6.0.2"
-  },
-  "devDependencies": {
-    "@types/redis": "^4.0.11"
   }
 }

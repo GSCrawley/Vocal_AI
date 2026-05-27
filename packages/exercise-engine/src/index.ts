@@ -1,89 +1,28 @@
-import { SessionState, SessionEvent, AttemptResult, Tier, CurriculumEntry, UserSessionContext } from '@voice/shared-types';
+export { type SessionState, SessionEvent, initialSessionState } from '@voice/shared-types';
+import { SessionState, ExerciseDefinition, Tier, SessionEvent } from '@voice/shared-types';
 
-export { SessionState, SessionEvent };
+
+export interface Attempt {
+  attemptId: string;
+  exerciseId: string;
+  startedAt: number;
+  endedAt?: number;
+  status: 'in_progress' | 'completed' | 'aborted';
+}
 
 export interface SessionPlan {
   sessionId: string;
   tier: Tier;
   exerciseIds: string[];
-  currentExerciseIndex: number;
+  currentIndex: number;
+  attempts: Attempt[];
 }
 
-export interface Session {
-  sessionId: string;
-  state: SessionState;
-  plan: SessionPlan;
-  attempts: AttemptResult[];
-  reflectionProcessed: boolean;
-}
-
-export class InvalidTransitionError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'InvalidTransitionError';
-  }
-}
-
-export function buildSessionPlan(curriculum: CurriculumEntry[], userContext: UserSessionContext): SessionPlan {
-  // Picks the Build 0.1 sustained-note exercise and any required warm-up/mic-check entries from curriculum
-  // Tier-aware (singing tier for Build 0.1).
-  const tierEligible = curriculum.filter(c => c.tier === userContext.tier && (!c.minimumLevelRequired || c.minimumLevelRequired <= userContext.currentLevel));
-  // In a real implementation this would sort and pick based on context.
-  // Let's pick up to 3 exercises for the session.
-  const exerciseIds = tierEligible.slice(0, 3).map(e => e.exerciseId);
-  return {
-    sessionId: `session-${Date.now()}`,
-    tier: userContext.tier,
-    exerciseIds,
-    currentExerciseIndex: 0
-  };
-}
-
-export function createSession(plan: SessionPlan): Session {
-  return {
-    sessionId: plan.sessionId,
-    state: 'IDLE',
-    plan,
-    attempts: [],
-    reflectionProcessed: false
-  };
-}
-
-export function nextState(session: Session, event: SessionEvent): Session {
+export function transition(state: SessionState, event: SessionEvent): SessionState {
   if (event.type === 'ERROR') {
-    return { ...session, state: 'SESSION_ERROR' };
+    return 'SESSION_ERROR';
   }
 
-  // Strain warning overrides everything
-  if (event.type === 'STRAIN_WARNING') {
-    return { ...session, state: 'REFLECTION' };
-  }
-
-  const newState = getNextState(session.state, event);
-
-  if (!newState) {
-    throw new InvalidTransitionError(`Invalid transition: state ${session.state}, event ${event.type}`);
-  }
-
-  // Additional invariant checks
-  if (newState === 'SESSION_COMPLETE' && session.attempts.length === 0) {
-    throw new InvalidTransitionError('Cannot complete session with zero attempts');
-  }
-
-  const updatedSession = { ...session, state: newState };
-
-  if (event.type === 'REFLECTION_DONE') {
-    updatedSession.reflectionProcessed = true;
-  }
-
-  if (event.type === 'SUBMIT_ATTEMPT') {
-    updatedSession.attempts = [...updatedSession.attempts, event.attempt];
-  }
-
-  return updatedSession;
-}
-
-function getNextState(state: SessionState, event: SessionEvent): SessionState | null {
   switch (state) {
     case 'IDLE':
       if (event.type === 'LOAD') return 'LOADING_SESSION';
@@ -99,12 +38,7 @@ function getNextState(state: SessionState, event: SessionEvent): SessionState | 
       if (event.type === 'WARM_UP_DONE') return 'READY';
       break;
     case 'EXERCISE_INTRO':
-      if (event.type === 'DO_MIC_CHECK') return 'MIC_CHECK';
       if (event.type === 'START_ATTEMPT') return 'AWAITING_SIGNAL';
-      break;
-    case 'MIC_CHECK':
-      if (event.type === 'MIC_CHECK_PASS') return 'AWAITING_SIGNAL';
-      if (event.type === 'MIC_CHECK_FAIL') return 'MIC_CHECK'; // Stays in mic check
       break;
     case 'AWAITING_SIGNAL':
       if (event.type === 'SIGNAL_DETECTED') return 'LISTENING';
@@ -113,35 +47,79 @@ function getNextState(state: SessionState, event: SessionEvent): SessionState | 
       if (event.type === 'LISTENING_DONE') return 'ANALYZING';
       break;
     case 'ANALYZING':
-      if (event.type === 'SUBMIT_ATTEMPT') return 'RESULT_REVIEW';
       if (event.type === 'ANALYSIS_DONE') return 'RESULT_REVIEW';
       break;
     case 'RESULT_REVIEW':
-      if (event.type === 'RETRY') return 'RETRY_PROMPT';
+      if (event.type === 'RETRY') return 'EXERCISE_INTRO';
       if (event.type === 'CONTINUE') return 'EXERCISE_INTRO';
       if (event.type === 'START_REFLECTION') return 'REFLECTION';
-      break;
-    case 'RETRY_PROMPT':
-      if (event.type === 'START_ATTEMPT') return 'AWAITING_SIGNAL';
       break;
     case 'REFLECTION':
       if (event.type === 'REFLECTION_DONE') return 'SESSION_COMPLETE';
       break;
     case 'SESSION_COMPLETE':
     case 'SESSION_ERROR':
-      // Terminal
+      // Terminal states
       break;
   }
-  return null;
+
+  throw new Error(`Invalid transition: state ${state}, event ${event.type}`);
 }
 
-export function submitAttempt(session: Session, attempt: AttemptResult): Session {
-  if (session.state !== 'ANALYZING') {
-    throw new InvalidTransitionError('Attempts can only be submitted in ANALYZING state');
+export function buildSessionPlan(params: { sessionId: string; tier: Tier; exercises: ExerciseDefinition[] }): SessionPlan {
+  return {
+    sessionId: params.sessionId,
+    tier: params.tier,
+    exerciseIds: params.exercises.map(e => e.exerciseId),
+    currentIndex: 0,
+    attempts: []
+  };
+}
+
+export function startAttempt(plan: SessionPlan, attemptId: string, now: number): SessionPlan {
+  const currentExerciseId = plan.exerciseIds[plan.currentIndex];
+  if (!currentExerciseId) {
+    throw new Error('No exercise at current index');
   }
-  return nextState(session, { type: 'SUBMIT_ATTEMPT', attempt });
+
+  const newAttempt: Attempt = {
+    attemptId,
+    exerciseId: currentExerciseId,
+    startedAt: now,
+    status: 'in_progress'
+  };
+
+  return {
+    ...plan,
+    attempts: [...plan.attempts, newAttempt]
+  };
 }
 
-export function canAwardXp(session: Session): boolean {
-  return session.attempts.length > 0 && session.reflectionProcessed;
+export function completeAttempt(plan: SessionPlan, attemptId: string, now: number): SessionPlan {
+  const attemptIndex = plan.attempts.findIndex(a => a.attemptId === attemptId);
+  if (attemptIndex === -1) {
+    throw new Error(`Attempt ${attemptId} not found`);
+  }
+
+  const updatedAttempts = [...plan.attempts];
+  const attempt = updatedAttempts[attemptIndex];
+
+  if (attempt.status !== 'in_progress') {
+    throw new Error(`Attempt ${attemptId} is not in progress`);
+  }
+
+  updatedAttempts[attemptIndex] = {
+    ...attempt,
+    endedAt: now,
+    status: 'completed'
+  };
+
+  return {
+    ...plan,
+    attempts: updatedAttempts
+  };
+}
+
+export function canAwardXp(plan: SessionPlan): boolean {
+  return plan.attempts.some(a => a.status === 'completed');
 }

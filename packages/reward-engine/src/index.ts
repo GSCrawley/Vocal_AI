@@ -168,14 +168,7 @@ export const BADGE_CHECKS: BadgeCheck[] = [
   { badgeId: 'first_word',     earned: (i) => i.tier === 'speaking' && i.sessionCount >= 1 },
   { badgeId: 'under_control',  earned: (i) => (i.topScoreByExercise['pace'] ?? 0) >= 80 },
   { badgeId: 'no_filler',      earned: (i) => (i.fillerRateMinimum ?? 99) < 1 },
-  { badgeId: 'pause_master',   earned: (i) => {
-    let count = 0;
-    for (const e of i.exercisesCompleted) {
-      if (e.includes('pause') && ++count >= 10) return true;
-    }
-    return false;
-  }
-},
+  { badgeId: 'pause_master',   earned: (i) => (i.exercisesCompleted.filter(e => e.includes('pause')).length) >= 10 },
   { badgeId: 'authority_voice',earned: (i) => (i.downturnRatioMax ?? 0) >= 0.9 },
   { badgeId: 'the_hook',       earned: (i) => (i.topScoreByExercise['hook'] ?? 0) >= 85 },
   { badgeId: 'streak_30_speaking', earned: (i) => i.tier === 'speaking' && i.streakDays >= 30 },
@@ -202,13 +195,8 @@ export function evaluateBadges(
   const newBadges: EarnedBadge[] = [];
   const now = new Date().toISOString();
 
-  // Optimization: For a large array, building the Set once avoids O(N) array lookups per badge check.
-  // For very small arrays (e.g. initial state), array includes is fast enough that allocating a Set overhead isn't worth it.
-  const existingSet = existingBadges.length > 10 ? new Set(existingBadges) : undefined;
-
   for (const check of BADGE_CHECKS) {
-    const hasBadge = existingSet ? existingSet.has(check.badgeId) : existingBadges.includes(check.badgeId);
-    if (!hasBadge && check.earned(input, existingBadges)) {
+    if (!existingBadges.includes(check.badgeId) && check.earned(input, existingBadges)) {
       newBadges.push({ badgeId: check.badgeId, earnedAt: now });
     }
   }
