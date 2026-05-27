@@ -1,3 +1,13 @@
-🎯 **What:** This branch removes hardcoded Sentry DSNs from runtime code and keeps explicit runtime guarding in `services/api/instrument.js`, `services/analytics-worker/instrument.js`, and `services/notification-worker/instrument.js`.
-⚠️ **Risk:** Hardcoded DSNs in client code are a credential/config leak risk, and missing/misconfigured DSNs in services can silently disable telemetry.
-🛡️ **Solution:** Node services keep environment-based DSN checks (`SENTRY_DSN`) with production enforcement. Mobile Sentry initialization now uses `process.env.EXPO_PUBLIC_SENTRY_DSN`, API startup logging uses Fastify’s structured logger, and unused environment examples were removed.
+## Description
+This repository should not store PR-specific descriptions in a tracked `pr_description.md` file.
+
+### Usage
+- Put change-specific summaries, acceptance criteria, and review notes in the pull request body.
+- If a local scratch file is needed to draft a PR description, keep it untracked or generate it outside the repository.
+- Only commit content here if it is stable, long-lived documentation that is not tied to a single PR.
+
+### Rationale
+Replacing this file with unrelated PR text on each change causes churn in version control and makes it easy to lose the intended purpose of the document.
+
+### Note
+If the project needs a committed template, keep this file generic and reusable rather than filling it with implementation-specific details for one pull request.
