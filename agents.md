@@ -46,7 +46,7 @@ Implemented or partially implemented:
 - Populated Render Blueprint in `render.yaml` for API, admin, Redis, audio processor, workers, and cron jobs.
 - Placeholder mobile, admin, API, analytics, notification, Docker, and scripts.
 
-Known setup risks (last reviewed 2026-05-26):
+Known setup risks (last reviewed 2026-05-12):
 
 - `render.yaml` is schema-valid and infrastructure-aligned, but references future Dockerfiles, health checks, and service entrypoints that must be implemented before deployment.
 - Several package scripts are placeholders.
@@ -54,25 +54,11 @@ Known setup risks (last reviewed 2026-05-26):
 - Some imports and path aliases in `tsconfig.base.json` do not yet include every package listed in the docs.
 - `packages/audio-metrics/src/index.ts` and `packages/exercise-engine/src/index.ts` are still stubs (3 lines and 1 line respectively); both are required for Build 0.1 and are the next Jules handoff target.
 - The Expo app shell exists at `apps/mobile/App.tsx` (with Sentry) but has no Build 0.1 screens, navigation, or audio capture wired up.
-- `services/api` has a Fastify entrypoint at `services/api/src/index.ts`. Supabase Auth plugin and Zod-validated env config are now in place (PRs #80, #85). Profile, session, attempt, reflection, best-take, rewards, and analytics routes are still not implemented.
+- `services/api` has a Fastify entrypoint at `services/api/src/index.ts` returning a placeholder route; no auth, profile, session, attempt, or analytics routes are implemented.
 - Supabase migrations are not yet tracked in the repo.
-- The Python implementation of `services/audio-processor` (FastAPI app, Redis job queue, `/healthz`, internal-token auth, tests) landed in PR #85 (commit `d8b2d28`). The service is defined in `render.yaml` but is **not yet provisioned on Render** as of 2026-05-26 — requires a one-time manual Blueprint sync or "New Web Service" creation in the Render dashboard. See `docs/runbooks/render-deploys.md`.
+- The Python implementation of `services/audio-processor` is not in the repo (TypeScript job contracts only).
 - No lint config is present yet; CI workflow exists at `.github/workflows/ci.yml` and runs typecheck + test.
-- Resolved since the prior audit: `pnpm typecheck` passes across all 18 workspace projects (commits `d389006`, `6ca3c9b`); the Build 0.1 sustained-note scope conflict is resolved (PR #25, commit `45284d8`); six packages (`shared-types`, `reward-engine`, `avatar-state`, `speaking-metrics`, `coaching-rules`, `content-schema`) have real Jest tests; `voice-api` boot is hardened with Zod env validation and Supabase Auth (PRs #80, #85); the Python `services/audio-processor` FastAPI service is implemented (PRs #84, #85) and has CI (`audio-processor-ci`); the `render-deploys.md` runbook documents secret population.
-
-## Deployment State (2026-05-26)
-
-Currently provisioned on Render (production environment):
-
-- `voice-api` — Deployed (Node/Fastify)
-- `voice-redis` — Available (Valkey 8)
-- `voice-analytics-worker` — Deployed (Node worker)
-- `voice-notification-worker` — Deployed (Node worker)
-
-Defined in `render.yaml` but **not yet provisioned** on Render:
-
-- `voice-audio-processor` — Python/FastAPI service. Code merged in PR #85; requires one-time human action in the Render dashboard (New Web Service from `services/audio-processor` or Blueprint sync from `render.yaml`). Jules cannot perform this step. See `docs/runbooks/render-deploys.md` for the secret-population checklist.
-- `voice-admin`, `voice-audio-worker`, `voice-weekly-summary-cron`, `voice-data-retention-cron` — Phase 2+ services. Not yet in `render.yaml` either; will be added as their owning agents implement them.
+- Resolved since the prior audit: `pnpm typecheck` passes across all 18 workspace projects (commits `d389006`, `6ca3c9b`); the Build 0.1 sustained-note scope conflict is resolved (PR #25, commit `45284d8`); six packages (`shared-types`, `reward-engine`, `avatar-state`, `speaking-metrics`, `coaching-rules`, `content-schema`) have real Jest tests.
 
 ## Render Blueprint Alignment
 
@@ -130,7 +116,7 @@ Primary skills:
 
 Owned files:
 
-- `agents.md`
+- `AGENT.MD`
 - `README.md`
 - `docs/KNOWLEDGE_GRAPH.md`
 - Build milestone docs
