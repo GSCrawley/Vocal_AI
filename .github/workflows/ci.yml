@@ -9,23 +9,33 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - uses: actions/checkout@v4
+      env:
+        FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
         with:
           node-version-file: '.nvmrc'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
         with:
           version: 9.0.0
           run_install: false
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
       - name: Check .env.example drift
         run: pnpm check:env

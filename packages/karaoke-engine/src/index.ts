@@ -146,13 +146,18 @@ export function computeKaraokeScore(
 
   // Determine dominant failure mode
   let dominantFailureMode: KaraokeAttemptScore['dominantFailureMode'];
-  if (pitchSimilarity < 60) {
-    // Need to determine flat vs sharp — requires signed error data (passed separately)
-    dominantFailureMode = 'pitch_flat'; // Placeholder; real implementation uses signed DTW
-  } else if (timingAccuracy < 60) {
-    dominantFailureMode = 'rushing';     // Placeholder; real implementation uses signed offset
-  } else if (contourMatch < 60) {
-    dominantFailureMode = 'wrong_contour';
+
+  const minScore = Math.min(pitchSimilarity, timingAccuracy, contourMatch);
+
+  if (minScore < 60) {
+    if (minScore === pitchSimilarity) {
+      // Need to determine flat vs sharp — requires signed error data (passed separately)
+      dominantFailureMode = 'pitch_flat'; // Placeholder; real implementation uses signed DTW
+    } else if (minScore === timingAccuracy) {
+      dominantFailureMode = 'rushing';     // Placeholder; real implementation uses signed offset
+    } else if (minScore === contourMatch) {
+      dominantFailureMode = 'wrong_contour';
+    }
   }
 
   return { pitchSimilarity, timingAccuracy, contourMatch, overall, dominantFailureMode };

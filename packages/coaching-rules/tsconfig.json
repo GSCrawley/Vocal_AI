@@ -6,11 +6,21 @@
     "declaration": true,
     "ignoreDeprecations": "6.0",
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "types": []
   },
-  "include": ["src"],
-  "references": [
-    { "path": "../shared-types" }
+  "include": [
+    "src"
   ],
-  "exclude": ["src/**/*.test.ts", "src/**/__tests__/**", "dist", "node_modules"]
+  "references": [
+    {
+      "path": "../shared-types"
+    }
+  ],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/__tests__/**",
+    "dist",
+    "node_modules"
+  ]
 }
