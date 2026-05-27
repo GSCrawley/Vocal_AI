@@ -109,7 +109,12 @@ fastify.post<{ Body: { frames: LivePitchFrame[]; targetHz: number; rmsDbFrames: 
   },
   async (request, reply) => {
     const { frames, targetHz, rmsDbFrames } = request.body;
-    const checkResult = runMicCheck(frames);
+    // Thread rmsDb into frames before mic check
+    const framesWithRms = frames.map((frame, index) => {
+      const rmsDb = rmsDbFrames && rmsDbFrames[index] !== undefined ? rmsDbFrames[index] : undefined;
+      return { ...frame, rmsDb };
+    });
+    const checkResult = runMicCheck(framesWithRms);
     if (checkResult.status !== 'ok') {
       return reply.code(400).send({ error: checkResult.status });
     }
