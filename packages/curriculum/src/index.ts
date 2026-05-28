@@ -59,7 +59,7 @@ export function meetsPrerequisites(
     return false;
   }
   if (exercise.prerequisiteExerciseIds && exercise.prerequisiteExerciseIds.length > 0) {
-    return exercise.prerequisiteExerciseIds.every(id => completedExerciseIds.includes(id));
+    return exercise.prerequisiteExerciseIds.every((id) => completedExerciseIds.includes(id));
   }
   return true;
 }
@@ -82,15 +82,16 @@ export function selectNextExercise(
 
   // For the first exercise in a session, prefer exercises matching the primary goal
   if (sessionCountToday === 0) {
-    const goalMatch = eligible.find(ex =>
-      !completedExerciseIds.includes(ex.exerciseId) &&
-      ex.category.includes(primaryGoal.replace('_', ''))
+    const goalMatch = eligible.find(
+      (ex) =>
+        !completedExerciseIds.includes(ex.exerciseId) &&
+        ex.category.includes(primaryGoal.replace('_', ''))
     );
     if (goalMatch) return goalMatch;
   }
 
   // Otherwise, select the next uncompleted exercise in level order
-  const uncompleted = eligible.filter(ex => !completedExerciseIds.includes(ex.exerciseId));
+  const uncompleted = eligible.filter((ex) => !completedExerciseIds.includes(ex.exerciseId));
   return uncompleted[0] ?? eligible[0] ?? null; // Fall back to replay if all done
 }
 
@@ -154,10 +155,11 @@ function getCoreExercises(
 ): string[] {
   // Core: 2–4 exercises targeted at the primary goal
   const goalExercises = available
-    .filter(ex =>
-      ex.tier === tier &&
-      ex.activeFlag &&
-      (!ex.minimumLevelRequired || ex.minimumLevelRequired <= level)
+    .filter(
+      (ex) =>
+        ex.tier === tier &&
+        ex.activeFlag &&
+        (!ex.minimumLevelRequired || ex.minimumLevelRequired <= level)
     )
     .sort((a, b) => {
       // Prefer uncompleted exercises; secondarily sort by version (newest)
@@ -166,7 +168,7 @@ function getCoreExercises(
       return aNew - bNew;
     })
     .slice(0, 3)
-    .map(ex => ex.exerciseId);
+    .map((ex) => ex.exerciseId);
 
   return goalExercises;
 }

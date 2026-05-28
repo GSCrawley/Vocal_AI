@@ -40,8 +40,8 @@ export function computePitchSimilarity(
   userFrames: LivePitchFrame[],
   referenceFrames: LivePitchFrame[]
 ): number {
-  const userVoiced = userFrames.filter(f => f.voiced && f.centsFromTarget !== undefined);
-  const refVoiced = referenceFrames.filter(f => f.voiced && f.frequencyHz !== undefined);
+  const userVoiced = userFrames.filter((f) => f.voiced && f.centsFromTarget !== undefined);
+  const refVoiced = referenceFrames.filter((f) => f.voiced && f.frequencyHz !== undefined);
 
   if (userVoiced.length === 0 || refVoiced.length === 0) return 0;
 
@@ -154,7 +154,7 @@ export function computeKaraokeScore(
       // Need to determine flat vs sharp — requires signed error data (passed separately)
       dominantFailureMode = 'pitch_flat'; // Placeholder; real implementation uses signed DTW
     } else if (minScore === timingAccuracy) {
-      dominantFailureMode = 'rushing';     // Placeholder; real implementation uses signed offset
+      dominantFailureMode = 'rushing'; // Placeholder; real implementation uses signed offset
     } else if (minScore === contourMatch) {
       dominantFailureMode = 'wrong_contour';
     }

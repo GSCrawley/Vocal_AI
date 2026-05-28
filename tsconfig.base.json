@@ -13,9 +13,7 @@
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@voice/*": [
-        "packages/*/src"
-      ]
+      "@voice/*": ["packages/*/src"]
     }
   }
 }

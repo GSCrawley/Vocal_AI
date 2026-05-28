@@ -9,44 +9,19 @@
     "baseUrl": "../..",
     "ignoreDeprecations": "6.0",
     "paths": {
-      "@voice/shared-types": [
-        "packages/shared-types/src"
-      ],
-      "@voice/content-schema": [
-        "packages/content-schema/src"
-      ],
-      "@voice/exercise-engine": [
-        "packages/exercise-engine/src"
-      ],
-      "@voice/coaching-rules": [
-        "packages/coaching-rules/src"
-      ],
-      "@voice/audio-metrics": [
-        "packages/audio-metrics/src"
-      ],
-      "@voice/ui-tokens": [
-        "packages/ui-tokens/src"
-      ],
-      "@voice/avatar-state": [
-        "packages/avatar-state/src"
-      ],
-      "@voice/curriculum": [
-        "packages/curriculum/src"
-      ],
-      "@voice/karaoke-engine": [
-        "packages/karaoke-engine/src"
-      ],
-      "@voice/reward-engine": [
-        "packages/reward-engine/src"
-      ],
-      "@voice/speaking-metrics": [
-        "packages/speaking-metrics/src"
-      ]
+      "@voice/shared-types": ["packages/shared-types/src"],
+      "@voice/content-schema": ["packages/content-schema/src"],
+      "@voice/exercise-engine": ["packages/exercise-engine/src"],
+      "@voice/coaching-rules": ["packages/coaching-rules/src"],
+      "@voice/audio-metrics": ["packages/audio-metrics/src"],
+      "@voice/ui-tokens": ["packages/ui-tokens/src"],
+      "@voice/avatar-state": ["packages/avatar-state/src"],
+      "@voice/curriculum": ["packages/curriculum/src"],
+      "@voice/karaoke-engine": ["packages/karaoke-engine/src"],
+      "@voice/reward-engine": ["packages/reward-engine/src"],
+      "@voice/speaking-metrics": ["packages/speaking-metrics/src"]
     },
     "types": []
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
-  ]
+  "include": ["**/*.ts", "**/*.tsx"]
 }

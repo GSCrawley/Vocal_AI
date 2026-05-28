@@ -1,7 +1,7 @@
 import '../instrument.js';
 
 // All other imports below
-import { createServer, IncomingMessage, ServerResponse } from "node:http";
+import { createServer, IncomingMessage, ServerResponse } from 'node:http';
 
 const server = createServer((req: any, res: any) => {
   // server code
@@ -14,7 +14,7 @@ export const notificationWorker = {
   jobs: ['daily-reminders', 'weekly-summaries', 'milestone-notifications'],
 };
 
-console.log("voice-notification-worker started");
+console.log('voice-notification-worker started');
 
 const heartbeatLogsEnabled = process.env.NOTIFICATION_WORKER_HEARTBEAT_LOGS === 'true';
 

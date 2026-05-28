@@ -17,16 +17,16 @@ import type {
  */
 export function sessionStateToAvatarState(sessionState: SessionState): AvatarBehaviorState {
   const map: Record<SessionState, AvatarBehaviorState> = {
-    IDLE:             'IDLE',
-    LOADING_SESSION:  'IDLE',
-    READY:            'IDLE',
-    WARM_UP:          'INTRO',
-    EXERCISE_INTRO:   'INTRO',
-    AWAITING_SIGNAL:  'INTRO',
-    LISTENING:        'LISTENING',
-    ANALYZING:        'ANALYZING',
-    RESULT_REVIEW:    'COACHING',
-    REFLECTION:       'COACHING',
+    IDLE: 'IDLE',
+    LOADING_SESSION: 'IDLE',
+    READY: 'IDLE',
+    WARM_UP: 'INTRO',
+    EXERCISE_INTRO: 'INTRO',
+    AWAITING_SIGNAL: 'INTRO',
+    LISTENING: 'LISTENING',
+    ANALYZING: 'ANALYZING',
+    RESULT_REVIEW: 'COACHING',
+    REFLECTION: 'COACHING',
     SESSION_COMPLETE: 'IDLE',
     SESSION_ERROR: 'COACHING',
   };

@@ -187,4 +187,4 @@ services:
       - key: SENTRY_RELEASE
         sync: false
       - key: NODE_OPTIONS
-        value: "--max-old-space-size=400"
+        value: '--max-old-space-size=400'
