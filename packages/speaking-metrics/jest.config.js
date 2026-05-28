@@ -1,4 +1,3 @@
-
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
@@ -8,6 +7,6 @@ module.exports = {
     },
   },
   moduleNameMapper: {
-    '^@voice/(.*)$': '<rootDir>/../$1/src'
-  }
+    '^@voice/(.*)$': '<rootDir>/../$1/src',
+  },
 };

@@ -1,6 +1,7 @@
 # OpenAPI Draft
 
 Initial route groups:
+
 - /v1/auth
 - /v1/profiles
 - /v1/assessments

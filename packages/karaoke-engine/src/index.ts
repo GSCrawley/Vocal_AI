@@ -18,9 +18,9 @@ export const KARAOKE_MATCH_THRESHOLDS: Record<string, number> = {
 };
 
 export const SCORE_WEIGHTS = {
-  pitchSimilarity: 0.60,
-  timingAccuracy:  0.20,
-  contourMatch:    0.20,
+  pitchSimilarity: 0.6,
+  timingAccuracy: 0.2,
+  contourMatch: 0.2,
 };
 
 // ------------------------------------------------------------
@@ -40,8 +40,8 @@ export function computePitchSimilarity(
   userFrames: LivePitchFrame[],
   referenceFrames: LivePitchFrame[]
 ): number {
-  const userVoiced = userFrames.filter(f => f.voiced && f.centsFromTarget !== undefined);
-  const refVoiced = referenceFrames.filter(f => f.voiced && f.frequencyHz !== undefined);
+  const userVoiced = userFrames.filter((f) => f.voiced && f.centsFromTarget !== undefined);
+  const refVoiced = referenceFrames.filter((f) => f.voiced && f.frequencyHz !== undefined);
 
   if (userVoiced.length === 0 || refVoiced.length === 0) return 0;
 
@@ -68,7 +68,7 @@ export function computePitchSimilarity(
 
   // Map avg cents error to 0–100 score
   // 0 cents error = 100; 50 cents = ~80; 200 cents = ~30
-  return Math.max(0, Math.round(100 - (avgErrorCents / 3)));
+  return Math.max(0, Math.round(100 - avgErrorCents / 3));
 }
 
 /**
@@ -78,11 +78,11 @@ export function computePitchSimilarity(
 export function computeTimingAccuracy(
   userDurationMs: number,
   referenceDurationMs: number,
-  userOnsetOffsetMs: number,  // ms late/early vs expected start
+  userOnsetOffsetMs: number // ms late/early vs expected start
 ): number {
   // Duration match: within 15% = full score; beyond 30% = 50 score
   const durationRatio = Math.abs(userDurationMs - referenceDurationMs) / referenceDurationMs;
-  const durationScore = durationRatio <= 0.15 ? 100 : durationRatio <= 0.30 ? 75 : 50;
+  const durationScore = durationRatio <= 0.15 ? 100 : durationRatio <= 0.3 ? 75 : 50;
 
   // Onset match: within 200ms = full; beyond 500ms = 50
   const onsetAbs = Math.abs(userOnsetOffsetMs);
@@ -100,7 +100,7 @@ export function computeContourMatch(
   referenceFrames: LivePitchFrame[]
 ): number {
   const getContourDirection = (frames: LivePitchFrame[]): ('up' | 'down' | 'flat')[] => {
-    const voiced = frames.filter(f => f.voiced && f.frequencyHz !== undefined);
+    const voiced = frames.filter((f) => f.voiced && f.frequencyHz !== undefined);
     const directions: ('up' | 'down' | 'flat')[] = [];
     const segmentSize = Math.max(1, Math.floor(voiced.length / 8));
 
@@ -140,8 +140,8 @@ export function computeKaraokeScore(
 ): KaraokeAttemptScore {
   const overall = Math.round(
     pitchSimilarity * SCORE_WEIGHTS.pitchSimilarity +
-    timingAccuracy  * SCORE_WEIGHTS.timingAccuracy +
-    contourMatch    * SCORE_WEIGHTS.contourMatch
+      timingAccuracy * SCORE_WEIGHTS.timingAccuracy +
+      contourMatch * SCORE_WEIGHTS.contourMatch
   );
 
   // Determine dominant failure mode
@@ -154,7 +154,7 @@ export function computeKaraokeScore(
       // Need to determine flat vs sharp — requires signed error data (passed separately)
       dominantFailureMode = 'pitch_flat'; // Placeholder; real implementation uses signed DTW
     } else if (minScore === timingAccuracy) {
-      dominantFailureMode = 'rushing';     // Placeholder; real implementation uses signed offset
+      dominantFailureMode = 'rushing'; // Placeholder; real implementation uses signed offset
     } else if (minScore === contourMatch) {
       dominantFailureMode = 'wrong_contour';
     }
@@ -167,13 +167,9 @@ export function computeKaraokeScore(
 // SNIPPET COMPLETION CHECK
 // ------------------------------------------------------------
 
-export function isSnippetComplete(
-  score: KaraokeAttemptScore,
-  userLevel: number
-): boolean {
-  const threshold = userLevel >= 3
-    ? KARAOKE_MATCH_THRESHOLDS.level_3_4
-    : KARAOKE_MATCH_THRESHOLDS.level_1_2;
+export function isSnippetComplete(score: KaraokeAttemptScore, userLevel: number): boolean {
+  const threshold =
+    userLevel >= 3 ? KARAOKE_MATCH_THRESHOLDS.level_3_4 : KARAOKE_MATCH_THRESHOLDS.level_1_2;
   return score.overall >= threshold;
 }
 
@@ -181,9 +177,7 @@ export function isSnippetComplete(
 // KARAOKE COACHING
 // ------------------------------------------------------------
 
-export function mapKaraokeScoreToCoaching(
-  score: KaraokeAttemptScore
-): CoachingPayload {
+export function mapKaraokeScoreToCoaching(score: KaraokeAttemptScore): CoachingPayload {
   const band = scoreToBand(score.overall);
 
   const coachingByFailureMode: Record<
@@ -191,28 +185,32 @@ export function mapKaraokeScoreToCoaching(
     { correction: string; tip: string }
   > = {
     pitch_flat: {
-      correction: 'You\'re hitting that passage a bit flat — support the note with more breath from underneath.',
+      correction:
+        "You're hitting that passage a bit flat — support the note with more breath from underneath.",
       tip: 'Listen to the original one more time, then try again — pay attention to where it sits in your range.',
     },
     pitch_sharp: {
-      correction: 'You\'re going sharp in places — relax the tension and let the note settle.',
-      tip: 'Soften your approach. Don\'t push for the pitch — guide it.',
+      correction: "You're going sharp in places — relax the tension and let the note settle.",
+      tip: "Soften your approach. Don't push for the pitch — guide it.",
     },
     rushing: {
-      correction: 'You\'re moving through the phrase a little fast — the original hangs on certain words longer.',
+      correction:
+        "You're moving through the phrase a little fast — the original hangs on certain words longer.",
       tip: 'Listen for where the original breathes, and match that breath.',
     },
     dragging: {
-      correction: 'The phrasing is dragging a little behind the track — try entering the phrase a beat earlier.',
+      correction:
+        'The phrasing is dragging a little behind the track — try entering the phrase a beat earlier.',
       tip: 'Anticipate the phrase start instead of reacting to it.',
     },
     wrong_contour: {
-      correction: 'The shape of the melody isn\'t quite matching — there\'s a curve in the middle you\'re missing.',
+      correction:
+        "The shape of the melody isn't quite matching — there's a curve in the middle you're missing.",
       tip: 'Hum the phrase first without any lyrics. Just follow the shape of it.',
     },
     pitch_instability: {
-      correction: 'There\'s some wobble in the sustained parts. Steady breath = steady pitch.',
-      tip: 'Think of the note as a thread you\'re pulling — keep the tension even.',
+      correction: "There's some wobble in the sustained parts. Steady breath = steady pitch.",
+      tip: "Think of the note as a thread you're pulling — keep the tension even.",
     },
   };
 
@@ -226,10 +224,10 @@ export function mapKaraokeScoreToCoaching(
     : defaultCoaching;
 
   const praiseByBand: Record<SuccessBand, string> = {
-    excellent: 'That\'s it — sounding like you.',
-    good:      'Really close. Getting there.',
-    developing:'You\'re learning the phrase.',
-    retry:     'It takes a few tries. Keep going.',
+    excellent: "That's it — sounding like you.",
+    good: 'Really close. Getting there.',
+    developing: "You're learning the phrase.",
+    retry: 'It takes a few tries. Keep going.',
   };
 
   return {
@@ -239,7 +237,6 @@ export function mapKaraokeScoreToCoaching(
     successBand: band,
   };
 }
-
 
 // ------------------------------------------------------------
 // SNIPPET SELECTION
@@ -255,14 +252,14 @@ export function selectNextSnippet(
   userLevel: number
 ): KaraokeSnippet | null {
   // Prefer active (in-progress) snippets first
-  const active = snippets.find(s => snippetStatuses[s.snippetId] === 'active');
+  const active = snippets.find((s) => snippetStatuses[s.snippetId] === 'active');
   if (active) return active;
 
   // Otherwise find the first unlocked snippet that isn't completed
   const available = snippets
-    .filter(s =>
-      snippetStatuses[s.snippetId] !== 'completed' &&
-      snippetStatuses[s.snippetId] !== 'locked'
+    .filter(
+      (s) =>
+        snippetStatuses[s.snippetId] !== 'completed' && snippetStatuses[s.snippetId] !== 'locked'
     )
     .sort((a, b) => {
       // For lower levels, sort by difficulty ASC (easiest first)

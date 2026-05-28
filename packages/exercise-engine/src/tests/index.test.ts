@@ -1,12 +1,10 @@
+import { transition, buildSessionPlan, startAttempt, completeAttempt, canAwardXp } from '../index';
 import {
-  transition,
-  buildSessionPlan,
-  startAttempt,
-  completeAttempt,
-  canAwardXp,
-
-} from '../index';
-import { SessionState, initialSessionState, ExerciseDefinition, SessionEvent } from '@voice/shared-types';
+  SessionState,
+  initialSessionState,
+  ExerciseDefinition,
+  SessionEvent,
+} from '@voice/shared-types';
 
 describe('exercise-engine', () => {
   describe('transition', () => {
@@ -39,7 +37,7 @@ describe('exercise-engine', () => {
         { type: 'LISTENING_DONE' },
         { type: 'ANALYSIS_DONE' },
         { type: 'START_REFLECTION' },
-        { type: 'REFLECTION_DONE' }
+        { type: 'REFLECTION_DONE' },
       ];
 
       const expectedStates: SessionState[] = [
@@ -51,7 +49,7 @@ describe('exercise-engine', () => {
         'ANALYZING',
         'RESULT_REVIEW',
         'REFLECTION',
-        'SESSION_COMPLETE'
+        'SESSION_COMPLETE',
       ];
 
       events.forEach((event, i) => {
@@ -78,14 +76,14 @@ describe('exercise-engine', () => {
       evaluationConfig: {} as any,
       scoringWeights: { pitch: 1.0, stability: 0.0, onset: 0.0 } as any,
       tags: [],
-      status: 'published' as any
+      status: 'published' as any,
     } as unknown as ExerciseDefinition;
 
     it('buildSessionPlan returns initial plan where canAwardXp is false', () => {
       const plan = buildSessionPlan({
         sessionId: 'session-1',
         tier: 'singing',
-        exercises: [mockExercise]
+        exercises: [mockExercise],
       });
 
       expect(plan.sessionId).toBe('session-1');
@@ -97,18 +95,18 @@ describe('exercise-engine', () => {
       let plan = buildSessionPlan({
         sessionId: 'session-1',
         tier: 'singing',
-        exercises: [mockExercise]
+        exercises: [mockExercise],
       });
 
       const now = Date.now();
       plan = startAttempt(plan, 'attempt-1', now);
-      
+
       expect(plan.attempts).toHaveLength(1);
       expect(plan.attempts[0].status).toBe('in_progress');
       expect(canAwardXp(plan)).toBe(false);
 
       plan = completeAttempt(plan, 'attempt-1', now + 5000);
-      
+
       expect(plan.attempts[0].status).toBe('completed');
       expect(canAwardXp(plan)).toBe(true);
     });
