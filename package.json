@@ -17,7 +17,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint:fix": "eslint . --fix",
-    "prepare": "lefthook install"
+    "prepare": "lefthook install || true"
   },
   "workspaces": [
     "apps/*",
