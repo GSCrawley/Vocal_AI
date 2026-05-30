@@ -1,4 +1,4 @@
-import { generateSpeakingFeedback, scorePace, WPM_TARGETS } from '../index';
+import { generateSpeakingFeedback, scorePace } from '../index';
 
 describe('generateSpeakingFeedback', () => {
   it('returns praise for null failureMode', () => {
@@ -34,49 +34,47 @@ describe('generateSpeakingFeedback', () => {
 });
 
 describe('scorePace', () => {
-  const presentation = WPM_TARGETS.presentation;
-
-  it('returns 100 when exactly at target WPM (default presentation)', () => {
-    expect(scorePace(presentation.target)).toBe(100);
-  });
-
-  it('degrades score smoothly within the target range', () => {
-    const rangeWidth = (presentation.max - presentation.min) / 2;
-    const expectedAtMin = Math.round(
-      100 - (Math.abs(presentation.min - presentation.target) / rangeWidth) * 15
-    );
-    const expectedAtMax = Math.round(
-      100 - (Math.abs(presentation.max - presentation.target) / rangeWidth) * 15
-    );
-
-    expect(scorePace(presentation.min)).toBe(expectedAtMin);
-    expect(scorePace(presentation.max)).toBe(expectedAtMax);
-  });
-
-  it('degrades score more heavily outside the target range', () => {
-    const distanceOutsideRange = 10;
-    const expected = Math.max(0, Math.round(70 - distanceOutsideRange * 2));
-
-    expect(scorePace(presentation.min - distanceOutsideRange)).toBe(expected);
-    expect(scorePace(presentation.max + distanceOutsideRange)).toBe(expected);
-  });
-
-  it('bottoms out at 0 for extreme values', () => {
-    // wpm 0 -> 120 below min -> 70 - 240 = -170 -> 0
-    expect(scorePace(0)).toBe(0);
-    // wpm 300 -> 135 above max -> 70 - 270 = -200 -> 0
-    expect(scorePace(300)).toBe(0);
-  });
-
-  it('uses different context configurations correctly', () => {
-    expect(scorePace(WPM_TARGETS.conversational.target, 'conversational')).toBe(100);
-
-    const distanceOutsideRange = 10;
-    const expected = Math.max(0, Math.round(70 - distanceOutsideRange * 2));
-    expect(scorePace(WPM_TARGETS.technical.min - distanceOutsideRange, 'technical')).toBe(expected);
-  });
-
   it('returns 50 for unknown context', () => {
-    expect(scorePace(WPM_TARGETS.presentation.target, 'unknown' as any)).toBe(50);
+    expect(scorePace(150, 'unknown_context')).toBe(50);
+  });
+
+  it('scores exactly on target as 100', () => {
+    // 'presentation' target is 145
+    expect(scorePace(145)).toBe(100);
+    // 'conversational' target is 155
+    expect(scorePace(155, 'conversational')).toBe(100);
+  });
+
+  it('scores within range based on proximity', () => {
+    // 'presentation' range: min 120, target 145, max 165. Width is (165 - 120) / 2 = 22.5
+    // Distance from target for 130 is 15.
+    // Score = 100 - (15 / 22.5) * 15 = 100 - 10 = 90
+    expect(scorePace(130, 'presentation')).toBe(90);
+
+    // Distance from target for 160 is 15.
+    // Score = 100 - (15 / 22.5) * 15 = 90
+    expect(scorePace(160, 'presentation')).toBe(90);
+  });
+
+  it('degrades score for WPM below the minimum range', () => {
+    // 'presentation' min is 120
+    // At WPM 110: distance from min is 10.
+    // Score = 70 - 10 * 2 = 50
+    expect(scorePace(110, 'presentation')).toBe(50);
+
+    // Score hits 0 at distance 35 (WPM 85)
+    expect(scorePace(85, 'presentation')).toBe(0);
+    expect(scorePace(50, 'presentation')).toBe(0);
+  });
+
+  it('degrades score for WPM above the maximum range', () => {
+    // 'presentation' max is 165
+    // At WPM 175: distance from max is 10.
+    // Score = 70 - 10 * 2 = 50
+    expect(scorePace(175, 'presentation')).toBe(50);
+
+    // Score hits 0 at distance 35 (WPM 200)
+    expect(scorePace(200, 'presentation')).toBe(0);
+    expect(scorePace(250, 'presentation')).toBe(0);
   });
 });
