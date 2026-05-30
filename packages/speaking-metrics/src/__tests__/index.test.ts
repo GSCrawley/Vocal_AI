@@ -77,6 +77,6 @@ describe('scorePace', () => {
   });
 
   it('returns 50 for unknown context', () => {
-    expect(scorePace(145, 'unknown' as any)).toBe(50);
+    expect(scorePace(WPM_TARGETS.presentation.target, 'unknown' as any)).toBe(50);
   });
 });
