@@ -26,6 +26,31 @@ describe('Shared Types', () => {
     // This is purely a type-check test, if it compiles, the types exist.
     const dummyTier: Tier = 'speaking';
     expect(dummyTier).toBe('speaking');
+
+    // Utilize all imported types to verify they are exported and prevent unused variable warnings
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type _ExportCheck = [
+      UserProfile,
+      Tier,
+      SpeakingGoal,
+      SingingGoal,
+      SuccessBand,
+      ExerciseDefinition,
+      ExerciseCategory,
+      TargetPatternType,
+      Session,
+      Attempt,
+      SingingAttemptMetrics,
+      BestTake,
+      Reflection,
+      LivePitchFrame,
+      CoachingPayload,
+      AvatarBehaviorState,
+      AvatarDialogueLine,
+      XpEvent,
+      UserRewardState,
+      EarnedBadge,
+    ];
   });
 
   it('should have correct versions for exercise definitions if modified', () => {
