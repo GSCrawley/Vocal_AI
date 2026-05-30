@@ -69,11 +69,11 @@ describe('scorePace', () => {
   });
 
   it('uses different context configurations correctly', () => {
-    // conversational target: 155
-    expect(scorePace(155, 'conversational')).toBe(100);
-    // technical min: 100
-    // wpm 90 -> 10 below min(100) -> 70 - 10*2 = 50
-    expect(scorePace(90, 'technical')).toBe(50);
+    expect(scorePace(WPM_TARGETS.conversational.target, 'conversational')).toBe(100);
+
+    const distanceOutsideRange = 10;
+    const expected = Math.max(0, Math.round(70 - distanceOutsideRange * 2));
+    expect(scorePace(WPM_TARGETS.technical.min - distanceOutsideRange, 'technical')).toBe(expected);
   });
 
   it('returns 50 for unknown context', () => {
