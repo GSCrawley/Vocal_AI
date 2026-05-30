@@ -1,4 +1,4 @@
-import { generateSpeakingFeedback, scoreProjection } from '../index';
+import { generateSpeakingFeedback, scorePace } from '../index';
 
 describe('generateSpeakingFeedback', () => {
   it('returns praise for null failureMode', () => {
@@ -33,33 +33,48 @@ describe('generateSpeakingFeedback', () => {
   });
 });
 
-describe('scoreProjection', () => {
-  it('returns 70 for risk of clipping', () => {
-    expect(scoreProjection(-9, 0)).toBe(70);
+describe('scorePace', () => {
+  it('returns 50 for unknown context', () => {
+    expect(scorePace(150, 'unknown_context')).toBe(50);
   });
 
-  it('returns 100 for perfect level', () => {
-    expect(scoreProjection(-15, 0)).toBe(100);
+  it('scores exactly on target as 100', () => {
+    // 'presentation' target is 145
+    expect(scorePace(145)).toBe(100);
+    // 'conversational' target is 155
+    expect(scorePace(155, 'conversational')).toBe(100);
   });
 
-  it('returns 80 for good level', () => {
-    expect(scoreProjection(-20, 0)).toBe(80);
+  it('scores within range based on proximity', () => {
+    // 'presentation' range: min 120, target 145, max 165. Width is (165 - 120) / 2 = 22.5
+    // Distance from target for 130 is 15.
+    // Score = 100 - (15 / 22.5) * 15 = 100 - 10 = 90
+    expect(scorePace(130, 'presentation')).toBe(90);
+
+    // Distance from target for 160 is 15.
+    // Score = 100 - (15 / 22.5) * 15 = 90
+    expect(scorePace(160, 'presentation')).toBe(90);
   });
 
-  it('returns 55 for slightly quiet', () => {
-    expect(scoreProjection(-30, 0)).toBe(55);
+  it('degrades score for WPM below the minimum range', () => {
+    // 'presentation' min is 120
+    // At WPM 110: distance from min is 10.
+    // Score = 70 - 10 * 2 = 50
+    expect(scorePace(110, 'presentation')).toBe(50);
+
+    // Score hits 0 at distance 35 (WPM 85)
+    expect(scorePace(85, 'presentation')).toBe(0);
+    expect(scorePace(50, 'presentation')).toBe(0);
   });
 
-  it('returns 30 for too quiet', () => {
-    expect(scoreProjection(-40, 0)).toBe(30);
-  });
+  it('degrades score for WPM above the maximum range', () => {
+    // 'presentation' max is 165
+    // At WPM 175: distance from max is 10.
+    // Score = 70 - 10 * 2 = 50
+    expect(scorePace(175, 'presentation')).toBe(50);
 
-  it('adds variance bonus up to 10', () => {
-    expect(scoreProjection(-30, 3)).toBe(61); // 55 + min(10, 6) = 61
-    expect(scoreProjection(-30, 6)).toBe(65); // 55 + min(10, 12) = 65
-  });
-
-  it('caps total score at 100', () => {
-    expect(scoreProjection(-15, 5)).toBe(100); // 100 + 10 -> capped at 100
+    // Score hits 0 at distance 35 (WPM 200)
+    expect(scorePace(200, 'presentation')).toBe(0);
+    expect(scorePace(250, 'presentation')).toBe(0);
   });
 });
