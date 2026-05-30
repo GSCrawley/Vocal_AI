@@ -33,7 +33,6 @@ describe('generateSpeakingFeedback', () => {
   });
 });
 
-
 describe('scorePace', () => {
   it('returns 50 for unknown context', () => {
     expect(scorePace(150, 'unknown_context' as any)).toBe(50);
