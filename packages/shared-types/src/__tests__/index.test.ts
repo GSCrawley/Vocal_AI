@@ -1,7 +1,4 @@
-import {
-  Tier,
-  ExerciseDefinition,
-} from '../index';
+import { Tier, ExerciseDefinition } from '../index';
 
 describe('Shared Types', () => {
   it('should export all required domain types', () => {
