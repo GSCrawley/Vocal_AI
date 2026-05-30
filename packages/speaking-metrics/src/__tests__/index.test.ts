@@ -1,4 +1,4 @@
-import { generateSpeakingFeedback } from '../index';
+import { generateSpeakingFeedback, scoreProjection } from '../index';
 
 describe('generateSpeakingFeedback', () => {
   it('returns praise for null failureMode', () => {
@@ -30,5 +30,36 @@ describe('generateSpeakingFeedback', () => {
     expect(feedback).toEqual({
       text: 'Your voice stayed very flat - vary your pitch more to keep listeners engaged.',
     });
+  });
+});
+
+describe('scoreProjection', () => {
+  it('returns 70 for risk of clipping', () => {
+    expect(scoreProjection(-9, 0)).toBe(70);
+  });
+
+  it('returns 100 for perfect level', () => {
+    expect(scoreProjection(-15, 0)).toBe(100);
+  });
+
+  it('returns 80 for good level', () => {
+    expect(scoreProjection(-20, 0)).toBe(80);
+  });
+
+  it('returns 55 for slightly quiet', () => {
+    expect(scoreProjection(-30, 0)).toBe(55);
+  });
+
+  it('returns 30 for too quiet', () => {
+    expect(scoreProjection(-40, 0)).toBe(30);
+  });
+
+  it('adds variance bonus up to 10', () => {
+    expect(scoreProjection(-30, 3)).toBe(61); // 55 + min(10, 6) = 61
+    expect(scoreProjection(-30, 6)).toBe(65); // 55 + min(10, 12) = 65
+  });
+
+  it('caps total score at 100', () => {
+    expect(scoreProjection(-15, 5)).toBe(100); // 100 + 10 -> capped at 100
   });
 });
