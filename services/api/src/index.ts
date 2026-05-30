@@ -26,44 +26,13 @@ const fastify = Fastify({
   logger: true,
 });
 
-fastify.get(
-  '/healthz',
-  {
-    schema: {
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            ok: { type: 'boolean' },
-          },
-        },
-      },
-    },
-  },
-  async (_request: FastifyRequest, _reply: FastifyReply) => {
-    return { ok: true };
-  }
-);
+fastify.get('/healthz', async (request: any, reply: any) => {
+  return { ok: true };
+});
 
-fastify.get(
-  '/',
-  {
-    schema: {
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            service: { type: 'string' },
-            status: { type: 'string' },
-          },
-        },
-      },
-    },
-  },
-  async (_request: FastifyRequest, _reply: FastifyReply) => {
-    return { service: 'api', status: 'stub' };
-  }
-);
+fastify.get('/', async (request: any, reply: any) => {
+  return { service: 'api', status: 'stub' };
+});
 
 // Placeholder route for processing audio with audio-metrics
 fastify.post(
