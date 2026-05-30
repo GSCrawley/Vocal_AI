@@ -33,7 +33,6 @@ describe('generateSpeakingFeedback', () => {
   });
 });
 
-
 describe('scorePace', () => {
   it('returns 100 when exactly at target WPM (default presentation)', () => {
     // presentation target is 145
