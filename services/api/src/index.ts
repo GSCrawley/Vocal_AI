@@ -1,5 +1,4 @@
 import '../instrument.js';
-import * as Sentry from '@sentry/node';
 import Fastify, { FastifyRequest, FastifyReply } from 'fastify';
 import { LivePitchFrame, SessionState, SessionEvent } from '@voice/shared-types';
 import { micCheck, scoreSustainedNote } from '@voice/audio-metrics';
@@ -24,7 +23,7 @@ export const apiService = {
 };
 
 const fastify = Fastify({
-  logger: false,
+  logger: true,
 });
 
 fastify.get('/healthz', async (request: any, reply: any) => {
@@ -47,6 +46,20 @@ fastify.post(
           frames: { type: 'array' },
           targetHz: { type: 'number' },
           rmsDbFrames: { type: 'array', items: { type: 'number' } },
+        },
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            score: { type: 'number' },
+          },
+        },
+        400: {
+          type: 'object',
+          properties: {
+            error: { type: 'string' },
+          },
         },
       },
     },
@@ -80,11 +93,19 @@ fastify.post(
           event: { type: 'string' },
         },
       },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            nextState: { type: 'object' },
+          },
+        },
+      },
     },
   },
   async (
     request: FastifyRequest<{ Body: { currentState: SessionState; event: SessionEvent } }>,
-    reply: FastifyReply
+    _reply: FastifyReply
   ) => {
     const { currentState, event } = request.body;
     const nextState = transition(currentState, event);
@@ -96,9 +117,9 @@ const start = async () => {
   try {
     const port = parseInt(process.env.PORT || '10000', 10);
     await fastify.listen({ port, host: '0.0.0.0' });
-    console.log(`voice-api listening on PORT ${port}`);
+    fastify.log.info(`voice-api listening on PORT ${port}`);
   } catch (err) {
-    console.error(err);
+    fastify.log.error(err);
     process.exit(1);
   }
 };
