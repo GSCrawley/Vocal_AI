@@ -1,4 +1,4 @@
-import { generateSpeakingFeedback, scorePace } from '../index';
+import { generateSpeakingFeedback, scorePace, WPM_TARGETS } from '../index';
 
 describe('generateSpeakingFeedback', () => {
   it('returns praise for null failureMode', () => {
