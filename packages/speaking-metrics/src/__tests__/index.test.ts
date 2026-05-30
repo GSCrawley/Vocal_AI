@@ -1,5 +1,4 @@
-import { generateSpeakingFeedback, computeSpeakingScore } from '../index';
-import type { SpeakingAnalysisResult } from '@voice/shared-types';
+import { generateSpeakingFeedback, scorePace } from '../index';
 
 describe('generateSpeakingFeedback', () => {
   it('returns praise for null failureMode', () => {
@@ -34,59 +33,48 @@ describe('generateSpeakingFeedback', () => {
   });
 });
 
-describe('computeSpeakingScore', () => {
-  const defaultAnalysis: SpeakingAnalysisResult = {
-    wpm: 145, // perfect for presentation
-    f0RangeHz: 50, // good prosody
-    uptalkRatio: 0, // perfect
-    meanRmsDb: -15, // good projection
-    rmsVarianceDb: 5, // good variance
-    fillerRate: 1, // excellent filler rate
-    articulationRateWpm: 150,
-    meanF0Hz: 120,
-    pauseCount: 5,
-    meanPauseDurationMs: 500,
-    fillerEvents: [],
-  };
-
-  it('computes correct scores with pace goal and presentation context', () => {
-    const result = computeSpeakingScore(defaultAnalysis, 'pace');
-
-    expect(result.pace).toBe(100);
-    expect(result.prosody).toBeGreaterThan(80);
-    expect(result.projection).toBeGreaterThan(80);
-    expect(result.fillerRate).toBe(100);
-    expect(result.overall).toBeGreaterThan(80);
+describe('scorePace', () => {
+  it('returns 50 for unknown context', () => {
+    expect(scorePace(150, 'unknown_context')).toBe(50);
   });
 
-  it('weights overall score differently based on primary goal', () => {
-    // Analysis that is good on pace but bad on fillers
-    const analysis: SpeakingAnalysisResult = {
-      ...defaultAnalysis,
-      fillerRate: 8, // bad
-    };
-
-    const paceGoalResult = computeSpeakingScore(analysis, 'pace');
-    const fillerGoalResult = computeSpeakingScore(analysis, 'filler_reduction');
-
-    // pace goal weight on fillers is 0.1, filler_reduction weight is 0.7
-    // So fillerGoalResult.overall should be significantly lower than paceGoalResult.overall
-    expect(fillerGoalResult.overall).toBeLessThan(paceGoalResult.overall);
+  it('scores exactly on target as 100', () => {
+    // 'presentation' target is 145
+    expect(scorePace(145)).toBe(100);
+    // 'conversational' target is 155
+    expect(scorePace(155, 'conversational')).toBe(100);
   });
 
-  it('uses different WPM targets based on context', () => {
-    // 100 WPM is good for technical, but too slow for conversational
-    const analysis: SpeakingAnalysisResult = {
-      ...defaultAnalysis,
-      wpm: 100,
-    };
+  it('scores within range based on proximity', () => {
+    // 'presentation' range: min 120, target 145, max 165. Width is (165 - 120) / 2 = 22.5
+    // Distance from target for 130 is 15.
+    // Score = 100 - (15 / 22.5) * 15 = 100 - 10 = 90
+    expect(scorePace(130, 'presentation')).toBe(90);
 
-    const techResult = computeSpeakingScore(analysis, 'pace', 'technical');
-    const convResult = computeSpeakingScore(analysis, 'pace', 'conversational');
+    // Distance from target for 160 is 15.
+    // Score = 100 - (15 / 22.5) * 15 = 90
+    expect(scorePace(160, 'presentation')).toBe(90);
+  });
 
-    // check that techResult.pace is defined before using it
-    expect(techResult.pace).toBeDefined();
-    expect(convResult.pace).toBeDefined();
-    expect(techResult.pace!).toBeGreaterThan(convResult.pace!);
+  it('degrades score for WPM below the minimum range', () => {
+    // 'presentation' min is 120
+    // At WPM 110: distance from min is 10.
+    // Score = 70 - 10 * 2 = 50
+    expect(scorePace(110, 'presentation')).toBe(50);
+
+    // Score hits 0 at distance 35 (WPM 85)
+    expect(scorePace(85, 'presentation')).toBe(0);
+    expect(scorePace(50, 'presentation')).toBe(0);
+  });
+
+  it('degrades score for WPM above the maximum range', () => {
+    // 'presentation' max is 165
+    // At WPM 175: distance from max is 10.
+    // Score = 70 - 10 * 2 = 50
+    expect(scorePace(175, 'presentation')).toBe(50);
+
+    // Score hits 0 at distance 35 (WPM 200)
+    expect(scorePace(200, 'presentation')).toBe(0);
+    expect(scorePace(250, 'presentation')).toBe(0);
   });
 });
