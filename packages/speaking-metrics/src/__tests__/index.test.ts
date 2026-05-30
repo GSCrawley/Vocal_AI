@@ -46,7 +46,7 @@ describe('computeSpeakingScore', () => {
     meanF0Hz: 120,
     pauseCount: 5,
     meanPauseDurationMs: 500,
-    fillerEvents: []
+    fillerEvents: [],
   };
 
   it('computes correct scores with pace goal and presentation context', () => {
@@ -85,10 +85,8 @@ describe('computeSpeakingScore', () => {
     const convResult = computeSpeakingScore(analysis, 'pace', 'conversational');
 
     // check that techResult.pace is defined before using it
-    if (techResult.pace && convResult.pace) {
-        expect(techResult.pace).toBeGreaterThan(convResult.pace);
-    } else {
-        throw new Error('Pace should be defined');
-    }
+    expect(techResult.pace).toBeDefined();
+    expect(convResult.pace).toBeDefined();
+    expect(techResult.pace!).toBeGreaterThan(convResult.pace!);
   });
 });
