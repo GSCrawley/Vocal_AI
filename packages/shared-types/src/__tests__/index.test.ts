@@ -1,5 +1,28 @@
 import { ExerciseDefinition } from '../index';
 
+// This export ensures we use all imported types and ESLint doesn't flag them as unused.
+export type _ExportCheck =
+  | UserProfile
+  | Tier
+  | SpeakingGoal
+  | SingingGoal
+  | SuccessBand
+  | ExerciseDefinition
+  | ExerciseCategory
+  | TargetPatternType
+  | Session
+  | Attempt
+  | SingingAttemptMetrics
+  | BestTake
+  | Reflection
+  | LivePitchFrame
+  | CoachingPayload
+  | AvatarBehaviorState
+  | AvatarDialogueLine
+  | XpEvent
+  | UserRewardState
+  | EarnedBadge;
+
 describe('Shared Types', () => {
   it('should export all required domain types', () => {
     // This is purely a type-check test, if it compiles, the types exist.
