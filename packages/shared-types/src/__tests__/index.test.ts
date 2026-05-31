@@ -24,7 +24,14 @@ import {
 // Ensure types are not considered unused by TypeScript/ESLint while acting purely as structural checks.
 export type _UserTypes = UserProfile | SpeakingGoal | SingingGoal;
 export type _ExerciseTypes = SuccessBand | ExerciseCategory | TargetPatternType;
-export type _SessionTypes = Session | Attempt | SingingAttemptMetrics | BestTake | Reflection | LivePitchFrame | CoachingPayload;
+export type _SessionTypes =
+  | Session
+  | Attempt
+  | SingingAttemptMetrics
+  | BestTake
+  | Reflection
+  | LivePitchFrame
+  | CoachingPayload;
 export type _AvatarTypes = AvatarBehaviorState | AvatarDialogueLine;
 export type _RewardTypes = XpEvent | UserRewardState | EarnedBadge;
 
