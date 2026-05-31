@@ -65,7 +65,7 @@ export interface SingingMetricsJob {
   audioFileUrl: string; // User's singing attempt audio
   targetHz?: number; // Expected pitch (for exercise attempts)
   toleranceCents?: number; // Default 25
-  exerciseCategory: string; // From ExerciseCategory
+  exerciseCategory: import('@voice/shared-types').ExerciseCategory; // From ExerciseCategory
   useCrepe?: boolean; // Default false
   storeAudio?: boolean; // Requires user opt-in
 }
