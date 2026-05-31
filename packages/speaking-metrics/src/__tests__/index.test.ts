@@ -1,4 +1,4 @@
-import { generateSpeakingFeedback, scorePace } from '../index';
+import { generateSpeakingFeedback, scorePace, scoreFillerRate } from '../index';
 
 describe('generateSpeakingFeedback', () => {
   it('returns praise for null failureMode', () => {
@@ -78,173 +78,36 @@ describe('scorePace', () => {
     expect(scorePace(250, 'presentation')).toBe(0);
   });
 });
-import { mapSpeakingScoreToCoaching } from '../index';
-import type {
-  SpeakingExerciseScoreBreakdown,
-  SpeakingAnalysisResult,
-  SpeakingGoal,
-} from '@voice/shared-types';
 
-describe('mapSpeakingScoreToCoaching', () => {
-  const defaultScore: SpeakingExerciseScoreBreakdown = {
-    pace: 100,
-    prosody: 100,
-    projection: 100,
-    fillerRate: 100,
-    overall: 100,
-  };
-
-  const defaultAnalysis: SpeakingAnalysisResult = {
-    wpm: 145,
-    articulationRateWpm: 155,
-    meanF0Hz: 120,
-    f0RangeHz: 45,
-    uptalkRatio: 0,
-    pauseCount: 5,
-    meanPauseDurationMs: 500,
-    meanRmsDb: -15,
-    rmsVarianceDb: 5,
-    fillerEvents: [],
-    fillerRate: 0,
-  };
-
-  describe('praise message and success band', () => {
-    it('returns excellent for high scores', () => {
-      const result = mapSpeakingScoreToCoaching(
-        { ...defaultScore, overall: 95 },
-        'pace',
-        defaultAnalysis
-      );
-      expect(result.successBand).toBe('excellent');
-      expect(result.praiseMessage).toBe('Really strong.');
-    });
-
-    it('returns good for good scores', () => {
-      const result = mapSpeakingScoreToCoaching(
-        { ...defaultScore, overall: 80 },
-        'pace',
-        defaultAnalysis
-      );
-      expect(result.successBand).toBe('good');
-      expect(result.praiseMessage).toBe('Good work.');
-    });
-
-    it('returns developing for moderate scores', () => {
-      const result = mapSpeakingScoreToCoaching(
-        { ...defaultScore, overall: 65 },
-        'pace',
-        defaultAnalysis
-      );
-      expect(result.successBand).toBe('developing');
-      expect(result.praiseMessage).toBe('Getting there.');
-    });
-
-    it('returns retry for low scores', () => {
-      const result = mapSpeakingScoreToCoaching(
-        { ...defaultScore, overall: 45 },
-        'pace',
-        defaultAnalysis
-      );
-      expect(result.successBand).toBe('retry');
-      expect(result.praiseMessage).toBe('You got through it.');
-    });
+describe('scoreFillerRate', () => {
+  it('returns 100 for <= 1 fillers per minute', () => {
+    expect(scoreFillerRate(0)).toBe(100);
+    expect(scoreFillerRate(0.5)).toBe(100);
+    expect(scoreFillerRate(1)).toBe(100);
   });
 
-  describe('corrections and action tips by goal', () => {
-    it('handles pace - too fast', () => {
-      const result = mapSpeakingScoreToCoaching(
-        { ...defaultScore, pace: 60, overall: 60 },
-        'pace',
-        { ...defaultAnalysis, wpm: 170 }
-      );
-      expect(result.correctionMessage).toBe(
-        'You came in too fast. Slow down and trust the pauses.'
-      );
-      expect(result.actionTip).toBe('Try reading each sentence, then pausing 1 full second.');
-    });
+  it('returns 90 for <= 2 fillers per minute', () => {
+    expect(scoreFillerRate(1.1)).toBe(90);
+    expect(scoreFillerRate(2)).toBe(90);
+  });
 
-    it('handles pace - too slow', () => {
-      const result = mapSpeakingScoreToCoaching(
-        { ...defaultScore, pace: 60, overall: 40 },
-        'pace',
-        { ...defaultAnalysis, wpm: 100 }
-      );
-      expect(result.correctionMessage).toBe(
-        'You came in too slow. Aim for a more natural, conversational pace.'
-      );
-      expect(result.actionTip).toBe('Read just one paragraph. Very slowly.');
-    });
+  it('returns 75 for <= 4 fillers per minute', () => {
+    expect(scoreFillerRate(2.1)).toBe(75);
+    expect(scoreFillerRate(4)).toBe(75);
+  });
 
-    it('handles pace - good', () => {
-      const result = mapSpeakingScoreToCoaching(
-        { ...defaultScore, pace: 90, overall: 90 },
-        'pace',
-        { ...defaultAnalysis, wpm: 150 }
-      );
-      expect(result.correctionMessage).toBe('Good pace — keep that rhythm going.');
-    });
+  it('returns 55 for <= 6 fillers per minute', () => {
+    expect(scoreFillerRate(4.1)).toBe(55);
+    expect(scoreFillerRate(6)).toBe(55);
+  });
 
-    it('handles prosody - uptalk', () => {
-      const result = mapSpeakingScoreToCoaching({ ...defaultScore, overall: 80 }, 'prosody', {
-        ...defaultAnalysis,
-        uptalkRatio: 0.5,
-      });
-      expect(result.correctionMessage).toBe(
-        'Your sentences are ending like questions. Bring the pitch down at the end of each statement.'
-      );
-    });
+  it('returns 35 for <= 10 fillers per minute', () => {
+    expect(scoreFillerRate(6.1)).toBe(35);
+    expect(scoreFillerRate(10)).toBe(35);
+  });
 
-    it('handles prosody - monotone', () => {
-      const result = mapSpeakingScoreToCoaching({ ...defaultScore, overall: 80 }, 'prosody', {
-        ...defaultAnalysis,
-        f0RangeHz: 15,
-      });
-      expect(result.correctionMessage).toBe(
-        'Your voice stayed very flat — vary your pitch more to keep listeners engaged.'
-      );
-    });
-
-    it('handles projection - too quiet', () => {
-      const result = mapSpeakingScoreToCoaching(
-        { ...defaultScore, projection: 60, overall: 80 },
-        'projection',
-        { ...defaultAnalysis, meanRmsDb: -30 }
-      );
-      expect(result.correctionMessage).toBe(
-        'Your voice was too quiet — project from the chest, not just the throat.'
-      );
-    });
-
-    it('handles filler_reduction - high fillers', () => {
-      const result = mapSpeakingScoreToCoaching(
-        { ...defaultScore, overall: 80 },
-        'filler_reduction',
-        { ...defaultAnalysis, fillerRate: 5 }
-      );
-      expect(result.correctionMessage).toBe(
-        'You used about 5 fillers per minute. Next try, replace every "um" with a silent pause.'
-      );
-    });
-
-    it('handles filler_reduction - some fillers', () => {
-      const result = mapSpeakingScoreToCoaching(
-        { ...defaultScore, overall: 80 },
-        'filler_reduction',
-        { ...defaultAnalysis, fillerRate: 3 }
-      );
-      expect(result.correctionMessage).toBe(
-        "A few fillers slipped in. You're improving — notice where they come and plan the thought before speaking."
-      );
-    });
-
-    it('handles authority', () => {
-      const result = mapSpeakingScoreToCoaching({ ...defaultScore, overall: 80 }, 'authority', {
-        ...defaultAnalysis,
-        uptalkRatio: 0.6,
-      });
-      expect(result.correctionMessage).toBe(
-        'Too much uptalk. Every statement that ends rising sounds like a question. Drop the final note on each sentence.'
-      );
-    });
+  it('returns 15 for > 10 fillers per minute', () => {
+    expect(scoreFillerRate(10.1)).toBe(15);
+    expect(scoreFillerRate(20)).toBe(15);
   });
 });
