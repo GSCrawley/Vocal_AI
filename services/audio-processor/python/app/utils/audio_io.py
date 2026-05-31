@@ -9,7 +9,7 @@ MAX_DURATION_SECONDS = 600  # 10 minutes hard cap
 
 def load_audio(
     url: str,
-    sr: int = None,
+    sr: int | None = None,
     mono: bool = True,
     max_duration: float = MAX_DURATION_SECONDS,
 ) -> tuple[np.ndarray, int]:
