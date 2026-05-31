@@ -1,27 +1,5 @@
 import { Tier, ExerciseDefinition } from '../index';
 
-// Ensure types are not considered unused by TypeScript/ESLint while acting purely as structural checks.
-export function _ensureTypesExist(
-  _profile: UserProfile,
-  _spkGoal: SpeakingGoal,
-  _sngGoal: SingingGoal,
-  _sBand: SuccessBand,
-  _exCat: ExerciseCategory,
-  _tpType: TargetPatternType,
-  _sess: Session,
-  _att: Attempt,
-  _sam: SingingAttemptMetrics,
-  _bt: BestTake,
-  _refl: Reflection,
-  _lpf: LivePitchFrame,
-  _cp: CoachingPayload,
-  _abs: AvatarBehaviorState,
-  _adl: AvatarDialogueLine,
-  _xpe: XpEvent,
-  _urs: UserRewardState,
-  _eb: EarnedBadge
-) {}
-
 describe('Shared Types', () => {
   it('should export all required domain types', () => {
     // This is purely a type-check test, if it compiles, the types exist.

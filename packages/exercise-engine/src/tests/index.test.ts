@@ -71,12 +71,22 @@ describe('exercise-engine', () => {
       userInstructionText: 'Sing A4',
       durationTargetSeconds: 5,
       repetitionsDefault: 1,
-      targetPatternType: 'sustained_note' as any,
-      targetPatternPayload: {} as any,
-      evaluationConfig: {} as any,
-      scoringWeights: { pitch: 1.0, stability: 0.0, onset: 0.0 } as any,
+      targetPatternType: 'sustained_hold',
+      targetPatternPayload: {
+        targetNote: 'A4',
+        referenceToneDurationMs: 1000,
+        sustainDurationMs: 5000,
+      },
+      evaluationConfig: {
+        centsTolerance: 50,
+        minimumVoicedFrames: 10,
+        sustainWindowMs: 5000,
+        confidenceFloor: 70,
+        allowDegradedScoring: true,
+      },
+      scoringWeights: { pitchAccuracy: 1.0, stability: 0.0, completion: 0.0 },
       tags: [],
-      status: 'published' as any,
+      activeFlag: true,
     } as unknown as ExerciseDefinition;
 
     it('buildSessionPlan returns initial plan where canAwardXp is false', () => {

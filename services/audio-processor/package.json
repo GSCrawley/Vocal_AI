@@ -5,8 +5,7 @@
   "description": "Job contract types for the Python audio processing service",
   "main": "src/index.ts",
   "scripts": {
-    "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "jest"
+    "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@voice/shared-types": "workspace:*"

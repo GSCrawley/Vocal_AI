@@ -22,20 +22,20 @@ export const apiService = {
   ],
 };
 
-export const app = Fastify({
+const fastify = Fastify({
   logger: true,
 });
 
-app.get('/healthz', async (request: any, reply: any) => {
+fastify.get('/healthz', async (_request: unknown, _reply: unknown) => {
   return { ok: true };
 });
 
-app.get('/', async (request: any, reply: any) => {
+fastify.get('/', async (_request: unknown, _reply: unknown) => {
   return { service: 'api', status: 'stub' };
 });
 
 // Placeholder route for processing audio with audio-metrics
-app.post(
+fastify.post(
   '/process-audio',
   {
     schema: {
@@ -52,13 +52,7 @@ app.post(
         200: {
           type: 'object',
           properties: {
-            score: {
-              type: 'object',
-              additionalProperties: true,
-              properties: {
-                overall: { type: 'number' },
-              },
-            },
+            score: { type: 'number' },
           },
         },
         400: {
@@ -87,7 +81,7 @@ app.post(
 );
 
 // Placeholder route for transitioning session state with exercise-engine
-app.post(
+fastify.post(
   '/transition-state',
   {
     schema: {
@@ -95,20 +89,15 @@ app.post(
         type: 'object',
         required: ['currentState', 'event'],
         properties: {
-          currentState: { type: 'string' },
-          event: {
-            type: 'object',
-            properties: {
-              type: { type: 'string' },
-            },
-          },
+          currentState: { type: 'object' },
+          event: { type: 'string' },
         },
       },
       response: {
         200: {
           type: 'object',
           properties: {
-            nextState: { type: 'string' },
+            nextState: { type: 'object' },
           },
         },
       },
@@ -127,14 +116,12 @@ app.post(
 const start = async () => {
   try {
     const port = parseInt(process.env.PORT || '10000', 10);
-    await app.listen({ port, host: '0.0.0.0' });
-    app.log.info(`voice-api listening on PORT ${port}`);
+    await fastify.listen({ port, host: '0.0.0.0' });
+    fastify.log.info(`voice-api listening on PORT ${port}`);
   } catch (err) {
-    app.log.error(err);
+    fastify.log.error(err);
     process.exit(1);
   }
 };
 
-if (process.env.NODE_ENV !== 'test') {
-  start();
-}
+start();

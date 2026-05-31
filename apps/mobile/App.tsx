@@ -1,5 +1,5 @@
 /** @jsx React.createElement */
-import React, { JSX } from 'react';
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import * as Sentry from '@sentry/react-native';
