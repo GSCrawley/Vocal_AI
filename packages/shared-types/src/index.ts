@@ -608,7 +608,7 @@ export type SingingMetricKey =
   | 'consistency'
   | 'repertoire';
 
-export interface SingingMetricsResult {
+export interface CoachingSingingMetricsResult {
   attemptId: string;
   exerciseId: string;
   userId: string;
