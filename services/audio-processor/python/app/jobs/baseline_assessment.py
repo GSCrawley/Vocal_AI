@@ -10,8 +10,12 @@ def run(job_payload: dict) -> dict:
     hold_audio, _ = download_and_load(sustained_hold_url)
 
     # 2. Quality check — both files
-    range_quality = check_quality(range_audio, sr, voiced_flag=None)
-    hold_quality = check_quality(hold_audio, sr, voiced_flag=None)
+    from app.analysis.pitch import extract_pitch_pyin
+
+    range_pitch = extract_pitch_pyin(range_audio, sr)
+    hold_pitch = extract_pitch_pyin(hold_audio, sr)
+    range_quality = check_quality(range_audio, sr, range_pitch["voiced_flag"])
+    hold_quality = check_quality(hold_audio, sr, hold_pitch["voiced_flag"])
 
     if not range_quality.is_usable and not hold_quality.is_usable:
         return { "jobId": job_id, "status": "failed",
