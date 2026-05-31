@@ -78,35 +78,86 @@ export function micCheck(frames: LivePitchFrame[], rmsDbFrames: number[]): MicCh
   return { ok: true };
 }
 
-export function scorePitchAccuracy(
+export interface FrameAccumulator {
+  usableFrames: number;
+  framesInToleranceCount: number;
+  absoluteErrors: number[];
+  errors: number[];
+  firstUsableFrameIdx: number;
+  lockIdx: number;
+}
+
+export function buildFrameAccumulator(
   frames: LivePitchFrame[],
   targetHz: number,
-  toleranceCents: number
-): number {
-  let usableFrames = 0;
-  let framesInTolerance = 0;
-  const absoluteErrors: number[] = [];
+  toleranceCents: number,
+  evaluateOnset: boolean = true
+): FrameAccumulator {
+  const acc: FrameAccumulator = {
+    usableFrames: 0,
+    framesInToleranceCount: 0,
+    absoluteErrors: [],
+    errors: [],
+    firstUsableFrameIdx: -1,
+    lockIdx: -1,
+  };
 
-  for (const frame of frames) {
+  let continuousLockCount = 0;
+  const REQUIRED_LOCK_FRAMES = 5;
+
+  for (let i = 0; i < frames.length; i++) {
+    const frame = frames[i];
     if (!frame.voiced || frame.confidence < 0.5 || !frame.frequencyHz) continue;
 
-    usableFrames++;
-    const evaluation = evaluateFrame(frame.frequencyHz, targetHz, toleranceCents, frame.confidence);
+    // Pitch evaluation
+    acc.usableFrames++;
+    const centsError = hzToCents(frame.frequencyHz, targetHz);
+    frame.centsFromTarget = centsError;
+    const inTolerance = Math.abs(centsError) <= toleranceCents;
 
-    if (evaluation.inTolerance) {
-      framesInTolerance++;
+    if (inTolerance) {
+      acc.framesInToleranceCount++;
     }
-    if (evaluation.centsFromTarget !== undefined) {
-      absoluteErrors.push(Math.abs(evaluation.centsFromTarget));
+
+    acc.absoluteErrors.push(Math.abs(centsError));
+    acc.errors.push(centsError);
+
+    // Onset evaluation
+    if (evaluateOnset) {
+      if (acc.firstUsableFrameIdx === -1) acc.firstUsableFrameIdx = i;
+
+      if (inTolerance) {
+        continuousLockCount++;
+        if (continuousLockCount >= REQUIRED_LOCK_FRAMES && acc.lockIdx === -1) {
+          acc.lockIdx = i - REQUIRED_LOCK_FRAMES + 1;
+        }
+      } else {
+        continuousLockCount = 0;
+      }
     }
   }
 
-  if (usableFrames === 0) return 0;
+  return acc;
+}
 
-  const timeInToleranceRatio = framesInTolerance / usableFrames;
+export function scorePitchAccuracy(
+  framesOrAcc: LivePitchFrame[] | FrameAccumulator,
+  targetHz: number,
+  toleranceCents: number
+): number {
+  let acc: FrameAccumulator;
+  if (Array.isArray(framesOrAcc)) {
+    acc = buildFrameAccumulator(framesOrAcc as LivePitchFrame[], targetHz, toleranceCents, false);
+  } else {
+    acc = framesOrAcc;
+  }
 
-  absoluteErrors.sort((a, b) => a - b);
-  const medianError = absoluteErrors[Math.floor(absoluteErrors.length / 2)];
+  if (acc.usableFrames === 0) return 0;
+
+  const timeInToleranceRatio = acc.framesInToleranceCount / acc.usableFrames;
+
+  acc.absoluteErrors.sort((a, b) => a - b);
+  const medianError = acc.absoluteErrors[Math.floor(acc.absoluteErrors.length / 2)];
 
   let errorScore = 100 - (medianError / (toleranceCents * 2)) * 100;
   if (errorScore < 0) errorScore = 0;
@@ -115,12 +166,17 @@ export function scorePitchAccuracy(
   return timeInToleranceRatio * 100 * 0.5 + errorScore * 0.5;
 }
 
-export function scoreStability(frames: LivePitchFrame[]): number {
-  const errors: number[] = [];
+export function scoreStability(framesOrAcc: LivePitchFrame[] | FrameAccumulator): number {
+  let errors: number[];
 
-  for (const frame of frames) {
-    if (!frame.voiced || frame.confidence < 0.5 || frame.centsFromTarget === undefined) continue;
-    errors.push(frame.centsFromTarget);
+  if (Array.isArray(framesOrAcc)) {
+    errors = [];
+    for (const frame of framesOrAcc as LivePitchFrame[]) {
+      if (!frame.voiced || frame.confidence < 0.5 || frame.centsFromTarget === undefined) continue;
+      errors.push(frame.centsFromTarget);
+    }
+  } else {
+    errors = framesOrAcc.errors;
   }
 
   if (errors.length < 2) return 0;
@@ -137,31 +193,25 @@ export function scoreStability(frames: LivePitchFrame[]): number {
 }
 
 export function scoreOnset(
-  frames: LivePitchFrame[],
+  framesOrAcc: LivePitchFrame[] | FrameAccumulator,
   targetHz: number,
   toleranceCents: number
 ): number {
   let firstUsableFrameIdx = -1;
   let lockIdx = -1;
-  let continuousLockCount = 0;
-  const REQUIRED_LOCK_FRAMES = 5;
 
-  for (let i = 0; i < frames.length; i++) {
-    const frame = frames[i];
-    if (!frame.voiced || frame.confidence < 0.5 || !frame.frequencyHz) continue;
-
-    if (firstUsableFrameIdx === -1) firstUsableFrameIdx = i;
-
-    const evaluation = evaluateFrame(frame.frequencyHz, targetHz, toleranceCents, frame.confidence);
-    if (evaluation.inTolerance) {
-      continuousLockCount++;
-      if (continuousLockCount >= REQUIRED_LOCK_FRAMES && lockIdx === -1) {
-        lockIdx = i - REQUIRED_LOCK_FRAMES + 1;
-        break;
-      }
-    } else {
-      continuousLockCount = 0;
-    }
+  if (Array.isArray(framesOrAcc)) {
+    const acc = buildFrameAccumulator(
+      framesOrAcc as LivePitchFrame[],
+      targetHz,
+      toleranceCents,
+      true
+    );
+    firstUsableFrameIdx = acc.firstUsableFrameIdx;
+    lockIdx = acc.lockIdx;
+  } else {
+    firstUsableFrameIdx = framesOrAcc.firstUsableFrameIdx;
+    lockIdx = framesOrAcc.lockIdx;
   }
 
   if (firstUsableFrameIdx === -1 || lockIdx === -1) return 0;
@@ -191,20 +241,17 @@ export function scoreSustainedNote(
     throw new Error('Scoring weights must sum to 1.0');
   }
 
-  for (const frame of frames) {
-    if (frame.frequencyHz && frame.voiced && frame.confidence >= 0.5) {
-      frame.centsFromTarget = hzToCents(frame.frequencyHz, targetHz);
-    }
-  }
+  const evaluateOnset = scoringWeights.onset !== undefined && scoringWeights.onset > 0;
+  const acc = buildFrameAccumulator(frames, targetHz, toleranceCents, evaluateOnset);
 
-  const pitchAccuracy = scorePitchAccuracy(frames, targetHz, toleranceCents);
+  const pitchAccuracy = scorePitchAccuracy(acc, targetHz, toleranceCents);
   const stability = scoreStability(frames);
 
   let overall = pitchAccuracy * scoringWeights.pitch + stability * scoringWeights.stability;
 
   let onsetAccuracy;
   if (scoringWeights.onset) {
-    onsetAccuracy = scoreOnset(frames, targetHz, toleranceCents);
+    onsetAccuracy = scoreOnset(acc, targetHz, toleranceCents);
     overall += onsetAccuracy * scoringWeights.onset;
   }
 
