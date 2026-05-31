@@ -116,17 +116,27 @@ export function scorePitchAccuracy(
 }
 
 export function scoreStability(frames: LivePitchFrame[]): number {
-  const errors: number[] = [];
+  let count = 0;
+  let sum = 0;
+  let sumSq = 0;
 
   for (const frame of frames) {
     if (!frame.voiced || frame.confidence < 0.5 || frame.centsFromTarget === undefined) continue;
-    errors.push(frame.centsFromTarget);
+    const val = frame.centsFromTarget;
+    count++;
+    sum += val;
+    sumSq += val * val;
   }
 
-  if (errors.length < 2) return 0;
+  if (count < 2) return 0;
 
-  const mean = errors.reduce((sum, val) => sum + val, 0) / errors.length;
-  const variance = errors.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / errors.length;
+  const mean = sum / count;
+  let variance = sumSq / count - mean * mean;
+
+  // Guard against float precision issues resulting in very small negative numbers
+  // or extremely small variance close to 0 due to float math
+  if (variance < 1e-10) variance = 0;
+
   const stdDev = Math.sqrt(variance);
 
   let stabilityScore = 100 - (stdDev / 50) * 100;
