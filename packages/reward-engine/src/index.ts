@@ -84,7 +84,7 @@ export function getLevelForXp(totalXp: number): number {
       high = mid - 1;
     }
   }
-  return high + 1;
+  return Math.max(1, high + 1);
 }
 
 export function getXpToNextLevel(totalXp: number): number {
