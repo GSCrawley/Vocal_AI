@@ -1,6 +1,5 @@
 import '../instrument.js';
 import Fastify, { FastifyRequest, FastifyReply } from 'fastify';
-import fastifyJwt from '@fastify/jwt';
 import { LivePitchFrame, SessionState, SessionEvent } from '@voice/shared-types';
 import { micCheck, scoreSustainedNote } from '@voice/audio-metrics';
 import { transition } from '@voice/exercise-engine';
@@ -27,31 +26,11 @@ const fastify = Fastify({
   logger: true,
 });
 
-if (!process.env.SUPABASE_JWT_SECRET) {
-  fastify.log.error('SUPABASE_JWT_SECRET environment variable is missing');
-  process.exit(1);
-}
-
-fastify.register(fastifyJwt, {
-  secret: process.env.SUPABASE_JWT_SECRET,
-});
-
-fastify.addHook('onRequest', async (request, reply) => {
-  if (request.routeOptions.url === '/healthz') {
-    return;
-  }
-  try {
-    await request.jwtVerify();
-  } catch {
-    return reply.code(401).send({ error: 'Unauthorized' });
-  }
-});
-
-fastify.get('/healthz', async (_request: FastifyRequest, _reply: FastifyReply) => {
+fastify.get('/healthz', async (request: any, reply: any) => {
   return { ok: true };
 });
 
-fastify.get('/', async (_request: FastifyRequest, _reply: FastifyReply) => {
+fastify.get('/', async (request: any, reply: any) => {
   return { service: 'api', status: 'stub' };
 });
 
