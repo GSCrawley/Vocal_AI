@@ -6,7 +6,8 @@
     "ignoreDeprecations": "6.0",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "types": []
+    "types": [],
+    "composite": true
   },
   "include": [
     "src"
@@ -16,5 +17,10 @@
     "src/**/__tests__/**",
     "dist",
     "node_modules"
+  ],
+  "references": [
+    {
+      "path": "../../packages/shared-types"
+    }
   ]
 }

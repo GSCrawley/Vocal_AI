@@ -65,7 +65,7 @@ export interface SingingMetricsJob {
   audioFileUrl: string; // User's singing attempt audio
   targetHz?: number; // Expected pitch (for exercise attempts)
   toleranceCents?: number; // Default 25
-  exerciseCategory: import('@voice/shared-types').ExerciseCategory; // From ExerciseCategory
+  exerciseCategory: string; // From ExerciseCategory
   useCrepe?: boolean; // Default false
   storeAudio?: boolean; // Requires user opt-in
 }
@@ -151,16 +151,16 @@ export interface SingingMetricsResult {
   pitchAccuracy: number | null; // null if no target
   pitchStability: number | null;
   onsetAccuracy: number | null;
-  breathControl: number | null;
-  toneQuality: number | null;
+  breathControl: number;
+  toneQuality: number;
   dynamicsScore: number | null;
   vibratoScore: number | null;
-  hnrDb: number | null;
-  cppDb: number | null;
-  jitterLocal: number | null;
-  shimmerLocal: number | null;
-  rmsVarianceDb: number | null;
-  voicedFrameRatio: number | null;
+  hnrDb: number;
+  cppDb: number;
+  jitterLocal: number;
+  shimmerLocal: number;
+  rmsVarianceDb: number;
+  voicedFrameRatio: number;
   qualityFlag: string | null;
   pitchFrames: Array<{
     timestampMs: number;
@@ -178,20 +178,15 @@ export interface BaselineAssessmentResult {
   highestNoteMidi: number;
   lowestNoteName: string;
   highestNoteName: string;
-  lowestHz?: number;
-  highestHz?: number;
   comfortableLowMidi: number;
   comfortableHighMidi: number;
   voiceType: string;
   baselineMetrics: {
     pitchAccuracy: number | null;
     pitchStability: number | null;
-    breathControl: number | null;
-    toneQuality: number | null;
-    hnrDb: number | null;
-    cppDb: number | null;
-    jitterLocal: number | null;
-    shimmerLocal: number | null;
+    breathControl: number;
+    toneQuality: number;
+    hnrDb: number;
   };
   recommendedStartingKeyMidi: number;
   recommendedStartingKeyName: string;

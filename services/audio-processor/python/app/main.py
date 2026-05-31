@@ -1,6 +1,5 @@
 # app/main.py
 from fastapi import FastAPI, Header, HTTPException
-from fastapi.responses import JSONResponse
 from app.config import settings
 import redis
 
@@ -13,7 +12,7 @@ def health():
         redis_client.ping()
         return {"ok": True}
     except Exception:
-        return JSONResponse(status_code=503, content={"ok": False, "error": "redis_unreachable"})
+        return {"ok": False, "error": "redis_unreachable"}, 503
 
 @app.get("/jobs/{job_id}/status")
 def job_status(job_id: str, x_internal_token: str = Header(None)):

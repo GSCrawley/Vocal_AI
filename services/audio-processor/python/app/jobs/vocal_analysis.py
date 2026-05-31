@@ -1,10 +1,11 @@
 # app/jobs/vocal_analysis.py
+import json
 from datetime import datetime
 import librosa
 import numpy as np
 from app.config import settings
 from app.utils.audio_io import load_audio
-from app.analysis.pitch import extract_pitch_pyin, pitch_to_frames
+from app.analysis.pitch import extract_pitch_pyin, pitch_to_frames, hz_to_note_name
 
 def run(job_payload: dict):
     """
