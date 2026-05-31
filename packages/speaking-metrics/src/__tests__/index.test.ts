@@ -1,4 +1,4 @@
-import { generateSpeakingFeedback, scorePace } from '../index';
+import { generateSpeakingFeedback, scorePace, scoreFillerRate } from '../index';
 
 describe('generateSpeakingFeedback', () => {
   it('returns praise for null failureMode', () => {
@@ -76,5 +76,38 @@ describe('scorePace', () => {
     // Score hits 0 at distance 35 (WPM 200)
     expect(scorePace(200, 'presentation')).toBe(0);
     expect(scorePace(250, 'presentation')).toBe(0);
+  });
+});
+
+describe('scoreFillerRate', () => {
+  it('returns 100 for <= 1 fillers per minute', () => {
+    expect(scoreFillerRate(0)).toBe(100);
+    expect(scoreFillerRate(0.5)).toBe(100);
+    expect(scoreFillerRate(1)).toBe(100);
+  });
+
+  it('returns 90 for <= 2 fillers per minute', () => {
+    expect(scoreFillerRate(1.1)).toBe(90);
+    expect(scoreFillerRate(2)).toBe(90);
+  });
+
+  it('returns 75 for <= 4 fillers per minute', () => {
+    expect(scoreFillerRate(2.1)).toBe(75);
+    expect(scoreFillerRate(4)).toBe(75);
+  });
+
+  it('returns 55 for <= 6 fillers per minute', () => {
+    expect(scoreFillerRate(4.1)).toBe(55);
+    expect(scoreFillerRate(6)).toBe(55);
+  });
+
+  it('returns 35 for <= 10 fillers per minute', () => {
+    expect(scoreFillerRate(6.1)).toBe(35);
+    expect(scoreFillerRate(10)).toBe(35);
+  });
+
+  it('returns 15 for > 10 fillers per minute', () => {
+    expect(scoreFillerRate(10.1)).toBe(15);
+    expect(scoreFillerRate(20)).toBe(15);
   });
 });
