@@ -68,7 +68,7 @@ export function getLevelForXp(totalXp: number): number {
   const maxIdx = LEVEL_XP_THRESHOLDS.length - 1;
   const maxVal = LEVEL_XP_THRESHOLDS[maxIdx];
 
-  // Beyond level 10: +2000 XP per level
+  // Beyond the last defined level: +2000 XP per level
   if (totalXp >= maxVal) {
     return maxIdx + 1 + Math.floor((totalXp - maxVal) / 2000);
   }
