@@ -42,8 +42,8 @@ fastify.addHook('onRequest', async (request, reply) => {
   }
   try {
     await request.jwtVerify();
-  } catch (err) {
-    return reply.send(err);
+  } catch {
+    return reply.code(401).send({ error: 'Unauthorized' });
   }
 });
 
