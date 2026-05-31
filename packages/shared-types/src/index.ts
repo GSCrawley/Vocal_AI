@@ -590,3 +590,72 @@ export type SessionEvent =
   | { type: 'REFLECTION_DONE' }
   | { type: 'END_SESSION' }
   | { type: 'ERROR' };
+
+// ------------------------------------------------------------
+// SINGING METRICS — full 11-metric result from Python processor
+// ------------------------------------------------------------
+
+export type SingingMetricKey =
+  | 'pitchAccuracy'
+  | 'stability'
+  | 'breathControl'
+  | 'toneQuality'
+  | 'dynamics'
+  | 'diction'
+  | 'styleExpression'
+  | 'musicality'
+  | 'posture'
+  | 'consistency'
+  | 'repertoire';
+
+export interface SingingMetricsResult {
+  attemptId: string;
+  exerciseId: string;
+  userId: string;
+  capturedAt: string; // ISO 8601
+  qualityFlag: 'ok' | 'degraded' | 'unusable';
+  qualityNote?: string; // Human-readable reason if not 'ok'
+  metrics: Partial<Record<SingingMetricKey, number | null>>;
+  // Always present in Phase 1:
+  overallScore: number; // 0–100 weighted composite
+  pitchScore: number; // 0–100
+  stabilityScore: number; // 0–100
+  onsetScore: number | null; // 0–100 or null if onset not measurable
+  // Phase 2+:
+  breathControlScore?: number | null;
+  toneQualityScore?: number | null;
+  dynamicsScore?: number | null;
+}
+
+// ------------------------------------------------------------
+// BASELINE ASSESSMENT — per-user snapshot at onboarding
+// ------------------------------------------------------------
+
+export type VoiceType = 'soprano' | 'mezzo' | 'alto' | 'tenor' | 'baritone' | 'bass';
+
+export interface VocalRangeSnapshot {
+  lowestNoteMidi: number; // Lowest note user can sustain, MIDI number
+  highestNoteMidi: number; // Highest note user can sustain, MIDI number
+  lowestNoteName: string; // e.g. "E2"
+  highestNoteName: string; // e.g. "A4"
+  lowestHz: number; // Hz equivalent
+  highestHz: number;
+  comfortableLowMidi: number; // Bottom of comfortable range (confidence > 0.75)
+  comfortableHighMidi: number;
+  voiceType: VoiceType;
+  recommendedStartingKeyMidi: number;
+  recommendedStartingKeyName: string;
+}
+
+export interface BaselineSnapshot {
+  userId: string;
+  assessedAt: string; // ISO 8601
+  vocalRange: VocalRangeSnapshot;
+  baselineMetrics: {
+    pitchAccuracy: number | null;
+    pitchStability: number | null;
+    breathControl: number;
+    toneQuality: number;
+    hnrDb: number;
+  };
+}
