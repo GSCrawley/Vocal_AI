@@ -1,4 +1,4 @@
-import type { ExerciseDefinition } from '../index';
+import { ExerciseDefinition } from '../index';
 
 // This export ensures we use all imported types and ESLint doesn't flag them as unused.
 export type _ExportCheck =
