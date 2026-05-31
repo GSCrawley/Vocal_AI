@@ -1,31 +1,33 @@
-import {
-  UserProfile,
-  Tier,
-  SpeakingGoal,
-  SingingGoal,
-  SuccessBand,
-  ExerciseDefinition,
-  ExerciseCategory,
-  TargetPatternType,
-  Session,
-  Attempt,
-  SingingAttemptMetrics,
-  BestTake,
-  Reflection,
-  LivePitchFrame,
-  CoachingPayload,
-  AvatarBehaviorState,
-  AvatarDialogueLine,
-  XpEvent,
-  UserRewardState,
-  EarnedBadge,
-} from '../index';
+import { ExerciseDefinition } from '../index';
 
 describe('Shared Types', () => {
   it('should export all required domain types', () => {
     // This is purely a type-check test, if it compiles, the types exist.
-    const dummyTier: Tier = 'speaking';
+    const dummyTier: import('../index').Tier = 'speaking';
     expect(dummyTier).toBe('speaking');
+
+    const exportedTypeSmokeTest = {
+      userProfile: null as unknown as import('../index').UserProfile,
+      speakingGoal: null as unknown as import('../index').SpeakingGoal,
+      singingGoal: null as unknown as import('../index').SingingGoal,
+      successBand: null as unknown as import('../index').SuccessBand,
+      exerciseDefinition: null as unknown as import('../index').ExerciseDefinition,
+      exerciseCategory: null as unknown as import('../index').ExerciseCategory,
+      targetPatternType: null as unknown as import('../index').TargetPatternType,
+      session: null as unknown as import('../index').Session,
+      attempt: null as unknown as import('../index').Attempt,
+      singingAttemptMetrics: null as unknown as import('../index').SingingAttemptMetrics,
+      bestTake: null as unknown as import('../index').BestTake,
+      reflection: null as unknown as import('../index').Reflection,
+      livePitchFrame: null as unknown as import('../index').LivePitchFrame,
+      coachingPayload: null as unknown as import('../index').CoachingPayload,
+      avatarBehaviorState: null as unknown as import('../index').AvatarBehaviorState,
+      avatarDialogueLine: null as unknown as import('../index').AvatarDialogueLine,
+      xpEvent: null as unknown as import('../index').XpEvent,
+      userRewardState: null as unknown as import('../index').UserRewardState,
+      earnedBadge: null as unknown as import('../index').EarnedBadge,
+    };
+    expect(exportedTypeSmokeTest).toBeDefined();
   });
 
   it('should have correct versions for exercise definitions if modified', () => {
