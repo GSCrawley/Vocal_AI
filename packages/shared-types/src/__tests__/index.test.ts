@@ -1,56 +1,53 @@
-import type { ExerciseDefinition } from '../index';
+import {
+  UserProfile,
+  Tier,
+  SpeakingGoal,
+  SingingGoal,
+  SuccessBand,
+  ExerciseDefinition,
+  ExerciseCategory,
+  TargetPatternType,
+  Session,
+  Attempt,
+  SingingAttemptMetrics,
+  BestTake,
+  Reflection,
+  LivePitchFrame,
+  CoachingPayload,
+  AvatarBehaviorState,
+  AvatarDialogueLine,
+  XpEvent,
+  UserRewardState,
+  EarnedBadge,
+} from '../index';
 
-// This export ensures we use all imported types and ESLint doesn't flag them as unused.
-export type _ExportCheck =
-  | UserProfile
-  | Tier
-  | SpeakingGoal
-  | SingingGoal
-  | SuccessBand
-  | ExerciseDefinition
-  | ExerciseCategory
-  | TargetPatternType
-  | Session
-  | Attempt
-  | SingingAttemptMetrics
-  | BestTake
-  | Reflection
-  | LivePitchFrame
-  | CoachingPayload
-  | AvatarBehaviorState
-  | AvatarDialogueLine
-  | XpEvent
-  | UserRewardState
-  | EarnedBadge;
+// Ensure types are not considered unused by TypeScript/ESLint while acting purely as structural checks.
+export function _ensureTypesExist(
+  _profile: UserProfile,
+  _spkGoal: SpeakingGoal,
+  _sngGoal: SingingGoal,
+  _sBand: SuccessBand,
+  _exCat: ExerciseCategory,
+  _tpType: TargetPatternType,
+  _sess: Session,
+  _att: Attempt,
+  _sam: SingingAttemptMetrics,
+  _bt: BestTake,
+  _refl: Reflection,
+  _lpf: LivePitchFrame,
+  _cp: CoachingPayload,
+  _abs: AvatarBehaviorState,
+  _adl: AvatarDialogueLine,
+  _xpe: XpEvent,
+  _urs: UserRewardState,
+  _eb: EarnedBadge
+) {}
 
 describe('Shared Types', () => {
   it('should export all required domain types', () => {
     // This is purely a type-check test, if it compiles, the types exist.
-    const dummyTier: import('../index').Tier = 'speaking';
+    const dummyTier: Tier = 'speaking';
     expect(dummyTier).toBe('speaking');
-
-    const exportedTypeSmokeTest = {
-      userProfile: null as unknown as import('../index').UserProfile,
-      speakingGoal: null as unknown as import('../index').SpeakingGoal,
-      singingGoal: null as unknown as import('../index').SingingGoal,
-      successBand: null as unknown as import('../index').SuccessBand,
-      exerciseDefinition: null as unknown as import('../index').ExerciseDefinition,
-      exerciseCategory: null as unknown as import('../index').ExerciseCategory,
-      targetPatternType: null as unknown as import('../index').TargetPatternType,
-      session: null as unknown as import('../index').Session,
-      attempt: null as unknown as import('../index').Attempt,
-      singingAttemptMetrics: null as unknown as import('../index').SingingAttemptMetrics,
-      bestTake: null as unknown as import('../index').BestTake,
-      reflection: null as unknown as import('../index').Reflection,
-      livePitchFrame: null as unknown as import('../index').LivePitchFrame,
-      coachingPayload: null as unknown as import('../index').CoachingPayload,
-      avatarBehaviorState: null as unknown as import('../index').AvatarBehaviorState,
-      avatarDialogueLine: null as unknown as import('../index').AvatarDialogueLine,
-      xpEvent: null as unknown as import('../index').XpEvent,
-      userRewardState: null as unknown as import('../index').UserRewardState,
-      earnedBadge: null as unknown as import('../index').EarnedBadge,
-    };
-    expect(exportedTypeSmokeTest).toBeDefined();
   });
 
   it('should have correct versions for exercise definitions if modified', () => {
