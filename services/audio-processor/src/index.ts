@@ -186,9 +186,12 @@ export interface BaselineAssessmentResult {
   baselineMetrics: {
     pitchAccuracy: number | null;
     pitchStability: number | null;
-    breathControl: number;
-    toneQuality: number;
-    hnrDb: number;
+    breathControl: number | null;
+    toneQuality: number | null;
+    hnrDb: number | null;
+    cppDb: number | null;
+    jitterLocal: number | null;
+    shimmerLocal: number | null;
   };
   recommendedStartingKeyMidi: number;
   recommendedStartingKeyName: string;
