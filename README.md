@@ -5,7 +5,7 @@ VOICE is a mobile-first vocal training platform with two distinct learning tiers
 - **Speaking Tier** — for public speakers, podcasters, teachers, social media creators, and anyone who wants a more commanding, confident, or expressive voice.
 - **Singing Tier** — for singers at every level who want to expand range, improve pitch, master different styles, and train using real songs.
 
-Both tiers (with Singing Tier prioritized as Phase 1, and Speaking Tier as Phase 2) are powered by an AI avatar coach that adapts to each user's current skill level, guides them through structured exercises with real-time audio feedback, and uses evidence-based coaching techniques to build lasting vocal skill — not just session-by-session scores.
+Both tiers are powered by an AI avatar coach that adapts to each user's current skill level, guides them through structured exercises with real-time audio feedback, and uses evidence-based coaching techniques to build lasting vocal skill — not just session-by-session scores.
 
 ---
 
@@ -84,25 +84,25 @@ Prove one narrow singing coaching loop (the Sustained Note primary Trust Signal)
 5. Post-exercise score
 6. Best-take save and replay
 
-### Build 0.2 — Audio Analysis Depth (Singing)
+### Build 0.2 — Speaking foundation
 
-Prove live pitch tracking and server-side deep analysis (voice quality, etc.) for singing.
+Prove one narrow speaking coaching loop:
+
+1. Mic permission
+2. Mic check
+3. One 60-second speaking exercise (read a passage at a target pace)
+4. Live pace/pitch variability guidance
+5. Post-exercise score and plain-language coaching tip
 
 ### MVP
 
-Singing Tier operational with goal selection, baseline assessment, daily sessions, progress tracking, avatar coaching, and a reward loop.
-
-### Phase 2 — Speaking Tier
-
-Extend VOICE to coach speaking skills, leveraging the singing-tier audio infrastructure.
-
 Both tiers operational with goal selection, daily sessions, progress tracking, avatar coaching, and a reward loop.
 
-### Phase 3 — Karaoke Mode and Style Packs
+### Phase 2 — Karaoke Mode
 
 Educational karaoke: song selection, vocal separation, snippet practice, AI comparison and coaching.
 
-### Phase 4 — Community and Coaching Tier
+### Phase 3 — Style Packs + Community
 
 Advanced singing styles (jazz, opera, blues, heavy metal, grindcore), speaking specializations (TED, podcast, interview), and optional coaching tier.
 

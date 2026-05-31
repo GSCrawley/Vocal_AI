@@ -2,11 +2,11 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
+    "rootDir": "src",
     "ignoreDeprecations": "6.0",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "types": [],
-    "composite": true
+    "types": []
   },
   "include": [
     "src"
@@ -16,10 +16,5 @@
     "src/**/__tests__/**",
     "dist",
     "node_modules"
-  ],
-  "references": [
-    {
-      "path": "../../packages/shared-types"
-    }
   ]
 }

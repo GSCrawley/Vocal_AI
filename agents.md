@@ -14,7 +14,7 @@ Agents must treat these files as authoritative, in this order:
 6. `VocalAI Coaching Philosophy and Behavior Design Specification.pdf`
 7. Existing package and service source files
 
-If documents conflict, agents must log the conflict and resolve it explicitly before implementation. The current major conflict is Build 0.1 scope: `README.md` describes a Speaking Tier pace loop, while `docs/product/build-0.1.md`, `docs/qa/build-0.1-test-matrix.md`, `apps/mobile/src/index.ts`, `packages/content-schema/src/index.ts`, and the PDF describe a Singing Tier sustained-note/pitch loop. The established strategy is "singing-first". The recommended first build targets are the Singing Tier features, with the Speaking Tier parked for Phase 2.
+If documents conflict, agents must log the conflict and resolve it explicitly before implementation. The current major conflict is Build 0.1 scope: `README.md` describes a Speaking Tier pace loop, while `docs/product/build-0.1.md`, `docs/qa/build-0.1-test-matrix.md`, `apps/mobile/src/index.ts`, `packages/content-schema/src/index.ts`, and the PDF describe a Singing Tier sustained-note/pitch loop. The recommended first build target is the sustained-note loop because it is repeated across more implementation-facing files.
 
 ## Product Contract
 
@@ -94,13 +94,11 @@ Agents should execute in this order unless a coordinator explicitly changes the 
 3. Core package implementation and tests
 4. Mobile sustained-note experience
 5. API, Supabase schema, and persistence
-6. Audio processing (librosa/parselmouth) and 11-metric calibration
-7. Baseline assessment flow
-8. Adaptive Coaching Engine (Tier 1-3)
-9. Rewards, avatar, reflection, and progress integration
-10. QA automation and device smoke testing
-11. Render blueprint and deployment readiness
-12. Phase 2 and Phase 3 feature work
+6. Audio processing and metric calibration
+7. Rewards, avatar, reflection, and progress integration
+8. QA automation and device smoke testing
+9. Render blueprint and deployment readiness
+10. Phase 2 and Phase 3 feature work
 
 ## Required Agents
 

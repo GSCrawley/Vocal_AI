@@ -1,25 +1,4 @@
-import type {
-  Tier,
-  ExerciseDefinition,
-  UserProfile,
-  SpeakingGoal,
-  SingingGoal,
-  SuccessBand,
-  ExerciseCategory,
-  TargetPatternType,
-  Session,
-  Attempt,
-  SingingAttemptMetrics,
-  BestTake,
-  Reflection,
-  LivePitchFrame,
-  CoachingPayload,
-  AvatarBehaviorState,
-  AvatarDialogueLine,
-  XpEvent,
-  UserRewardState,
-  EarnedBadge,
-} from '../index';
+import { Tier, ExerciseDefinition } from '../index';
 
 describe('Shared Types', () => {
   it('should export all required domain types', () => {

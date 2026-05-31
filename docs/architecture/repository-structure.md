@@ -33,8 +33,8 @@ VOCAL_AI/
 │   │   └── technical-stack.md
 │   ├── product/
 │   │   ├── product-vision.md
+│   │   ├── speaking-tier-spec.md
 │   │   ├── singing-tier-spec.md
-│   │   ├── phase-2-speaking-tier.md
 │   │   ├── karaoke-mode-spec.md
 │   │   ├── ai-avatar-spec.md
 │   │   └── reward-system-spec.md
@@ -100,35 +100,46 @@ All packages use the `@voice/` scope:
 
 ## Data flow overview
 
-### Singing session (real-time and post-attempt)
+### Speaking session (real-time)
 
 ```
-Mobile mic → PCM frames → JS pitchy (Hz → cents)
+Mobile mic → PCM frames → JS VAD + pYIN (F0)
+                                 ↓
+                         LiveSpeakingFrame stream
+                                 ↓
+                   exercise-engine (session state machine)
+                                 ↓
+                      speaking-metrics (score computation)
+                                 ↓
+                      coaching-rules (feedback generation)
+                                 ↓
+                      avatar-state (dialogue + animation)
+                                 ↓
+              POST /v1/sessions/{id}/attempts → API → Supabase
+```
+
+### Singing session (real-time)
+
+```
+Mobile mic → PCM frames → JS pYIN (Hz → cents)
                                  ↓
                          LivePitchFrame stream
                                  ↓
                    exercise-engine (session state machine)
                                  ↓
-                       audio-metrics (live score computation)
+                       audio-metrics (score computation)
                                  ↓
-                      mobile UI (live visualization)
+                      coaching-rules (feedback generation)
+                                 ↓
+                      avatar-state (dialogue + animation)
                                  ↓
               POST /v1/sessions/{id}/attempts → API → Supabase
-                                 ↓
-          API enqueues singing_metrics job to audio-processor
-                                 ↓
-          Python: librosa/parselmouth (deep analysis of 11 metrics)
-                                 ↓
-          coaching-rules (Adaptive Coaching Engine: weakest metric finder + difficulty adaptor + LLM prompt)
-                                 ↓
-          Avatar responds with personalized CoachingPayload
-
 ```
 
-### Speaking session (Phase 2)
+### Karaoke session (Phase 2)
 
 ```
-[Parked, leverages singing infrastructure]
+User selects song
        ↓
 API → audio-processor job queue (Redis)
        ↓
