@@ -194,8 +194,8 @@ services:
     region: oregon
     runtime: python
     plan: starter
-    buildCommand: "pip install -U pip setuptools wheel && pip install -r requirements.txt"
-    startCommand: "python -m app.main"
+    buildCommand: 'pip install -U pip setuptools wheel && pip install -r requirements.txt'
+    startCommand: 'python -m app.main'
     healthCheckPath: /healthz
     envVars:
       - fromGroup: voice-shared-env
