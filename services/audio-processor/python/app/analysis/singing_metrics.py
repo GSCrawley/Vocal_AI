@@ -54,7 +54,14 @@ def compute_singing_metrics(
             "onset_accuracy": None,
             "breath_control": None,
             "tone_quality": None,
+            "dynamics_score": None,
+            "vibrato": {},
             "hnr_db": None,
+            "cpp_db": None,
+            "jitter_local": None,
+            "shimmer_local": None,
+            "rms_variance_db": None,
+            "voiced_frame_ratio": round(quality.voiced_frame_ratio, 3),
             "pitch_frames": [],
         }
 
