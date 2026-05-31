@@ -17,11 +17,7 @@ def analyze_voice_quality(y: np.ndarray, sr: int) -> dict:
         jitter_ppq5: 5-point Period Perturbation Quotient (stricter jitter measure)
         shimmer_apq11: 11-point Amplitude Perturbation Quotient (stricter shimmer)
     """
-    # Write to a temp WAV buffer for parselmouth
-    buf = io.BytesIO()
-    sf.write(buf, y, sr, format="WAV")
-    buf.seek(0)
-    sound = parselmouth.Sound(buf.read())
+    sound = parselmouth.Sound(values=y.astype(np.float64), sampling_frequency=sr)
 
     # HNR
     harmonicity = sound.to_harmonicity_cc(
