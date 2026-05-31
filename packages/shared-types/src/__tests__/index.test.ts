@@ -1,18 +1,47 @@
-import type { ExerciseDefinition } from '../index';
+import {
+  UserProfile,
+  Tier,
+  SpeakingGoal,
+  SingingGoal,
+  SuccessBand,
+  ExerciseDefinition,
+  ExerciseCategory,
+  TargetPatternType,
+  Session,
+  Attempt,
+  SingingAttemptMetrics,
+  BestTake,
+  Reflection,
+  LivePitchFrame,
+  CoachingPayload,
+  AvatarBehaviorState,
+  AvatarDialogueLine,
+  XpEvent,
+  UserRewardState,
+  EarnedBadge,
+} from '../index';
 
 // Ensure types are not considered unused by TypeScript/ESLint while acting purely as structural checks.
-export type _UserTypes = UserProfile | SpeakingGoal | SingingGoal;
-export type _ExerciseTypes = SuccessBand | ExerciseCategory | TargetPatternType;
-export type _SessionTypes =
-  | Session
-  | Attempt
-  | SingingAttemptMetrics
-  | BestTake
-  | Reflection
-  | LivePitchFrame
-  | CoachingPayload;
-export type _AvatarTypes = AvatarBehaviorState | AvatarDialogueLine;
-export type _RewardTypes = XpEvent | UserRewardState | EarnedBadge;
+export function _ensureTypesExist(
+  _profile: UserProfile,
+  _spkGoal: SpeakingGoal,
+  _sngGoal: SingingGoal,
+  _sBand: SuccessBand,
+  _exCat: ExerciseCategory,
+  _tpType: TargetPatternType,
+  _sess: Session,
+  _att: Attempt,
+  _sam: SingingAttemptMetrics,
+  _bt: BestTake,
+  _refl: Reflection,
+  _lpf: LivePitchFrame,
+  _cp: CoachingPayload,
+  _abs: AvatarBehaviorState,
+  _adl: AvatarDialogueLine,
+  _xpe: XpEvent,
+  _urs: UserRewardState,
+  _eb: EarnedBadge
+) {}
 
 describe('Shared Types', () => {
   it('should export all required domain types', () => {
