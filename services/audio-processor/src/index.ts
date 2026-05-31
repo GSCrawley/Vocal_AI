@@ -178,6 +178,8 @@ export interface BaselineAssessmentResult {
   highestNoteMidi: number;
   lowestNoteName: string;
   highestNoteName: string;
+  lowestHz?: number;
+  highestHz?: number;
   comfortableLowMidi: number;
   comfortableHighMidi: number;
   voiceType: string;
