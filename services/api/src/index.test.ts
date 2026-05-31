@@ -49,6 +49,20 @@ describe('API Service', () => {
       expect(response.json()).toHaveProperty('error');
     });
 
+    it('returns 400 when body is missing required properties', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/process-audio',
+        payload: {
+          frames: [],
+          targetHz: 440,
+          // Missing rmsDbFrames
+        },
+      });
+
+      expect(response.statusCode).toBe(400);
+    });
+
     it('returns a score for valid inputs', async () => {
       const response = await app.inject({
         method: 'POST',
@@ -72,6 +86,32 @@ describe('API Service', () => {
   });
 
   describe('POST /transition-state', () => {
+    it('returns 500 when transition throws an error for invalid transition', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/transition-state',
+        payload: {
+          currentState: 'IDLE',
+          event: { type: 'INVALID_EVENT' },
+        },
+      });
+
+      expect(response.statusCode).toBe(500);
+    });
+
+    it('returns 400 when body is missing required properties', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/transition-state',
+        payload: {
+          currentState: 'IDLE',
+          // Missing event
+        },
+      });
+
+      expect(response.statusCode).toBe(400);
+    });
+
     it('transitions state correctly', async () => {
       const response = await app.inject({
         method: 'POST',
