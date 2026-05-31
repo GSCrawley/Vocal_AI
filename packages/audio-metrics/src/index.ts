@@ -245,7 +245,7 @@ export function scoreSustainedNote(
   const acc = buildFrameAccumulator(frames, targetHz, toleranceCents, evaluateOnset);
 
   const pitchAccuracy = scorePitchAccuracy(acc, targetHz, toleranceCents);
-  const stability = scoreStability(acc);
+  const stability = scoreStability(frames);
 
   let overall = pitchAccuracy * scoringWeights.pitch + stability * scoringWeights.stability;
 
