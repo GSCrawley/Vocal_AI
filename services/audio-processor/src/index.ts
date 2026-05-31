@@ -151,16 +151,16 @@ export interface SingingMetricsResult {
   pitchAccuracy: number | null; // null if no target
   pitchStability: number | null;
   onsetAccuracy: number | null;
-  breathControl: number;
-  toneQuality: number;
+  breathControl: number | null;
+  toneQuality: number | null;
   dynamicsScore: number | null;
   vibratoScore: number | null;
-  hnrDb: number;
-  cppDb: number;
-  jitterLocal: number;
-  shimmerLocal: number;
-  rmsVarianceDb: number;
-  voicedFrameRatio: number;
+  hnrDb: number | null;
+  cppDb: number | null;
+  jitterLocal: number | null;
+  shimmerLocal: number | null;
+  rmsVarianceDb: number | null;
+  voicedFrameRatio: number | null;
   qualityFlag: string | null;
   pitchFrames: Array<{
     timestampMs: number;
