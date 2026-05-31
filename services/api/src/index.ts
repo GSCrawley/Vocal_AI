@@ -27,13 +27,13 @@ const fastify = Fastify({
   logger: true,
 });
 
-if (!process.env.JWT_SECRET) {
-  fastify.log.error('JWT_SECRET environment variable is missing');
+if (!process.env.SUPABASE_JWT_SECRET) {
+  fastify.log.error('SUPABASE_JWT_SECRET environment variable is missing');
   process.exit(1);
 }
 
 fastify.register(fastifyJwt, {
-  secret: process.env.JWT_SECRET,
+  secret: process.env.SUPABASE_JWT_SECRET,
 });
 
 fastify.addHook('onRequest', async (request, reply) => {
