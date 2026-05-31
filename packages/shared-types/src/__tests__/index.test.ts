@@ -1,4 +1,25 @@
-import { Tier, ExerciseDefinition } from '../index';
+import {
+  UserProfile,
+  Tier,
+  SpeakingGoal,
+  SingingGoal,
+  SuccessBand,
+  ExerciseDefinition,
+  ExerciseCategory,
+  TargetPatternType,
+  Session,
+  Attempt,
+  SingingAttemptMetrics,
+  BestTake,
+  Reflection,
+  LivePitchFrame,
+  CoachingPayload,
+  AvatarBehaviorState,
+  AvatarDialogueLine,
+  XpEvent,
+  UserRewardState,
+  EarnedBadge,
+} from '../index';
 
 describe('Shared Types', () => {
   it('should export all required domain types', () => {
