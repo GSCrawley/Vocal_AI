@@ -1,4 +1,25 @@
-import { Tier, ExerciseDefinition } from '../index';
+import type {
+  Tier,
+  ExerciseDefinition,
+  UserProfile,
+  SpeakingGoal,
+  SingingGoal,
+  SuccessBand,
+  ExerciseCategory,
+  TargetPatternType,
+  Session,
+  Attempt,
+  SingingAttemptMetrics,
+  BestTake,
+  Reflection,
+  LivePitchFrame,
+  CoachingPayload,
+  AvatarBehaviorState,
+  AvatarDialogueLine,
+  XpEvent,
+  UserRewardState,
+  EarnedBadge,
+} from '../index';
 
 // Ensure types are not considered unused by TypeScript/ESLint while acting purely as structural checks.
 export function _ensureTypesExist(
