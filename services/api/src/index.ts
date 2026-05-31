@@ -54,6 +54,7 @@ app.post(
           properties: {
             score: {
               type: 'object',
+              additionalProperties: true,
               properties: {
                 overall: { type: 'number' },
               },
