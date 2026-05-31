@@ -40,8 +40,6 @@ def extract_pitch_pyin(
     }
 
 import crepe
-import numpy as np
-
 def extract_pitch_crepe(
     y: np.ndarray,
     sr: int,
