@@ -65,26 +65,20 @@ export const LEVEL_NAMES: Record<number, string> = {
 };
 
 export function getLevelForXp(totalXp: number): number {
-  const maxIdx = LEVEL_XP_THRESHOLDS.length - 1;
-  const maxVal = LEVEL_XP_THRESHOLDS[maxIdx];
-
-  // Beyond the last defined level: +2000 XP per level
-  if (totalXp >= maxVal) {
-    return maxIdx + 1 + Math.floor((totalXp - maxVal) / 2000);
-  }
-
-  // Binary search for efficiency
-  let low = 0;
-  let high = maxIdx;
-  while (low <= high) {
-    const mid = (low + high) >>> 1;
-    if (LEVEL_XP_THRESHOLDS[mid] <= totalXp) {
-      low = mid + 1;
+  let level = 1;
+  for (let i = 0; i < LEVEL_XP_THRESHOLDS.length; i++) {
+    if (totalXp >= LEVEL_XP_THRESHOLDS[i]) {
+      level = i + 1;
     } else {
-      high = mid - 1;
+      break;
     }
   }
-  return Math.max(1, high + 1);
+  // Beyond level 10: +2000 XP per level
+  if (totalXp >= LEVEL_XP_THRESHOLDS[9]) {
+    const extra = totalXp - LEVEL_XP_THRESHOLDS[9];
+    level = 10 + Math.floor(extra / 2000);
+  }
+  return level;
 }
 
 export function getXpToNextLevel(totalXp: number): number {
