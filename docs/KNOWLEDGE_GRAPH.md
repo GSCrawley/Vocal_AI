@@ -1637,29 +1637,29 @@ Modals:     VocalSafetyModal, MicCheckModal, BadgeUnlockModal,
 
 Features gated by release phase. Implement as feature flags keyed on user level and server-side phase config.
 
-| Feature                          | Phase           | Gate condition                   |
-| -------------------------------- | --------------- | -------------------------------- |
-| Singing Tier (full)              | Build 0.1       | Always on                        |
-| Speaking Tier (full)             | Build 0.2 / MVP | Always on                        |
-| Both tiers simultaneously        | MVP             | Always on                        |
-| Onboarding (full 8 steps)        | MVP             | Always on                        |
-| Avatar + all states              | MVP             | Always on                        |
-| Reward system (XP/streak/badges) | MVP             | Always on                        |
-| Best-take save and replay        | MVP             | Always on                        |
-| Session reflection               | MVP             | Always on                        |
-| Push notifications               | Phase 2         | Server config flag               |
-| Karaoke Mode                     | Phase 2         | userLevel ≥ 4                    |
-| Specialization Tracks (Speaking) | Phase 2         | userLevel ≥ 3                    |
-| Adaptive difficulty              | Phase 2         | Server config flag               |
-| Real-time filler detection       | Phase 2         | Server config flag               |
-| SOVT exercises                   | Phase 2         | Server config flag               |
-| Style Packs (Singing)            | Phase 3         | userLevel ≥ 3, pack unlocked     |
-| HNR metric                       | Phase 2         | Server config flag               |
-| CPP metric                       | Phase 2         | Server config flag               |
-| Vibrato analysis                 | Phase 2         | Server config flag               |
-| ElevenLabs TTS (avatar voice)    | Phase 2         | Server config flag               |
-| Avatar cosmetic customization    | Phase 3         | unlockedContent includes variant |
-| Community features               | Phase 3         | Server config flag               |
+| Feature                          | Phase     | Gate condition                   |
+| -------------------------------- | --------- | -------------------------------- |
+| Singing Tier (full)              | Build 0.1 | Always on                        |
+| Speaking Tier (full)             | Phase 2   | Always on                        |
+| Both tiers simultaneously        | Phase 2   | Always on                        |
+| Onboarding (full 8 steps)        | MVP       | Always on                        |
+| Avatar + all states              | MVP       | Always on                        |
+| Reward system (XP/streak/badges) | MVP       | Always on                        |
+| Best-take save and replay        | MVP       | Always on                        |
+| Session reflection               | MVP       | Always on                        |
+| Push notifications               | Phase 2   | Server config flag               |
+| Karaoke Mode                     | Phase 2   | userLevel ≥ 4                    |
+| Specialization Tracks (Speaking) | Phase 2   | userLevel ≥ 3                    |
+| Adaptive difficulty              | Phase 2   | Server config flag               |
+| Real-time filler detection       | Phase 2   | Server config flag               |
+| SOVT exercises                   | Phase 2   | Server config flag               |
+| Style Packs (Singing)            | Phase 3   | userLevel ≥ 3, pack unlocked     |
+| HNR metric                       | Phase 2   | Server config flag               |
+| CPP metric                       | Phase 2   | Server config flag               |
+| Vibrato analysis                 | Phase 2   | Server config flag               |
+| ElevenLabs TTS (avatar voice)    | Phase 2   | Server config flag               |
+| Avatar cosmetic customization    | Phase 3   | unlockedContent includes variant |
+| Community features               | Phase 3   | Server config flag               |
 
 ---
 
