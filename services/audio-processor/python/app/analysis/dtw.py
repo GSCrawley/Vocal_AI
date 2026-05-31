@@ -58,7 +58,7 @@ def compare_pitch_curves(
 
     # Timing accuracy
     user_duration_ms = user_frames[-1]["timestampMs"] - user_frames[0]["timestampMs"]
-    ref_duration_ms = ref_frames[-1]["timestampMs"] - ref_frames[0]["timestampMs"]
+    ref_duration_ms = reference_frames[-1]["timestampMs"] - reference_frames[0]["timestampMs"]
     duration_ratio = abs(user_duration_ms - ref_duration_ms) / max(ref_duration_ms, 1)
     timing_accuracy = max(50.0, 100.0 - duration_ratio * 100.0)
 
