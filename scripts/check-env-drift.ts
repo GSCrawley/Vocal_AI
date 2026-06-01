@@ -106,7 +106,9 @@ export function runCheck(
 }
 
 // Only execute the script logic if run directly
-if (['check-env-drift.ts', 'check-env-drift.js'].includes(basename(process.argv[1] ?? ''))) {
+const invokedPath = process.argv[1] ?? '';
+const invokedName = basename(invokedPath);
+if (invokedName === 'check-env-drift.ts' || invokedName === 'check-env-drift.js') {
   const result = runCheck(ROOT, SCAN_DIRS, ENV_EXAMPLE);
 
   if (result.error) {
