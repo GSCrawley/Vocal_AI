@@ -6,7 +6,7 @@
  * Excludes: NODE_ENV, PATH, HOME, PWD, CI, and other intrinsic env vars.
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { basename, join, relative } from 'node:path';
 
 export const ROOT = process.cwd();
 export const ENV_EXAMPLE = join(ROOT, '.env.example');
@@ -38,8 +38,10 @@ export function getDeclaredEnvVars(envExamplePath: string): Set<string> {
         .map((l) => l.split('=')[0]?.trim())
         .filter(Boolean) as string[]
     );
-  } catch {
-    return new Set();
+  } catch (error) {
+    throw new Error(
+      `Failed to read or parse ${envExamplePath}: ${error instanceof Error ? error.message : String(error)}`
+    );
   }
 }
 
@@ -104,7 +106,7 @@ export function runCheck(
 }
 
 // Only execute the script logic if run directly
-if (require.main === module) {
+if (['check-env-drift.ts', 'check-env-drift.js'].includes(basename(process.argv[1] ?? ''))) {
   const result = runCheck(ROOT, SCAN_DIRS, ENV_EXAMPLE);
 
   if (result.error) {

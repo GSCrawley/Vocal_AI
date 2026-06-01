@@ -12,7 +12,7 @@
     "dev": "pnpm --filter @voice/mobile dev",
     "lint": "eslint .",
     "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
+    "test": "pnpm -r test && pnpm test:scripts",
     "test:scripts": "jest --config scripts/jest.config.js scripts/",
     "check:env": "tsx scripts/check-env-drift.ts",
     "format": "prettier --write .",
