@@ -1,26 +1,35 @@
 /** @jsx React.createElement */
-import React, { JSX } from 'react';
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import * as Sentry from '@sentry/react-native';
+import { useMicrophonePermission } from './src/hooks/useMicrophonePermission';
+import { PermissionScreen } from './src/screens/PermissionScreen';
+import { colors } from '@voice/ui-tokens';
 
 Sentry.init({
   dsn: 'https://fe68662341268013a48f2f99eda677ba@o4509629278519296.ingest.us.sentry.io/4511355776729088',
-
-  // Adds more context data to events (IP address, cookies, user, etc.)
-  // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
   sendDefaultPii: false,
-
-  // Configure Session Replay
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1,
   integrations: [Sentry.mobileReplayIntegration(), Sentry.feedbackIntegration()],
-
-  // uncomment the line below to enable Spotlight (https://spotlightjs.com)
-  // spotlight: __DEV__,
 });
 
 export default Sentry.wrap(function App() {
+  const { hasPermission, requestPermission } = useMicrophonePermission();
+
+  if (hasPermission === null) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.text}>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (!hasPermission) {
+    return <PermissionScreen onRequestPermission={requestPermission} />;
+  }
+
   return (
     <View style={styles.container}>
       <Button
@@ -29,7 +38,7 @@ export default Sentry.wrap(function App() {
           Sentry.captureException(new Error('First error'));
         }}
       />
-      <Text>Open up App.tsx to start working on your app!</Text>
+      <Text style={styles.text}>Open up App.tsx to start working on your app!</Text>
       <StatusBar style="auto" />
     </View>
   );
@@ -38,8 +47,11 @@ export default Sentry.wrap(function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  text: {
+    color: colors.text,
   },
 });

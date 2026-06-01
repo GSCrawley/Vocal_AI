@@ -10,7 +10,7 @@
 
 - [x] `packages/audio-metrics` scoring functions (Hz-to-cents, evaluateFrame, micCheck, scorePitchAccuracy, scoreStability, scoreOnset, scoreSustainedNote)
 - [x] `packages/exercise-engine` session state machine and attempt lifecycle
-- [ ] Microphone permission flow (mobile)
+- [x] Microphone permission flow (mobile)
 - [ ] Mic check flow (signal presence / quality detection) in-app
 - [ ] Sustained-note exercise execution in-app
 - [ ] Live pitch guidance / feedback during exercise (basic, may use stub pitch source until Build 0.2 wires pitchy)
