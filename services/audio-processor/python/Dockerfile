@@ -14,7 +14,7 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Upgrade build tools first
-RUN pip install --no-cache-dir -U pip setuptools wheel
+RUN pip install --no-cache-dir -U pip "setuptools<70" wheel
 
 # Install requirements with no build isolation
 RUN pip install --no-cache-dir --no-build-isolation -r requirements.txt
