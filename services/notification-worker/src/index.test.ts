@@ -29,6 +29,7 @@ describe('notificationWorker', () => {
   });
 
   afterEach(() => {
+    jest.useRealTimers();
     process.env = originalEnv;
     jest.restoreAllMocks();
   });
