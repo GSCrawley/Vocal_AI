@@ -5,16 +5,31 @@ export function useMicrophonePermission() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     (async () => {
-      const { status } = await Audio.getPermissionsAsync();
-      setHasPermission(status === 'granted');
+      try {
+        const { status } = await Audio.getPermissionsAsync();
+        if (isMounted) setHasPermission(status === 'granted');
+      } catch {
+        if (isMounted) setHasPermission(false);
+      }
     })();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const requestPermission = async () => {
-    const { status } = await Audio.requestPermissionsAsync();
-    setHasPermission(status === 'granted');
-    return status === 'granted';
+    try {
+      const { status } = await Audio.requestPermissionsAsync();
+      setHasPermission(status === 'granted');
+      return status === 'granted';
+    } catch {
+      setHasPermission(false);
+      return false;
+    }
   };
 
   return { hasPermission, requestPermission };
