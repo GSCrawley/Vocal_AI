@@ -3,7 +3,7 @@ import { View, Text, Button, StyleSheet } from 'react-native';
 import { colors } from '@voice/ui-tokens';
 
 interface PermissionScreenProps {
-  onRequestPermission: () => void;
+  onRequestPermission: () => void | Promise<boolean>;
 }
 
 export function PermissionScreen({ onRequestPermission }: PermissionScreenProps) {
@@ -14,7 +14,9 @@ export function PermissionScreen({ onRequestPermission }: PermissionScreenProps)
       </Text>
       <Button
         title="Grant Microphone Permission"
-        onPress={onRequestPermission}
+        onPress={() => {
+          void onRequestPermission();
+        }}
         color={colors.accent}
       />
     </View>
