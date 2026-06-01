@@ -215,7 +215,7 @@ services:
     plan: starter
     dockerfilePath: services/audio-processor/python/Dockerfile
     dockerContext: services/audio-processor/python
-    startCommand: python -m app.worker
+    dockerCommand: python -m app.worker
     envVars:
       - fromGroup: voice-shared-env
       - fromGroup: voice-secrets
