@@ -19,6 +19,7 @@
     "@sentry/types": "^8.55.2",
     "@types/node": "22.0.0",
     "@voice/audio-metrics": "workspace:*",
+    "@voice/coaching-rules": "workspace:^",
     "@voice/content-schema": "workspace:*",
     "@voice/exercise-engine": "workspace:*",
     "@voice/shared-types": "workspace:*",
