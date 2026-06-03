@@ -668,8 +668,7 @@ export interface VocalRangeSnapshot {
  * This type will be removed when Task 10 is merged.
  * Consumers: search the codebase for 'BaselineSnapshot' and update to UserBaselineSnapshot.
  */
-// Consumers to migrate in Task 10:
-// ./packages/shared-types/src/index.ts
+// Consumers to migrate in Task 10 (grep results as of 2026-06-03): none
 export interface BaselineSnapshot {
   userId: string;
   assessedAt: string; // ISO 8601
