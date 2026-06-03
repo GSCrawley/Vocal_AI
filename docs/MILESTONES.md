@@ -6,7 +6,7 @@
 
 **Goal:** prove one narrow vocal training loop — sustained note / pitch — end to end.
 
-**Status:** package-layer foundations landed in PR #87 (`packages/audio-metrics` and `packages/exercise-engine` are implemented and tested). Mobile app integration, mic-check UX, best-take, reflection, and reward sequencing remain.
+**Status:** package-layer foundations are implemented and tested (`packages/audio-metrics`, `packages/exercise-engine`). Mobile currently has microphone permission flow plus app shell only; the sustained-note loop UX, scoring UI, best-take, reflection/reward sequencing, and event instrumentation remain.
 
 - [x] `packages/audio-metrics` scoring functions (Hz-to-cents, evaluateFrame, micCheck, scorePitchAccuracy, scoreStability, scoreOnset, scoreSustainedNote)
 - [x] `packages/exercise-engine` session state machine and attempt lifecycle
