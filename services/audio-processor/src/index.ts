@@ -76,7 +76,7 @@ export interface BaselineAssessmentJob {
   jobId: string;
   userId: string;
   rangeTestAudioUrl: string; // Scale walk from C2–C6
-  sustainedHoldAudioUrl: string; // Single comfortable note, 8 seconds
+  sustainedHoldAudioUrl: string; // Single comfortable note, 8 seconds // 30 seconds of free singing
   /**
    * freeVocalAudioUrl is set to sustainedHoldAudioUrl by the API handler as a proxy.
    * No distinct free-vocal recording is made in the current mobile baseline flow.
