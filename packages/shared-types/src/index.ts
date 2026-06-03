@@ -608,23 +608,39 @@ export type SingingMetricKey =
   | 'consistency'
   | 'repertoire';
 
+/**
+ * The normalized result produced by the Python singing_metrics job and
+ * consumed by findWeakestMetric(). The API handler is responsible for
+ * remapping Python flat output into this shape — see normalizePythonOutput()
+ * in services/api/src/routes/attempts.ts.
+ *
+ * Field names intentionally match the Python flat output after normalization:
+ *   pitchStability (Python) → metrics.stability (here)
+ *   onsetAccuracy (Python)  → metrics.onset (here)  [R-03]
+ *   breathControl: number   → breathControl: number | null [R-04]
+ */
 export interface SingingMetricsResult {
-  attemptId: string;
-  exerciseId: string;
+  jobId: string;
   userId: string;
-  capturedAt: string; // ISO 8601
-  qualityFlag: 'ok' | 'degraded' | 'unusable';
-  qualityNote?: string; // Human-readable reason if not 'ok'
+  exerciseId: string;
+  capturedAt: string;
+  /** Five-value enum matching Python quality_gates.py output exactly [R-02] */
+  qualityFlag: 'ok' | 'clipping' | 'too_quiet' | 'too_short' | 'low_voiced_ratio';
+  qualityNote?: string;
+  /** Nested metrics dict keyed by SingingMetricKey — used by findWeakestMetric() [R-01] */
   metrics: Partial<Record<SingingMetricKey, number | null>>;
-  // Always present in Phase 1:
-  overallScore: number; // 0–100 weighted composite
-  pitchScore: number; // 0–100
-  stabilityScore: number; // 0–100
-  onsetScore: number | null; // 0–100 or null if onset not measurable
-  // Phase 2+:
-  breathControlScore?: number | null;
-  toneQualityScore?: number | null;
-  dynamicsScore?: number | null;
+  overallScore: number | null;
+  /** Individual score aliases for convenience — same values as metrics dict */
+  pitchScore: number | null;
+  stabilityScore: number | null;
+  onsetScore: number | null;
+  breathControlScore: number | null;
+  toneQualityScore: number | null;
+  /** Raw Praat outputs — may be null if voice quality analysis failed */
+  hnrDb?: number | null;
+  cppDb?: number | null;
+  jitterLocal?: number | null;
+  shimmerLocal?: number | null;
 }
 
 // ------------------------------------------------------------
@@ -647,6 +663,13 @@ export interface VocalRangeSnapshot {
   recommendedStartingKeyName: string;
 }
 
+/**
+ * @deprecated Use UserBaselineSnapshot instead.
+ * This type will be removed when Task 10 is merged.
+ * Consumers: search the codebase for 'BaselineSnapshot' and update to UserBaselineSnapshot.
+ */
+// Consumers to migrate in Task 10:
+// ./packages/shared-types/src/index.ts
 export interface BaselineSnapshot {
   userId: string;
   assessedAt: string; // ISO 8601
