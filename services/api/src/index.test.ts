@@ -55,6 +55,21 @@ describe('API Service', () => {
       expect(response.json()).toHaveProperty('error', 'Unauthorized');
     });
 
+    it('returns 401 Unauthorized when token is invalid', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/process-audio',
+        headers: { Authorization: 'Bearer not-a-valid-jwt' },
+        payload: {
+          frames: [],
+          targetHz: 440,
+          rmsDbFrames: [],
+        },
+      });
+
+      expect(response.statusCode).toBe(401);
+      expect(response.json()).toHaveProperty('error', 'Unauthorized');
+    });
     it('returns 400 for bad mic check', async () => {
       // Mock inputs that would fail a mic check (e.g. clipping rmsDbFrames)
       const response = await app.inject({
