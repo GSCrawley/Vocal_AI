@@ -1,7 +1,7 @@
 from app.analysis.range_walker import segment_range_walk
 from app.analysis.pitch import note_to_hz, midi_to_name, snap_to_exercise_key
 from app.utils.quality_gates import check_quality
-from app.utils.audio_io import download_and_load
+from app.utils.audio_io import load_audio
 from app.storage.supabase_client import supabase_client
 from datetime import datetime
 
