@@ -143,6 +143,26 @@ describe('computeSpeakingScore', () => {
     }).not.toThrow();
   });
 
+  it('throws an error if any weight is not a finite number', () => {
+    expect(() => {
+      computeSpeakingScore(80, 90, 70, 100, {
+        pace: Number.NaN,
+        prosody: 0.2,
+        projection: 0.3,
+        fillerRate: 0.5,
+      });
+    }).toThrow('Scoring weights must be finite numbers');
+
+    expect(() => {
+      computeSpeakingScore(80, 90, 70, 100, {
+        pace: 0.1,
+        prosody: Number.POSITIVE_INFINITY,
+        projection: 0.3,
+        fillerRate: 0.6,
+      });
+    }).toThrow('Scoring weights must be finite numbers');
+  });
+
   it('handles zero scores correctly', () => {
     const score = computeSpeakingScore(0, 0, 0, 0, {
       pace: 0.5,
