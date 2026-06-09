@@ -97,9 +97,33 @@ export function scoreFillerRate(fillersPerMinute: number): number {
 }
 
 /**
- * Compute overall speaking exercise score weighted by goal focus.
+ * Pure function to compute overall speaking score based on specific weights.
  */
 export function computeSpeakingScore(
+  pace: number,
+  prosody: number,
+  projection: number,
+  fillerRate: number,
+  weights: { pace: number; prosody: number; projection: number; fillerRate: number }
+): number {
+  const totalWeight = weights.pace + weights.prosody + weights.projection + weights.fillerRate;
+  if (Math.abs(totalWeight - 1.0) > 0.001) {
+    throw new Error('Scoring weights must sum to 1.0');
+  }
+
+  const overall =
+    pace * weights.pace +
+    prosody * weights.prosody +
+    projection * weights.projection +
+    fillerRate * weights.fillerRate;
+
+  return Math.round(overall);
+}
+
+/**
+ * Compute overall speaking exercise score weighted by goal focus.
+ */
+export function getSpeakingScoreBreakdown(
   analysis: SpeakingAnalysisResult,
   primaryGoal: SpeakingGoal,
   context: keyof typeof WPM_TARGETS = 'presentation'
@@ -122,8 +146,12 @@ export function computeSpeakingScore(
   };
 
   const w = weights[primaryGoal];
-  const overall = Math.round(
-    pace * w.pace + prosody * w.prosody + projection * w.projection + fillerRate * w.fillerRate
+  const overall = computeSpeakingScore(
+    pace,
+    prosody,
+    projection,
+    fillerRate,
+    w as { pace: number; prosody: number; projection: number; fillerRate: number }
   );
 
   return { pace, prosody, projection, fillerRate, overall };

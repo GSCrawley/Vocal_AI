@@ -1,4 +1,4 @@
-import { generateSpeakingFeedback, scorePace } from '../index';
+import { generateSpeakingFeedback, scorePace, computeSpeakingScore } from '../index';
 
 describe('generateSpeakingFeedback', () => {
   it('returns praise for null failureMode', () => {
@@ -76,5 +76,80 @@ describe('scorePace', () => {
     // Score hits 0 at distance 35 (WPM 200)
     expect(scorePace(200, 'presentation')).toBe(0);
     expect(scorePace(250, 'presentation')).toBe(0);
+  });
+});
+
+describe('computeSpeakingScore', () => {
+  it('correctly computes a weighted score', () => {
+    // 80 * 0.5 + 90 * 0.2 + 70 * 0.2 + 100 * 0.1 = 40 + 18 + 14 + 10 = 82
+    const score = computeSpeakingScore(80, 90, 70, 100, {
+      pace: 0.5,
+      prosody: 0.2,
+      projection: 0.2,
+      fillerRate: 0.1,
+    });
+    expect(score).toBe(82);
+  });
+
+  it('correctly rounds the computed score', () => {
+    // 80 * 0.5 + 85 * 0.2 + 70 * 0.2 + 100 * 0.1 = 40 + 17 + 14 + 10 = 81
+    const score = computeSpeakingScore(80, 85, 70, 100, {
+      pace: 0.5,
+      prosody: 0.2,
+      projection: 0.2,
+      fillerRate: 0.1,
+    });
+    expect(score).toBe(81);
+
+    // 80 * 0.5 + 88 * 0.2 + 70 * 0.2 + 100 * 0.1 = 40 + 17.6 + 14 + 10 = 81.6 -> 82
+    const scoreRoundedUp = computeSpeakingScore(80, 88, 70, 100, {
+      pace: 0.5,
+      prosody: 0.2,
+      projection: 0.2,
+      fillerRate: 0.1,
+    });
+    expect(scoreRoundedUp).toBe(82);
+  });
+
+  it('throws an error if weights do not sum to 1.0', () => {
+    expect(() => {
+      computeSpeakingScore(80, 90, 70, 100, {
+        pace: 0.5,
+        prosody: 0.2,
+        projection: 0.2,
+        fillerRate: 0.2, // Sum is 1.1
+      });
+    }).toThrow('Scoring weights must sum to 1.0');
+
+    expect(() => {
+      computeSpeakingScore(80, 90, 70, 100, {
+        pace: 0.5,
+        prosody: 0.2,
+        projection: 0.2,
+        fillerRate: 0.0, // Sum is 0.9
+      });
+    }).toThrow('Scoring weights must sum to 1.0');
+  });
+
+  it('handles floating point precision when checking weight sum', () => {
+    // 0.1 + 0.2 + 0.3 + 0.4 usually doesn't sum exactly to 1 in JS
+    expect(() => {
+      computeSpeakingScore(80, 90, 70, 100, {
+        pace: 0.1,
+        prosody: 0.2,
+        projection: 0.3,
+        fillerRate: 0.4,
+      });
+    }).not.toThrow();
+  });
+
+  it('handles zero scores correctly', () => {
+    const score = computeSpeakingScore(0, 0, 0, 0, {
+      pace: 0.5,
+      prosody: 0.2,
+      projection: 0.2,
+      fillerRate: 0.1,
+    });
+    expect(score).toBe(0);
   });
 });
