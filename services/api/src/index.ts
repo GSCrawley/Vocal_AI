@@ -37,13 +37,13 @@ app.register(fastifyJwt, {
 });
 
 app.addHook('onRequest', async (request, reply) => {
-  const url = request.routeOptions.url;
-  if (url === '/healthz' || url === '/') {
+  const pathname = (request.raw.url ?? '').split('?')[0];
+  if (pathname === '/healthz' || pathname === '/') {
     return;
   }
   try {
     await request.jwtVerify();
-  } catch (err) {
+  } catch {
     return reply.code(401).send({ error: 'Unauthorized' });
   }
 });
