@@ -60,7 +60,7 @@ describe('exercise-engine', () => {
   });
 
   describe('session plan', () => {
-    const mockExercise = {
+    const mockExercise: ExerciseDefinition = {
       exerciseId: 'ex-1',
       version: 1,
       tier: 'singing',
@@ -71,13 +71,13 @@ describe('exercise-engine', () => {
       userInstructionText: 'Sing A4',
       durationTargetSeconds: 5,
       repetitionsDefault: 1,
-      targetPatternType: 'sustained_note' as any,
-      targetPatternPayload: {} as any,
-      evaluationConfig: {} as any,
-      scoringWeights: { pitch: 1.0, stability: 0.0, onset: 0.0 } as any,
-      tags: [],
-      status: 'published' as any,
-    } as unknown as ExerciseDefinition;
+      targetPatternType: 'sustained_hold',
+      targetPatternPayload: {},
+      evaluationConfig: {},
+      scoringWeights: { pitch: 1.0, stability: 0.0, onset: 0.0 },
+      feedbackRuleSetId: 'default_singing_rules',
+      activeFlag: true,
+    };
 
     it('buildSessionPlan returns initial plan where canAwardXp is false', () => {
       const plan = buildSessionPlan({
