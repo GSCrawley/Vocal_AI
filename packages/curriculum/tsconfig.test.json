@@ -1,18 +1,9 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src",
-    "ignoreDeprecations": "6.0",
-    "skipLibCheck": true,
-    "declaration": true,
-    "forceConsistentCasingInFileNames": true,
-    "types": ["jest"]
+    "types": ["jest"],
+    "noEmit": true
   },
   "include": ["src"],
-  "references": [
-    {
-      "path": "../shared-types"
-    }
-  ]
+  "exclude": ["dist", "node_modules"]
 }
