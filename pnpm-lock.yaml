@@ -217,6 +217,24 @@ importers:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@22.0.0)
 
+  packages/logger:
+    devDependencies:
+      '@types/jest':
+        specifier: ^29.5.12
+        version: 29.5.14
+      '@types/node':
+        specifier: 22.0.0
+        version: 22.0.0
+      jest:
+        specifier: ^29.7.0
+        version: 29.7.0(@types/node@22.0.0)
+      ts-jest:
+        specifier: ^29.1.2
+        version: 29.4.11(@babel/core@7.29.7)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.7))(jest-util@29.7.0)(jest@29.7.0(@types/node@22.0.0))(typescript@6.0.3)
+      typescript:
+        specifier: ^6.0.2
+        version: 6.0.3
+
   packages/reward-engine:
     dependencies:
       '@voice/shared-types':
@@ -289,6 +307,9 @@ importers:
       '@types/node':
         specifier: 22.0.0
         version: 22.0.0
+      '@voice/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
       '@voice/shared-types':
         specifier: workspace:*
         version: link:../../packages/shared-types
@@ -374,6 +395,9 @@ importers:
       '@types/node':
         specifier: 22.0.0
         version: 22.0.0
+      '@voice/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
       '@voice/shared-types':
         specifier: workspace:*
         version: link:../../packages/shared-types

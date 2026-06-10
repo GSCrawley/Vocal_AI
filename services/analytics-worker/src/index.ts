@@ -2,6 +2,7 @@ import '../instrument.js';
 
 // All other imports below
 import { createServer, IncomingMessage, ServerResponse } from 'node:http';
+import { logger } from '@voice/logger';
 
 const server = createServer((req: any, res: any) => {
   // server code
@@ -15,10 +16,10 @@ export const analyticsWorker = {
 
 const heartbeatLogsEnabled = process.env.ANALYTICS_WORKER_HEARTBEAT_LOGS === 'true';
 
-console.log('voice-analytics-worker started');
+logger.info('voice-analytics-worker started');
 
 if (heartbeatLogsEnabled) {
   setInterval(() => {
-    console.log('analytics-worker heartbeat');
+    logger.info('analytics-worker heartbeat');
   }, 30_000);
 }
