@@ -48,11 +48,11 @@ app.addHook('onRequest', async (request, reply) => {
   }
 });
 
-app.get('/healthz', async (request: any, reply: any) => {
+app.get('/healthz', async (_request: FastifyRequest, _reply: FastifyReply) => {
   return { ok: true };
 });
 
-app.get('/', async (request: any, reply: any) => {
+app.get('/', async (_request: FastifyRequest, _reply: FastifyReply) => {
   return { service: 'api', status: 'stub' };
 });
 
