@@ -1,4 +1,9 @@
-import { generateSpeakingFeedback, scorePace, computeSpeakingScore } from '../index';
+import {
+  generateSpeakingFeedback,
+  scorePace,
+  computeSpeakingScore,
+  scoreProjection,
+} from '../index';
 
 describe('generateSpeakingFeedback', () => {
   it('returns praise for null failureMode', () => {
@@ -171,5 +176,87 @@ describe('computeSpeakingScore', () => {
       fillerRate: 0.1,
     });
     expect(score).toBe(0);
+  });
+});
+
+describe('scoreProjection', () => {
+  it('handles boundary conditions based on strict > logic', () => {
+    // meanRmsDb > -10 -> 70
+    // -9.99 passes, so levelScore = 70. Bonus = 0.
+    expect(scoreProjection(-9.99, 0)).toBe(70);
+
+    // meanRmsDb > -18 -> 100
+    // -10 fails > -10, falls to > -18. levelScore = 100. Bonus = 0.
+    expect(scoreProjection(-10, 0)).toBe(100);
+    // -17.99 passes > -18. levelScore = 100. Bonus = 0.
+    expect(scoreProjection(-17.99, 0)).toBe(100);
+
+    // meanRmsDb > -25 -> 80
+    // -18 fails > -18, falls to > -25. levelScore = 80. Bonus = 0.
+    expect(scoreProjection(-18, 0)).toBe(80);
+    // -24.99 passes > -25. levelScore = 80. Bonus = 0.
+    expect(scoreProjection(-24.99, 0)).toBe(80);
+
+    // meanRmsDb > -35 -> 55
+    // -25 fails > -25, falls to > -35. levelScore = 55. Bonus = 0.
+    expect(scoreProjection(-25, 0)).toBe(55);
+    // -34.99 passes > -35. levelScore = 55. Bonus = 0.
+    expect(scoreProjection(-34.99, 0)).toBe(55);
+
+    // else -> 30
+    // -35 fails > -35, falls to else. levelScore = 30. Bonus = 0.
+    expect(scoreProjection(-35, 0)).toBe(30);
+  });
+
+  it('calculates and caps variance bonus correctly', () => {
+    // 0 variance -> bonus 0
+    // levelScore = 100 (-15 dB). 100 + 0 = 100
+    expect(scoreProjection(-15, 0)).toBe(100);
+
+    // 5 variance -> bonus 10 (capped)
+    // levelScore = 80 (-20 dB). 80 + (5 * 2) = 90
+    expect(scoreProjection(-20, 5)).toBe(90);
+
+    // large variance (50) -> bonus capped at 10
+    // levelScore = 55 (-30 dB). 55 + Math.min(10, 100) = 65
+    expect(scoreProjection(-30, 50)).toBe(65);
+  });
+
+  it('handles negative variance', () => {
+    // negative variance (-3) -> bonus -6
+    // levelScore = 80 (-20 dB). 80 + Math.min(10, -6) = 74
+    expect(scoreProjection(-20, -3)).toBe(74);
+  });
+
+  it('clamps the final score to 100', () => {
+    // levelScore = 100 (-15 dB), high variance -> +10 bonus
+    // 100 + 10 = 110, clamped to 100
+    expect(scoreProjection(-15, 10)).toBe(100);
+  });
+
+  it('handles defensive/extreme inputs', () => {
+    // very loud (0 dB) -> hits first branch (> -10). levelScore = 70.
+    expect(scoreProjection(0, 0)).toBe(70);
+
+    // very loud (+6 dB) -> hits first branch (> -10). levelScore = 70.
+    expect(scoreProjection(6, 0)).toBe(70);
+
+    // very quiet (-80 dB) -> hits else branch. levelScore = 30.
+    expect(scoreProjection(-80, 0)).toBe(30);
+
+    // NaN meanRmsDb -> all > comparisons false -> else branch. levelScore = 30.
+    expect(scoreProjection(Number.NaN, 0)).toBe(30);
+
+    // NaN variance -> Math.min(10, NaN) yields NaN. Final Math.min yields NaN.
+    expect(scoreProjection(-20, Number.NaN)).toBeNaN();
+
+    // Infinity meanRmsDb -> hits first branch. levelScore = 70.
+    expect(scoreProjection(Number.POSITIVE_INFINITY, 0)).toBe(70);
+
+    // -Infinity meanRmsDb -> hits else branch. levelScore = 30.
+    expect(scoreProjection(Number.NEGATIVE_INFINITY, 0)).toBe(30);
+
+    // Infinity variance -> bonus capped at 10. levelScore = 80 (-20 dB) + 10 = 90
+    expect(scoreProjection(-20, Number.POSITIVE_INFINITY)).toBe(90);
   });
 });
