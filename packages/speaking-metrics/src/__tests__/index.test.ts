@@ -1,4 +1,4 @@
-import { generateSpeakingFeedback, scorePace, scoreProjection } from '../index';
+import { generateSpeakingFeedback, scorePace, computeSpeakingScore } from '../index';
 
 describe('generateSpeakingFeedback', () => {
   it('returns praise for null failureMode', () => {
@@ -79,97 +79,97 @@ describe('scorePace', () => {
   });
 });
 
-describe('scoreProjection', () => {
-  describe('level score boundaries (strict > comparisons)', () => {
-    it('handles the > -10 boundary (70 vs 100 band)', () => {
-      // > -10 -> 70
-      expect(scoreProjection(-9.99, 0)).toBe(70);
-      expect(scoreProjection(0, 0)).toBe(70);
-
-      // Exact -10 or below falls to the next condition (> -18 -> 100)
-      expect(scoreProjection(-10, 0)).toBe(100);
+describe('computeSpeakingScore', () => {
+  it('correctly computes a weighted score', () => {
+    // 80 * 0.5 + 90 * 0.2 + 70 * 0.2 + 100 * 0.1 = 40 + 18 + 14 + 10 = 82
+    const score = computeSpeakingScore(80, 90, 70, 100, {
+      pace: 0.5,
+      prosody: 0.2,
+      projection: 0.2,
+      fillerRate: 0.1,
     });
-
-    it('handles the > -18 boundary (100 vs 80 band)', () => {
-      // > -18 -> 100
-      expect(scoreProjection(-17.99, 0)).toBe(100);
-
-      // Exact -18 falls to the next condition (> -25 -> 80)
-      expect(scoreProjection(-18, 0)).toBe(80);
-    });
-
-    it('handles the > -25 boundary (80 vs 55 band)', () => {
-      // > -25 -> 80
-      expect(scoreProjection(-24.99, 0)).toBe(80);
-
-      // Exact -25 falls to the next condition (> -35 -> 55)
-      expect(scoreProjection(-25, 0)).toBe(55);
-    });
-
-    it('handles the > -35 boundary (55 vs 30 band)', () => {
-      // > -35 -> 55
-      expect(scoreProjection(-34.99, 0)).toBe(55);
-
-      // Exact -35 or below falls to the final else -> 30
-      expect(scoreProjection(-35, 0)).toBe(30);
-      expect(scoreProjection(-80, 0)).toBe(30); // Very quiet
-    });
+    expect(score).toBe(82);
   });
 
-  describe('variance bonus and cap', () => {
-    it('applies no bonus for 0 variance', () => {
-      // Base score 80 (since -20 is > -25)
-      // Bonus = Math.min(10, 0 * 2) = 0
-      expect(scoreProjection(-20, 0)).toBe(80);
+  it('correctly rounds the computed score', () => {
+    // 80 * 0.5 + 85 * 0.2 + 70 * 0.2 + 100 * 0.1 = 40 + 17 + 14 + 10 = 81
+    const score = computeSpeakingScore(80, 85, 70, 100, {
+      pace: 0.5,
+      prosody: 0.2,
+      projection: 0.2,
+      fillerRate: 0.1,
     });
+    expect(score).toBe(81);
 
-    it('applies the maximum bonus of 10 for variance >= 5', () => {
-      // Base score 80 (-20 > -25)
-      // Variance 5 -> Math.min(10, 5 * 2) = 10. Total = 80 + 10 = 90
-      expect(scoreProjection(-20, 5)).toBe(90);
-
-      // Variance 50 -> cap at 10. Total = 80 + 10 = 90
-      expect(scoreProjection(-20, 50)).toBe(90);
+    // 80 * 0.5 + 88 * 0.2 + 70 * 0.2 + 100 * 0.1 = 40 + 17.6 + 14 + 10 = 81.6 -> 82
+    const scoreRoundedUp = computeSpeakingScore(80, 88, 70, 100, {
+      pace: 0.5,
+      prosody: 0.2,
+      projection: 0.2,
+      fillerRate: 0.1,
     });
-
-    it('decreases score for negative variance (actual physical anomaly but mathematical consequence)', () => {
-      // Base score 80 (-20 > -25)
-      // Variance -3 -> Math.min(10, -3 * 2) = -6. Total = 80 - 6 = 74
-      expect(scoreProjection(-20, -3)).toBe(74);
-    });
+    expect(scoreRoundedUp).toBe(82);
   });
 
-  describe('clamping and constraints', () => {
-    it('clamps the final score to 100', () => {
-      // Base score 100 (-15 > -18)
-      // Variance 5 -> Bonus 10. Total 110, clamped to 100
-      expect(scoreProjection(-15, 5)).toBe(100);
-    });
+  it('throws an error if weights do not sum to 1.0', () => {
+    expect(() => {
+      computeSpeakingScore(80, 90, 70, 100, {
+        pace: 0.5,
+        prosody: 0.2,
+        projection: 0.2,
+        fillerRate: 0.2, // Sum is 1.1
+      });
+    }).toThrow('Scoring weights must sum to 1.0');
+
+    expect(() => {
+      computeSpeakingScore(80, 90, 70, 100, {
+        pace: 0.5,
+        prosody: 0.2,
+        projection: 0.2,
+        fillerRate: 0.0, // Sum is 0.9
+      });
+    }).toThrow('Scoring weights must sum to 1.0');
   });
 
-  describe('defensive/extreme inputs', () => {
-    it('handles NaN inputs based on mathematical evaluation', () => {
-      // NaN for meanRmsDb makes all > comparisons false, landing on the final else (30)
-      // Variance 0 -> bonus 0. Total = 30
-      expect(scoreProjection(NaN, 0)).toBe(30);
+  it('handles floating point precision when checking weight sum', () => {
+    // 0.1 + 0.2 + 0.3 + 0.4 usually doesn't sum exactly to 1 in JS
+    expect(() => {
+      computeSpeakingScore(80, 90, 70, 100, {
+        pace: 0.1,
+        prosody: 0.2,
+        projection: 0.3,
+        fillerRate: 0.4,
+      });
+    }).not.toThrow();
+  });
 
-      // NaN for variance -> Math.min(10, NaN * 2) -> Math.min(10, NaN) -> NaN
-      // Final result is Math.min(100, 30 + NaN) -> NaN
-      expect(scoreProjection(-20, NaN)).toBeNaN();
+  it('throws an error if any weight is not a finite number', () => {
+    expect(() => {
+      computeSpeakingScore(80, 90, 70, 100, {
+        pace: Number.NaN,
+        prosody: 0.2,
+        projection: 0.3,
+        fillerRate: 0.5,
+      });
+    }).toThrow('Scoring weights must be finite numbers');
+
+    expect(() => {
+      computeSpeakingScore(80, 90, 70, 100, {
+        pace: 0.1,
+        prosody: Number.POSITIVE_INFINITY,
+        projection: 0.3,
+        fillerRate: 0.6,
+      });
+    }).toThrow('Scoring weights must be finite numbers');
+  });
+
+  it('handles zero scores correctly', () => {
+    const score = computeSpeakingScore(0, 0, 0, 0, {
+      pace: 0.5,
+      prosody: 0.2,
+      projection: 0.2,
+      fillerRate: 0.1,
     });
-
-    it('handles Infinity inputs', () => {
-      // Infinity meanRmsDb -> > -10 is true -> base score 70
-      // Variance 0 -> Total = 70
-      expect(scoreProjection(Infinity, 0)).toBe(70);
-
-      // -Infinity meanRmsDb -> all > false -> base score 30
-      // Variance 0 -> Total = 30
-      expect(scoreProjection(-Infinity, 0)).toBe(30);
-
-      // Base score 80 (-20 > -25)
-      // Infinity variance -> Math.min(10, Infinity) = 10 -> Total = 90
-      expect(scoreProjection(-20, Infinity)).toBe(90);
-    });
+    expect(score).toBe(0);
   });
 });

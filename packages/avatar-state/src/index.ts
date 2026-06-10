@@ -167,7 +167,7 @@ export function buildCelebrationDialogue(ctx: DialogueContext): AvatarDialogueLi
       state: 'CELEBRATING',
       durationMs: 4000,
     });
-  } else {
+  } else if (isMilestone) {
     lines.push({
       text:
         tier === 'speaking'
