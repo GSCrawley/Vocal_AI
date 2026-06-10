@@ -1,5 +1,7 @@
 import '../instrument.js';
 import Fastify, { FastifyRequest, FastifyReply } from 'fastify';
+import fastifyJwt from '@fastify/jwt';
+
 import { LivePitchFrame, SessionState, SessionEvent } from '@voice/shared-types';
 import { micCheck, scoreSustainedNote } from '@voice/audio-metrics';
 import { transition } from '@voice/exercise-engine';
@@ -26,11 +28,34 @@ export const app = Fastify({
   logger: true,
 });
 
-app.get('/healthz', async (request: any, reply: any) => {
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is missing');
+}
+
+// Register JWT plugin
+app.register(fastifyJwt, {
+  secret: process.env.JWT_SECRET,
+});
+
+// Authentication hook
+app.addHook('onRequest', async (request, reply) => {
+  // Skip authentication for health checks and root stub
+  if (request.routeOptions.url === '/healthz' || request.routeOptions.url === '/') {
+    return;
+  }
+
+  try {
+    await request.jwtVerify();
+  } catch (err) {
+    reply.send(err);
+  }
+});
+
+app.get('/healthz', async (_request: FastifyRequest, _reply: FastifyReply) => {
   return { ok: true };
 });
 
-app.get('/', async (request: any, reply: any) => {
+app.get('/', async (_request: FastifyRequest, _reply: FastifyReply) => {
   return { service: 'api', status: 'stub' };
 });
 
