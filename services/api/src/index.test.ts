@@ -1,6 +1,4 @@
 import { app, apiService } from './index.js';
-import type { LivePitchFrame, SessionState, SessionEvent } from '@voice/shared-types';
-
 describe('API Service', () => {
   afterAll(async () => {
     await app.close();
