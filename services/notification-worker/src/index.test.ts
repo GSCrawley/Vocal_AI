@@ -12,15 +12,14 @@ jest.unstable_mockModule('node:http', () => {
     },
   };
 });
+const mockLogger = {
+  info: jest.fn(),
+  error: jest.fn(),
+  warn: jest.fn(),
+  debug: jest.fn(),
+};
 
-jest.unstable_mockModule('@voice/logger', () => ({
-  logger: {
-    info: jest.fn(),
-    error: jest.fn(),
-    warn: jest.fn(),
-    debug: jest.fn(),
-  },
-}));
+jest.unstable_mockModule('@voice/logger', () => ({ logger: mockLogger }), { virtual: true });
 
 // Mock instrument to avoid side effects
 jest.unstable_mockModule('../instrument.js', () => ({}));
