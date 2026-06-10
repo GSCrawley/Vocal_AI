@@ -13,6 +13,15 @@ jest.unstable_mockModule('node:http', () => {
   };
 });
 
+jest.unstable_mockModule('@voice/logger', () => ({
+  logger: {
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  },
+}));
+
 // Mock instrument to avoid side effects
 jest.unstable_mockModule('../instrument.js', () => ({}));
 
@@ -23,9 +32,6 @@ describe('notificationWorker', () => {
     originalEnv = { ...process.env };
     jest.resetModules();
     jest.clearAllMocks();
-
-    // Suppress console.log for clean test output
-    jest.spyOn(console, 'log').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -47,7 +53,7 @@ describe('notificationWorker', () => {
     await import('./index.js');
 
     expect(http.createServer).toHaveBeenCalled();
-    const serverMock = (http.createServer as any).mock.results[0].value;
+    const serverMock = (http.createServer as jest.Mock).mock.results[0].value;
     expect(serverMock.listen).toHaveBeenCalledWith(3002, '0.0.0.0');
   });
 
@@ -57,7 +63,7 @@ describe('notificationWorker', () => {
     await import('./index.js');
 
     expect(http.createServer).toHaveBeenCalled();
-    const serverMock = (http.createServer as any).mock.results[0].value;
+    const serverMock = (http.createServer as jest.Mock).mock.results[0].value;
     expect(serverMock.listen).toHaveBeenCalledWith(4005, '0.0.0.0');
   });
 
@@ -65,12 +71,13 @@ describe('notificationWorker', () => {
     jest.useFakeTimers();
     process.env.NOTIFICATION_WORKER_HEARTBEAT_LOGS = 'true';
 
+    const { logger } = await import('@voice/logger');
     await import('./index.js');
 
     // Advance time by 30 seconds
     jest.advanceTimersByTime(30000);
 
-    expect(console.log).toHaveBeenCalledWith('notification-worker heartbeat');
+    expect(logger.info).toHaveBeenCalledWith('notification-worker heartbeat');
 
     jest.useRealTimers();
   });
@@ -79,12 +86,13 @@ describe('notificationWorker', () => {
     jest.useFakeTimers();
     process.env.NOTIFICATION_WORKER_HEARTBEAT_LOGS = 'false';
 
+    const { logger } = await import('@voice/logger');
     await import('./index.js');
 
     // Advance time by 30 seconds
     jest.advanceTimersByTime(30000);
 
-    expect(console.log).not.toHaveBeenCalledWith('notification-worker heartbeat');
+    expect(logger.info).not.toHaveBeenCalledWith('notification-worker heartbeat');
 
     jest.useRealTimers();
   });
