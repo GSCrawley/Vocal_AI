@@ -23,6 +23,13 @@ export const WPM_TARGETS: Record<string, { min: number; target: number; max: num
   interview: { min: 120, target: 140, max: 160 },
 };
 
+type SpeakingScoreWeights = {
+  pace: number;
+  prosody: number;
+  projection: number;
+  fillerRate: number;
+};
+
 /**
  * Score pace based on measured WPM vs target range.
  * Full score at target; degrades gracefully outside the range.
@@ -97,9 +104,42 @@ export function scoreFillerRate(fillersPerMinute: number): number {
 }
 
 /**
- * Compute overall speaking exercise score weighted by goal focus.
+ * Pure function to compute overall speaking score based on specific weights.
  */
 export function computeSpeakingScore(
+  pace: number,
+  prosody: number,
+  projection: number,
+  fillerRate: number,
+  weights: SpeakingScoreWeights
+): number {
+  if (
+    !Number.isFinite(weights.pace) ||
+    !Number.isFinite(weights.prosody) ||
+    !Number.isFinite(weights.projection) ||
+    !Number.isFinite(weights.fillerRate)
+  ) {
+    throw new Error('Scoring weights must be finite numbers');
+  }
+
+  const totalWeight = weights.pace + weights.prosody + weights.projection + weights.fillerRate;
+  if (Math.abs(totalWeight - 1.0) > 0.001) {
+    throw new Error('Scoring weights must sum to 1.0');
+  }
+
+  const overall =
+    pace * weights.pace +
+    prosody * weights.prosody +
+    projection * weights.projection +
+    fillerRate * weights.fillerRate;
+
+  return Math.round(overall);
+}
+
+/**
+ * Compute overall speaking exercise score weighted by goal focus.
+ */
+export function getSpeakingScoreBreakdown(
   analysis: SpeakingAnalysisResult,
   primaryGoal: SpeakingGoal,
   context: keyof typeof WPM_TARGETS = 'presentation'
@@ -110,7 +150,7 @@ export function computeSpeakingScore(
   const fillerRate = scoreFillerRate(analysis.fillerRate);
 
   // Weight the overall score by primary goal
-  const weights: Record<SpeakingGoal, Record<string, number>> = {
+  const weights: Record<SpeakingGoal, SpeakingScoreWeights> = {
     pace: { pace: 0.6, prosody: 0.15, projection: 0.15, fillerRate: 0.1 },
     prosody: { pace: 0.2, prosody: 0.6, projection: 0.1, fillerRate: 0.1 },
     projection: { pace: 0.1, prosody: 0.2, projection: 0.6, fillerRate: 0.1 },
@@ -122,9 +162,7 @@ export function computeSpeakingScore(
   };
 
   const w = weights[primaryGoal];
-  const overall = Math.round(
-    pace * w.pace + prosody * w.prosody + projection * w.projection + fillerRate * w.fillerRate
-  );
+  const overall = computeSpeakingScore(pace, prosody, projection, fillerRate, w);
 
   return { pace, prosody, projection, fillerRate, overall };
 }

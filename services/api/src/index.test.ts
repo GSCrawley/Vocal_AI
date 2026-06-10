@@ -2,11 +2,9 @@ import { app, apiService } from './index.js';
 // Removed unused imports to fix linting issues
 
 describe('API Service', () => {
-  let token: string;
+  let token = '';
+
   beforeAll(async () => {
-    // Make sure we have a secret for the test
-    process.env.JWT_SECRET = 'test-secret';
-    // Let the app be ready and initialize jwt plugin before creating a token
     await app.ready();
     token = app.jwt.sign({ sub: 'test-user' });
   });
@@ -42,14 +40,42 @@ describe('API Service', () => {
   });
 
   describe('POST /process-audio', () => {
+    it('returns 401 Unauthorized when token is missing', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/process-audio',
+        payload: {
+          frames: [],
+          targetHz: 440,
+          rmsDbFrames: [],
+        },
+      });
+
+      expect(response.statusCode).toBe(401);
+      expect(response.json()).toHaveProperty('error', 'Unauthorized');
+    });
+
+    it('returns 401 Unauthorized when token is invalid', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/process-audio',
+        headers: { Authorization: 'Bearer not-a-valid-jwt' },
+        payload: {
+          frames: [],
+          targetHz: 440,
+          rmsDbFrames: [],
+        },
+      });
+
+      expect(response.statusCode).toBe(401);
+      expect(response.json()).toHaveProperty('error', 'Unauthorized');
+    });
     it('returns 400 for bad mic check', async () => {
       // Mock inputs that would fail a mic check (e.g. clipping rmsDbFrames)
       const response = await app.inject({
         method: 'POST',
         url: '/process-audio',
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         payload: {
           frames: [],
           targetHz: 440,
@@ -65,9 +91,7 @@ describe('API Service', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/process-audio',
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         payload: {
           frames: [
             { frequencyHz: 440, rmsDb: -10, confidence: 0.9, timestampMs: 0, voiced: true },
@@ -91,9 +115,7 @@ describe('API Service', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/transition-state',
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         payload: {
           currentState: 'IDLE',
           event: { type: 'LOAD' },

@@ -1,19 +1,25 @@
 import numpy as np
 from typing import Optional
-from app.analysis.pitch import extract_pitch_pyin, extract_pitch_crepe, pitch_to_frames, hz_to_cents
+from app.analysis.pitch import (
+    extract_pitch_pyin,
+    extract_pitch_crepe,
+    pitch_to_frames,
+    hz_to_cents,
+)
 from app.analysis.voice_quality import analyze_voice_quality, score_tone_quality
 from app.analysis.rms import extract_rms_envelope, score_breath_control
 from app.analysis.vibrato import detect_vibrato
 from app.utils.quality_gates import check_quality
 from app.config import settings
 
+
 def compute_singing_metrics(
     y: np.ndarray,
     sr: int,
-    target_hz: Optional[float] = None,    # None for free-form analysis
+    target_hz: Optional[float] = None,  # None for free-form analysis
     tolerance_cents: float = 25.0,
     use_crepe: bool = False,
-    include_formants: bool = False,        # Phase 2+
+    include_formants: bool = False,  # Phase 2+
 ) -> dict:
     """
     Full multi-metric analysis for a singing recording.
@@ -54,7 +60,15 @@ def compute_singing_metrics(
             "onset_accuracy": None,
             "breath_control": None,
             "tone_quality": None,
+            "dynamics_score": None,
+            "vibrato": None,
             "hnr_db": None,
+            "cpp_db": None,
+            "jitter_local": None,
+            "shimmer_local": None,
+            "rms_mean_db": None,
+            "rms_variance_db": None,
+            "voiced_frame_ratio": round(quality.voiced_frame_ratio, 3),
             "pitch_frames": [],
         }
 
@@ -76,7 +90,9 @@ def compute_singing_metrics(
             median_error = float(np.median(np.abs(cents_errors)))
 
             # Mirror TypeScript scorePitchAccuracy logic
-            error_score = max(0.0, 100.0 - (median_error / (tolerance_cents * 2)) * 100.0)
+            error_score = max(
+                0.0, 100.0 - (median_error / (tolerance_cents * 2)) * 100.0
+            )
             pitch_accuracy = time_in_tolerance * 100.0 * 0.5 + error_score * 0.5
 
             # Stability = inverse std dev
@@ -84,7 +100,9 @@ def compute_singing_metrics(
             pitch_stability = max(0.0, min(100.0, 100.0 - (std_dev / 50.0) * 100.0))
 
             # Onset: frames until first in-tolerance lock (5 consecutive frames)
-            onset_accuracy = _compute_onset_score(f0, voiced_flag, target_hz, tolerance_cents)
+            onset_accuracy = _compute_onset_score(
+                f0, voiced_flag, target_hz, tolerance_cents
+            )
 
     # 4. Voice quality
     vq = analyze_voice_quality(y, sr)
@@ -102,12 +120,20 @@ def compute_singing_metrics(
 
     return {
         "quality_flag": None,
-        "pitch_accuracy": round(pitch_accuracy, 1) if pitch_accuracy is not None else None,
-        "pitch_stability": round(pitch_stability, 1) if pitch_stability is not None else None,
-        "onset_accuracy": round(onset_accuracy, 1) if onset_accuracy is not None else None,
+        "pitch_accuracy": round(pitch_accuracy, 1)
+        if pitch_accuracy is not None
+        else None,
+        "pitch_stability": round(pitch_stability, 1)
+        if pitch_stability is not None
+        else None,
+        "onset_accuracy": round(onset_accuracy, 1)
+        if onset_accuracy is not None
+        else None,
         "breath_control": round(breath_control, 1),
         "tone_quality": round(tone_quality, 1),
-        "dynamics_score": round(rms_result["variance_db"], 2),  # Raw; normalize in adaptive engine
+        "dynamics_score": round(
+            rms_result["variance_db"], 2
+        ),  # Raw; normalize in adaptive engine
         "vibrato": vibrato_result,
         "hnr_db": round(vq["hnr_db"], 2),
         "cpp_db": round(vq["cpp_db"], 2),
@@ -118,6 +144,7 @@ def compute_singing_metrics(
         "voiced_frame_ratio": round(quality.voiced_frame_ratio, 3),
         "pitch_frames": pitch_frames,
     }
+
 
 def _compute_onset_score(
     f0: np.ndarray,
