@@ -1,5 +1,4 @@
 import { app, apiService } from './index.js';
-// Removed unused imports to fix linting issues
 
 describe('API Service', () => {
   let token = '';
