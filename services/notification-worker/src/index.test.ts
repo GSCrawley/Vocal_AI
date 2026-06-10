@@ -85,13 +85,12 @@ describe('notificationWorker', () => {
     jest.useFakeTimers();
     process.env.NOTIFICATION_WORKER_HEARTBEAT_LOGS = 'false';
 
-    const { logger } = await import('@voice/logger');
     await import('./index.js');
 
     // Advance time by 30 seconds
     jest.advanceTimersByTime(30000);
 
-    expect(logger.info).not.toHaveBeenCalledWith('notification-worker heartbeat');
+    expect(mockLogger.info).not.toHaveBeenCalledWith('notification-worker heartbeat');
 
     jest.useRealTimers();
   });
