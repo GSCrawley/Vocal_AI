@@ -1,5 +1,7 @@
 # app/main.py
 from fastapi import FastAPI, Header, HTTPException
+from fastapi.responses import JSONResponse
+import secrets
 from app.config import settings
 import redis
 
@@ -12,11 +14,11 @@ def health():
         redis_client.ping()
         return {"ok": True}
     except Exception:
-        return {"ok": False, "error": "redis_unreachable"}, 503
+        return JSONResponse(status_code=503, content={"ok": False, "error": "redis_unreachable"})
 
 @app.get("/jobs/{job_id}/status")
 def job_status(job_id: str, x_internal_token: str = Header(None)):
-    if x_internal_token != settings.internal_service_token:
+    if x_internal_token is None or not secrets.compare_digest(x_internal_token, settings.internal_service_token):
         raise HTTPException(status_code=403)
     result = redis_client.hgetall(f"job:{job_id}")
     if not result:

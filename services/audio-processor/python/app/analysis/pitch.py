@@ -97,6 +97,20 @@ def hz_to_cents(frequency_hz: float, reference_hz: float) -> float:
         return 0.0
     return 1200.0 * np.log2(frequency_hz / reference_hz)
 
+
+def note_to_hz(midi_note: int) -> float:
+    return 440.0 * (2 ** ((midi_note - 69) / 12))
+
+
+def midi_to_name(midi_note: int) -> str:
+    notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    return f"{notes[midi_note % 12]}{(midi_note // 12) - 1}"
+
+
+def snap_to_exercise_key(midi_note: int) -> int:
+    a_notes = [21, 33, 45, 57, 69, 81]
+    return min(a_notes, key=lambda a: abs(a - midi_note))
+
 def hz_to_note_name(frequency_hz: float) -> str:
     """Return e.g. 'A4', 'C#3', 'Bb5'."""
     note_num = round(69 + 12 * np.log2(frequency_hz / 440.0))

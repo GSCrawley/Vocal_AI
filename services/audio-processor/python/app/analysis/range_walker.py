@@ -1,5 +1,36 @@
 import numpy as np
-from app.analysis.pitch import extract_pitch_pyin
+from app.analysis.pitch import extract_pitch_pyin, pitch_to_frames
+
+
+def segment_range_walk(audio: np.ndarray, sr: int, note_schedule: list) -> dict:
+    pitch_frames_per_note = {}
+
+    for note in note_schedule:
+        midi = note["midiNote"]
+        start_sample = int((note["timestampMs"] / 1000.0) * sr)
+        end_sample = int(((note["timestampMs"] + note["holdDurationMs"]) / 1000.0) * sr)
+
+        end_sample = min(end_sample, len(audio))
+        if start_sample >= end_sample:
+            continue
+
+        segment = audio[start_sample:end_sample]
+        if len(segment) < sr * 0.3:
+            continue
+
+        pitch_result = extract_pitch_pyin(segment, sr)
+        frames = pitch_to_frames(pitch_result)
+        pitch_frames_per_note[midi] = [
+            {
+                "timestampMs": f["timestampMs"],
+                "frequencyHz": f["frequencyHz"],
+                "voiced": f["voiced"],
+                "confidence": f["confidence"],
+            }
+            for f in frames
+        ]
+
+    return pitch_frames_per_note
 
 def note_to_hz(midi_note: int) -> float:
     return 440.0 * (2 ** ((midi_note - 69) / 12))
