@@ -1,0 +1,6 @@
+{
+  "branch_name": "testing-score-projection",
+  "title": "🧪 test: add coverage for scoreProjection",
+  "description": "🎯 **What:** The `scoreProjection` function in `@voice/speaking-metrics` was previously completely untested.\n\n📊 **Coverage:** Added comprehensive test coverage prioritizing the specific mathematical boundaries and quirks of the actual implementation. This includes testing boundary values (e.g. > -10 vs > -18), variance bonuses (including the max cap of 10), negative variances, maximum score clamping to 100, and defensive cases (NaN, Infinity).\n\n✨ **Result:** Test coverage for `packages/speaking-metrics/src/index.ts` has been increased, specifically securing the `scoreProjection` behavior against unintended changes.\n\n*(Note: The 'Current Code' snippet in the prompt was outdated and did not match the actual code on main. Tests were written for the actual implementation currently in the file).* ",
+  "commit_message": "test: add tests for scoreProjection in speaking-metrics"
+}
