@@ -5,6 +5,7 @@ import {
   buildIntroDialogue,
   buildCoachingDialogue,
   buildCelebrationDialogue,
+  buildReflectionDialogue,
 } from '../index';
 import type { CoachingPayload } from '@voice/shared-types';
 
@@ -306,5 +307,48 @@ describe('Avatar State', () => {
         durationMs: 3500,
       });
     });
+  });
+
+  describe('buildReflectionDialogue', () => {
+    it.each(['speaking', 'singing'] as const)(
+      'returns consistent reflection dialogue structure for tier %s',
+      (tier) => {
+        const lines = buildReflectionDialogue(tier);
+
+        // 1. Array length assertion
+        expect(lines).toHaveLength(3);
+
+        // 2. Exact structural match
+        expect(lines).toEqual([
+          {
+            text: 'Two quick questions before you go.',
+            state: 'COACHING',
+            durationMs: 2000,
+          },
+          {
+            text: "What felt easiest in today's session?",
+            state: 'COACHING',
+            awaitUserAction: true,
+          },
+          {
+            text: 'And what will you focus on next time you practice?',
+            state: 'COACHING',
+            awaitUserAction: true,
+          },
+        ]);
+
+        // 3. Document function's contract through explicit properties
+        const [introLine, question1, question2] = lines;
+
+        expect(introLine.state).toBe('COACHING');
+        expect(introLine.awaitUserAction).toBeFalsy();
+
+        expect(question1.state).toBe('COACHING');
+        expect(question1.awaitUserAction).toBe(true);
+
+        expect(question2.state).toBe('COACHING');
+        expect(question2.awaitUserAction).toBe(true);
+      }
+    );
   });
 });
