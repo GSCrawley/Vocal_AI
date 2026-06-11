@@ -5,6 +5,7 @@ import {
   buildIntroDialogue,
   buildCoachingDialogue,
   buildCelebrationDialogue,
+  buildListeningPrompt,
 } from '../index';
 import type { CoachingPayload } from '@voice/shared-types';
 
@@ -304,6 +305,40 @@ describe('Avatar State', () => {
         text: "That's a milestone. Listen to how far you've come.",
         state: 'CELEBRATING',
         durationMs: 3500,
+      });
+    });
+  });
+
+  describe('buildListeningPrompt', () => {
+    it('returns correct prompt for speaking tier when not a retry', () => {
+      expect(buildListeningPrompt('speaking', false)).toEqual({
+        text: "I'm listening.",
+        state: 'LISTENING',
+        durationMs: 1500,
+      });
+    });
+
+    it('returns correct prompt for singing tier when not a retry', () => {
+      expect(buildListeningPrompt('singing', false)).toEqual({
+        text: "Whenever you're ready.",
+        state: 'LISTENING',
+        durationMs: 1500,
+      });
+    });
+
+    it('returns correct prompt for speaking tier when it is a retry', () => {
+      expect(buildListeningPrompt('speaking', true)).toEqual({
+        text: "Go ahead when you're ready.",
+        state: 'LISTENING',
+        durationMs: 1500,
+      });
+    });
+
+    it('returns correct prompt for singing tier when it is a retry', () => {
+      expect(buildListeningPrompt('singing', true)).toEqual({
+        text: 'Try again — take a breath first.',
+        state: 'LISTENING',
+        durationMs: 1500,
       });
     });
   });
