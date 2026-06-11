@@ -146,7 +146,7 @@ describe('API Service', () => {
         payload: {
           currentState: 'IDLE',
           event: 'INVALID_EVENT',
-        }
+        },
       });
 
       expect(response.statusCode).toBe(400);
