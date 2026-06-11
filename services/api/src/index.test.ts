@@ -145,8 +145,8 @@ describe('API Service', () => {
         headers: { Authorization: `Bearer ${token}` },
         payload: {
           currentState: 'IDLE',
-          event: { type: 'INVALID_EVENT' },
-        },
+          event: 'INVALID_EVENT',
+        }
       });
 
       expect(response.statusCode).toBe(400);
