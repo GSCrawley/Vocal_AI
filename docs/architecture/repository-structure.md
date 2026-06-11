@@ -33,8 +33,8 @@ VOCAL_AI/
 │   │   └── technical-stack.md
 │   ├── product/
 │   │   ├── product-vision.md
+│   │   ├── speaking-tier-spec.md
 │   │   ├── singing-tier-spec.md
-│   │   ├── phase-2-speaking-tier.md
 │   │   ├── karaoke-mode-spec.md
 │   │   ├── ai-avatar-spec.md
 │   │   └── reward-system-spec.md
@@ -53,22 +53,17 @@ VOCAL_AI/
 ## Architectural rules
 
 ### 1. Shared types are the authority
-
 All domain types live in `packages/shared-types`. No package or app should define its own versions of `Tier`, `ExerciseDefinition`, `SuccessBand`, etc. Import from `@voice/shared-types`.
 
 ### 2. No domain logic in the mobile app
-
 Business logic (scoring, coaching rules, curriculum sequencing, reward computation) belongs in the shared packages. The mobile app calls functions from these packages — it does not re-implement them.
 
 ### 3. Audio processing is server-side for heavy operations
-
 Real-time pitch detection (pYIN, < 80ms latency) runs on-device via JS/WASM.
 Heavy operations — vocal separation (Demucs), ASR (Whisper), and DTW comparison — run server-side via the audio-processor service.
 
 ### 4. The audio-processor service is Python-first
-
 The `services/audio-processor` package contains only TypeScript job contracts (the interface between Node.js API and the Python service). The actual Python implementation lives in a separate directory:
-
 ```
 services/audio-processor/
 ├── src/           # TypeScript job contract types (used by API service)
@@ -77,13 +72,10 @@ services/audio-processor/
 ```
 
 ### 5. Content schema is versioned
-
 Exercise definitions are stored in the backend database but described by versioned schemas in `packages/content-schema`. Exercise IDs include a version number. Never change an existing exercise's behavior — create a new version.
 
 ### 6. Package naming convention
-
 All packages use the `@voice/` scope:
-
 - `@voice/shared-types`
 - `@voice/exercise-engine`
 - `@voice/coaching-rules`
@@ -100,35 +92,43 @@ All packages use the `@voice/` scope:
 
 ## Data flow overview
 
-### Singing session (real-time and post-attempt)
-
+### Speaking session (real-time)
 ```
-Mobile mic → PCM frames → JS pitchy (Hz → cents)
+Mobile mic → PCM frames → JS VAD + pYIN (F0)
+                                 ↓
+                         LiveSpeakingFrame stream
+                                 ↓
+                   exercise-engine (session state machine)
+                                 ↓
+                      speaking-metrics (score computation)
+                                 ↓
+                      coaching-rules (feedback generation)
+                                 ↓
+                      avatar-state (dialogue + animation)
+                                 ↓
+              POST /v1/sessions/{id}/attempts → API → Supabase
+```
+
+### Singing session (real-time)
+```
+Mobile mic → PCM frames → JS pYIN (Hz → cents)
                                  ↓
                          LivePitchFrame stream
                                  ↓
                    exercise-engine (session state machine)
                                  ↓
-                       audio-metrics (live score computation)
+                       audio-metrics (score computation)
                                  ↓
-                      mobile UI (live visualization)
+                      coaching-rules (feedback generation)
+                                 ↓
+                      avatar-state (dialogue + animation)
                                  ↓
               POST /v1/sessions/{id}/attempts → API → Supabase
-                                 ↓
-          API enqueues singing_metrics job to audio-processor
-                                 ↓
-          Python: librosa/parselmouth (deep analysis of 11 metrics)
-                                 ↓
-          coaching-rules (Adaptive Coaching Engine: weakest metric finder + difficulty adaptor + LLM prompt)
-                                 ↓
-          Avatar responds with personalized CoachingPayload
-
 ```
 
-### Speaking session (Phase 2)
-
+### Karaoke session (Phase 2)
 ```
-[Parked, leverages singing infrastructure]
+User selects song
        ↓
 API → audio-processor job queue (Redis)
        ↓
@@ -149,10 +149,10 @@ Mobile receives KaraokeAttemptScore → karaoke-engine → avatar dialogue
 
 ## Build targets
 
-| Target             | Command                                   | Description                           |
-| ------------------ | ----------------------------------------- | ------------------------------------- |
-| Mobile dev         | `pnpm dev`                                | Starts Expo dev server                |
-| Type check all     | `pnpm typecheck`                          | Runs tsc --noEmit across all packages |
-| Build all packages | `pnpm build`                              | Compiles all shared packages          |
-| Test all           | `pnpm test`                               | Runs Jest across all packages         |
-| Filter to package  | `pnpm --filter @voice/reward-engine test` | Run tests in one package              |
+| Target | Command | Description |
+|---|---|---|
+| Mobile dev | `pnpm dev` | Starts Expo dev server |
+| Type check all | `pnpm typecheck` | Runs tsc --noEmit across all packages |
+| Build all packages | `pnpm build` | Compiles all shared packages |
+| Test all | `pnpm test` | Runs Jest across all packages |
+| Filter to package | `pnpm --filter @voice/reward-engine test` | Run tests in one package |
