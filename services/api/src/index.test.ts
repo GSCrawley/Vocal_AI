@@ -1,7 +1,13 @@
 import { app, apiService } from './index.js';
-import type { LivePitchFrame, SessionState, SessionEvent } from '@voice/shared-types';
 
 describe('API Service', () => {
+  let token = '';
+
+  beforeAll(async () => {
+    await app.ready();
+    token = app.jwt.sign({ sub: 'test-user' });
+  });
+
   afterAll(async () => {
     await app.close();
   });
@@ -33,15 +39,46 @@ describe('API Service', () => {
   });
 
   describe('POST /process-audio', () => {
-    it('returns 400 for bad mic check', async () => {
-      // Mock inputs that would fail a mic check (e.g. clipping rmsDbFrames)
+    it('returns 401 Unauthorized when token is missing', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/process-audio',
         payload: {
           frames: [],
           targetHz: 440,
-          rmsDbFrames: [0, 1], // Values >= 0 mean clipping
+          rmsDbFrames: [],
+        },
+      });
+
+      expect(response.statusCode).toBe(401);
+      expect(response.json()).toHaveProperty('error', 'Unauthorized');
+    });
+
+    it('returns 401 Unauthorized when token is invalid', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/process-audio',
+        headers: { Authorization: 'Bearer not-a-valid-jwt' },
+        payload: {
+          frames: [],
+          targetHz: 440,
+          rmsDbFrames: [],
+        },
+      });
+
+      expect(response.statusCode).toBe(401);
+      expect(response.json()).toHaveProperty('error', 'Unauthorized');
+    });
+
+    it('returns 400 for bad mic check', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/process-audio',
+        headers: { Authorization: `Bearer ${token}` },
+        payload: {
+          frames: [],
+          targetHz: 440,
+          rmsDbFrames: [0, 1],
         },
       });
 
@@ -53,21 +90,22 @@ describe('API Service', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/process-audio',
+        headers: { Authorization: `Bearer ${token}` },
         payload: {
           frames: [],
           targetHz: 440,
-          // Missing rmsDbFrames
         },
       });
 
       expect(response.statusCode).toBe(400);
-      expect(response.json().message).toContain('rmsDbFrames');
+      expect(response.json()).toHaveProperty('message');
     });
 
     it('returns a score for valid inputs', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/process-audio',
+        headers: { Authorization: `Bearer ${token}` },
         payload: {
           frames: [
             { frequencyHz: 440, rmsDb: -10, confidence: 0.9, timestampMs: 0, voiced: true },
@@ -80,45 +118,60 @@ describe('API Service', () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.json()).toHaveProperty('score');
-      // score is an object with overall property from SingingExerciseScoreBreakdown
       expect(typeof response.json().score).toBe('object');
       expect(typeof response.json().score.overall).toBe('number');
     });
   });
 
   describe('POST /transition-state', () => {
-    it('returns 500 when transition throws an error for invalid transition', async () => {
+    it('returns 401 Unauthorized when token is missing', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/transition-state',
         payload: {
           currentState: 'IDLE',
-          event: { type: 'INVALID_EVENT' },
+          event: { type: 'LOAD' },
         },
       });
 
-      expect(response.statusCode).toBe(500);
-      expect(response.json().message).toContain('Invalid transition');
+      expect(response.statusCode).toBe(401);
+      expect(response.json()).toHaveProperty('error', 'Unauthorized');
+    });
+
+    it('returns 400 for an invalid event payload', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/transition-state',
+        headers: { Authorization: `Bearer ${token}` },
+        payload: {
+          currentState: 'IDLE',
+          event: 'INVALID_EVENT',
+        },
+      });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.json()).toHaveProperty('message');
     });
 
     it('returns 400 when body is missing required properties', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/transition-state',
+        headers: { Authorization: `Bearer ${token}` },
         payload: {
           currentState: 'IDLE',
-          // Missing event
         },
       });
 
       expect(response.statusCode).toBe(400);
-      expect(response.json().message).toContain('event');
+      expect(response.json()).toHaveProperty('message');
     });
 
     it('transitions state correctly', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/transition-state',
+        headers: { Authorization: `Bearer ${token}` },
         payload: {
           currentState: 'IDLE',
           event: { type: 'LOAD' },

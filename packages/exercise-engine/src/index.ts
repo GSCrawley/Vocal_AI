@@ -105,13 +105,13 @@ export function completeAttempt(plan: SessionPlan, attemptId: string, now: numbe
     throw new Error(`Attempt ${attemptId} not found`);
   }
 
-  const updatedAttempts = [...plan.attempts];
-  const attempt = updatedAttempts[attemptIndex];
+  const attempt = plan.attempts[attemptIndex];
 
   if (attempt.status !== 'in_progress') {
     throw new Error(`Attempt ${attemptId} is not in progress`);
   }
 
+  const updatedAttempts = [...plan.attempts];
   updatedAttempts[attemptIndex] = {
     ...attempt,
     endedAt: now,

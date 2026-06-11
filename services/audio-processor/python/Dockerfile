@@ -12,7 +12,12 @@ WORKDIR /app
 
 # Install Python deps first (layer cache)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+# Upgrade build tools first
+RUN pip install --no-cache-dir -U pip "setuptools<70" wheel
+
+# Install requirements with no build isolation
+RUN pip install --no-cache-dir --no-build-isolation -r requirements.txt
 
 # Pre-warm model caches during build (avoids cold-start timeout)
 RUN python -c "import whisper; whisper.load_model('tiny')"

@@ -4,6 +4,7 @@ from app.utils.audio_io import load_audio
 from app.analysis.singing_metrics import compute_singing_metrics
 from app.config import settings
 
+
 def run(job_payload: dict) -> dict:
     job_id = job_payload["jobId"]
     y, sr = load_audio(job_payload["audioFileUrl"], sr=settings.sample_rate)
@@ -35,5 +36,4 @@ def run(job_payload: dict) -> dict:
         "qualityFlag": metrics.get("quality_flag"),
         "pitchFrames": metrics.get("pitch_frames", []),
         "completedAt": datetime.utcnow().isoformat() + "Z",
-    }
     }

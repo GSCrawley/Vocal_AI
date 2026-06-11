@@ -77,7 +77,24 @@ export interface BaselineAssessmentJob {
   userId: string;
   rangeTestAudioUrl: string; // Scale walk from C2–C6
   sustainedHoldAudioUrl: string; // Single comfortable note, 8 seconds
-  freeVocalAudioUrl: string; // 30 seconds of free singing
+  /**
+   * freeVocalAudioUrl is set to sustainedHoldAudioUrl by the API handler as a proxy.
+   * No distinct free-vocal recording is made in the current mobile baseline flow.
+   * If a free-vocal screen is added in future, update POST /v1/assessments/baseline
+   * and remove this comment. [R-06]
+   */
+  freeVocalAudioUrl: string;
+  /**
+   * REQUIRED — without this the Python baseline job cannot segment the range walk
+   * recording into per-note windows. segment_range_walk() returns an empty dict
+   * if noteSchedule is absent or empty. [R-05]
+   */
+  noteSchedule: Array<{
+    midiNote: number;
+    noteName: string;
+    timestampMs: number;
+    holdDurationMs: number;
+  }>;
 }
 
 export type AudioProcessorJob =
@@ -152,7 +169,7 @@ export interface SingingMetricsResult {
   pitchAccuracy: number | null; // null if no target
   pitchStability: number | null;
   onsetAccuracy: number | null;
-  breathControl: number;
+  breathControl: number | null;
   toneQuality: number;
   dynamicsScore: number | null;
   vibratoScore: number | null;
@@ -192,4 +209,12 @@ export interface BaselineAssessmentResult {
   recommendedStartingKeyMidi: number;
   recommendedStartingKeyName: string;
   completedAt: string;
+  /**
+   * Baseline quality is pre-normalized by the Python baseline_assessment job.
+   * Unlike SingingMetricsResult.qualityFlag (5-value enum from quality_gates.py),
+   * this is always one of two values: 'ok' or 'degraded'.
+   * 'degraded' means the assessment completed but one or more quality warnings
+   * were present. The snapshot is still stored and usable.
+   */
+  qualityFlag: 'ok' | 'degraded';
 }
