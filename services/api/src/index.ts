@@ -87,6 +87,8 @@ app.post(
           type: 'object',
           properties: {
             error: { type: 'string' },
+            message: { type: 'string' },
+            statusCode: { type: 'number' },
           },
         },
       },
