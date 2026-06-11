@@ -61,6 +61,7 @@ describe('API Service', () => {
       });
 
       expect(response.statusCode).toBe(400);
+      expect(response.json().message).toContain('rmsDbFrames');
     });
 
     it('returns a score for valid inputs', async () => {
@@ -97,6 +98,7 @@ describe('API Service', () => {
       });
 
       expect(response.statusCode).toBe(500);
+      expect(response.json().message).toContain('Invalid transition');
     });
 
     it('returns 400 when body is missing required properties', async () => {
@@ -110,6 +112,7 @@ describe('API Service', () => {
       });
 
       expect(response.statusCode).toBe(400);
+      expect(response.json().message).toContain('event');
     });
 
     it('transitions state correctly', async () => {
