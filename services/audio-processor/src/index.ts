@@ -9,6 +9,8 @@
  * for the Python setup, Demucs configuration, and job queue setup.
  */
 
+import type { ExerciseCategory } from '@voice/shared-types';
+
 // ------------------------------------------------------------
 // JOB TYPES dispatched to the audio processor
 // ------------------------------------------------------------
@@ -17,7 +19,9 @@ export type AudioProcessorJobType =
   | 'vocal_separation'   // Demucs: split song into vocal + instrumental stems
   | 'vocal_analysis'     // pYIN on vocal stem: extract pitch curve + phrase data
   | 'filler_detection'   // Whisper: detect filler words in speaking recording
-  | 'karaoke_compare';   // DTW comparison of user attempt vs reference vocal
+  | 'karaoke_compare'    // DTW comparison of user attempt vs reference vocal
+  | 'singing_metrics'    // Full 11-metric analysis
+  | 'baseline_assessment'; // Onboarding vocal profile
 
 export interface VocalSeparationJob {
   jobType: 'vocal_separation';
@@ -54,11 +58,52 @@ export interface KaraokeCompareJob {
   requestedAt: string;
 }
 
+export interface SingingMetricsJob {
+  jobType: 'singing_metrics';
+  jobId: string;
+  attemptId: string;
+  userId: string;
+  audioFileUrl: string; // User's singing attempt audio
+  targetHz?: number; // Expected pitch (for exercise attempts)
+  toleranceCents?: number; // Default 25
+  exerciseCategory: ExerciseCategory;
+  useCrepe?: boolean; // Default false
+  storeAudio?: boolean; // Requires user opt-in
+}
+
+export interface BaselineAssessmentJob {
+  jobType: 'baseline_assessment';
+  jobId: string;
+  userId: string;
+  rangeTestAudioUrl: string; // Scale walk from C2–C6
+  sustainedHoldAudioUrl: string; // Single comfortable note, 8 seconds
+  /**
+   * freeVocalAudioUrl is set to sustainedHoldAudioUrl by the API handler as a proxy.
+   * No distinct free-vocal recording is made in the current mobile baseline flow.
+   * If a free-vocal screen is added in future, update POST /v1/assessments/baseline
+   * and remove this comment. [R-06]
+   */
+  freeVocalAudioUrl: string;
+  /**
+   * REQUIRED — without this the Python baseline job cannot segment the range walk
+   * recording into per-note windows. segment_range_walk() returns an empty dict
+   * if noteSchedule is absent or empty. [R-05]
+   */
+  noteSchedule: Array<{
+    midiNote: number;
+    noteName: string;
+    timestampMs: number;
+    holdDurationMs: number;
+  }>;
+}
+
 export type AudioProcessorJob =
   | VocalSeparationJob
   | VocalAnalysisJob
   | FillerDetectionJob
-  | KaraokeCompareJob;
+  | KaraokeCompareJob
+  | SingingMetricsJob
+  | BaselineAssessmentJob;
 
 // ------------------------------------------------------------
 // JOB RESULTS returned by the audio processor
@@ -115,4 +160,61 @@ export interface KaraokeCompareResult {
   signedPitchError: number;   // positive = sharp, negative = flat (average cents)
   dominantFailureMode?: string;
   completedAt: string;        // ISO 8601
+}
+
+
+export interface SingingMetricsResult {
+  jobId: string;
+  attemptId: string;
+  pitchAccuracy: number | null; // null if no target
+  pitchStability: number | null;
+  onsetAccuracy: number | null;
+  breathControl: number | null;
+  toneQuality: number;
+  dynamicsScore: number | null;
+  vibratoScore: number | null;
+  hnrDb: number;
+  cppDb: number;
+  jitterLocal: number;
+  shimmerLocal: number;
+  rmsVarianceDb: number;
+  voicedFrameRatio: number;
+  qualityFlag: string | null;
+  pitchFrames: Array<{
+    timestampMs: number;
+    frequencyHz: number | null;
+    voiced: boolean;
+    confidence: number;
+  }>;
+  completedAt: string;
+}
+
+export interface BaselineAssessmentResult {
+  jobId: string;
+  userId: string;
+  lowestNoteMidi: number;
+  highestNoteMidi: number;
+  lowestNoteName: string;
+  highestNoteName: string;
+  comfortableLowMidi: number;
+  comfortableHighMidi: number;
+  voiceType: string;
+  baselineMetrics: {
+    pitchAccuracy: number | null;
+    pitchStability: number | null;
+    breathControl: number;
+    toneQuality: number;
+    hnrDb: number;
+  };
+  recommendedStartingKeyMidi: number;
+  recommendedStartingKeyName: string;
+  completedAt: string;
+  /**
+   * Baseline quality is pre-normalized by the Python baseline_assessment job.
+   * Unlike SingingMetricsResult.qualityFlag (5-value enum from quality_gates.py),
+   * this is always one of two values: 'ok' or 'degraded'.
+   * 'degraded' means the assessment completed but one or more quality warnings
+   * were present. The snapshot is still stored and usable.
+   */
+  qualityFlag: 'ok' | 'degraded';
 }

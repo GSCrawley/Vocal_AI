@@ -8,7 +8,7 @@ import {
   ExerciseMetricResult,
 } from '@voice/shared-types';
 
-export { LivePitchFrame, SingingExerciseScoreBreakdown, ExerciseMetricResult };
+export type { LivePitchFrame, SingingExerciseScoreBreakdown, ExerciseMetricResult };
 
 export function hzToCents(frequencyHz: number, referenceHz: number): number {
   if (frequencyHz <= 0 || referenceHz <= 0) return 0;

@@ -167,7 +167,7 @@ export function buildCelebrationDialogue(ctx: DialogueContext): AvatarDialogueLi
       state: 'CELEBRATING',
       durationMs: 4000,
     });
-  } else {
+  } else if (isMilestone) {
     lines.push({
       text:
         tier === 'speaking'
@@ -184,7 +184,7 @@ export function buildCelebrationDialogue(ctx: DialogueContext): AvatarDialogueLi
 /**
  * Generate REFLECTION dialogue — two prompts at session end.
  */
-export function buildReflectionDialogue(tier: Tier): AvatarDialogueLine[] {
+export function buildReflectionDialogue(_tier: Tier): AvatarDialogueLine[] {
   return [
     {
       text: 'Two quick questions before you go.',

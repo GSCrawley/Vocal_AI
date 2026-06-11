@@ -590,3 +590,94 @@ export type SessionEvent =
   | { type: 'REFLECTION_DONE' }
   | { type: 'END_SESSION' }
   | { type: 'ERROR' };
+
+// ------------------------------------------------------------
+// SINGING METRICS — full 11-metric result from Python processor
+// ------------------------------------------------------------
+
+export type SingingMetricKey =
+  | 'pitchAccuracy'
+  | 'stability'
+  | 'breathControl'
+  | 'toneQuality'
+  | 'dynamics'
+  | 'diction'
+  | 'styleExpression'
+  | 'musicality'
+  | 'posture'
+  | 'consistency'
+  | 'repertoire';
+
+/**
+ * The normalized result produced by the Python singing_metrics job and
+ * consumed by findWeakestMetric(). The API handler is responsible for
+ * remapping Python flat output into this shape — see normalizePythonOutput()
+ * in services/api/src/routes/attempts.ts.
+ *
+ * Field names intentionally match the Python flat output after normalization:
+ *   pitchStability (Python) → metrics.stability (here)
+ *   onsetAccuracy (Python)  → metrics.onset (here)  [R-03]
+ *   breathControl: number   → breathControl: number | null [R-04]
+ */
+export interface SingingMetricsResult {
+  jobId: string;
+  userId: string;
+  exerciseId: string;
+  capturedAt: string;
+  /** Five-value enum matching Python quality_gates.py output exactly [R-02] */
+  qualityFlag: 'ok' | 'clipping' | 'too_quiet' | 'too_short' | 'low_voiced_ratio';
+  qualityNote?: string;
+  /** Nested metrics dict keyed by SingingMetricKey — used by findWeakestMetric() [R-01] */
+  metrics: Partial<Record<SingingMetricKey, number | null>>;
+  overallScore: number | null;
+  /** Individual score aliases for convenience — same values as metrics dict */
+  pitchScore: number | null;
+  stabilityScore: number | null;
+  onsetScore: number | null;
+  breathControlScore: number | null;
+  toneQualityScore: number | null;
+  /** Raw Praat outputs — may be null if voice quality analysis failed */
+  hnrDb?: number | null;
+  cppDb?: number | null;
+  jitterLocal?: number | null;
+  shimmerLocal?: number | null;
+}
+
+// ------------------------------------------------------------
+// BASELINE ASSESSMENT — per-user snapshot at onboarding
+// ------------------------------------------------------------
+
+export type VoiceType = 'soprano' | 'mezzo' | 'alto' | 'tenor' | 'baritone' | 'bass';
+
+export interface VocalRangeSnapshot {
+  lowestNoteMidi: number; // Lowest note user can sustain, MIDI number
+  highestNoteMidi: number; // Highest note user can sustain, MIDI number
+  lowestNoteName: string; // e.g. "E2"
+  highestNoteName: string; // e.g. "A4"
+  lowestHz: number; // Hz equivalent
+  highestHz: number;
+  comfortableLowMidi: number; // Bottom of comfortable range (confidence > 0.75)
+  comfortableHighMidi: number;
+  voiceType: VoiceType;
+  recommendedStartingKeyMidi: number;
+  recommendedStartingKeyName: string;
+}
+
+/**
+ * @deprecated Use UserBaselineSnapshot instead.
+ * This type will be removed when Task 10 is merged.
+ * Consumers: search the codebase for 'BaselineSnapshot' and update to UserBaselineSnapshot.
+ */
+// Consumers to migrate in Task 10 (grep results as of 2026-06-03): none
+export interface BaselineSnapshot {
+  userId: string;
+  assessedAt: string; // ISO 8601
+  vocalRange: VocalRangeSnapshot;
+  baselineMetrics: {
+    pitchAccuracy: number | null;
+    pitchStability: number | null;
+    breathControl: number;
+    toneQuality: number;
+    hnrDb: number;
+  };
+}
