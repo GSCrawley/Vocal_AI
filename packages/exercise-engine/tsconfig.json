@@ -8,13 +8,14 @@
     "declaration": true,
     "composite": true,
     "module": "ESNext",
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "types": []
   },
-  "include": [
-    "src"
-  ],
+  "include": ["src"],
   "references": [
-    { "path": "../shared-types" }
+    {
+      "path": "../shared-types"
+    }
   ],
   "exclude": ["src/**/*.test.ts", "src/**/__tests__/**", "dist", "node_modules"]
 }

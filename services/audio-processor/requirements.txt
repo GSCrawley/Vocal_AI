@@ -1,0 +1,41 @@
+# Web framework
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.4
+pydantic-settings==2.7.0
+
+# Job queue
+rq==2.3.3
+redis==5.2.1
+
+# Audio I/O
+soundfile==0.12.1
+librosa==0.10.2.post1
+numpy==1.26.4
+scipy==1.14.1
+
+# Pitch extraction
+# pYIN is implemented in librosa.pyin — no separate install needed
+# CREPE requires tensorflow or torch backend:
+crepe==0.0.16
+torch==2.5.1
+torchaudio==2.5.1
+
+# Voice quality analysis
+praat-parselmouth==0.4.5
+
+# Source separation
+demucs==4.0.1
+
+# Speech recognition (filler detection)
+openai-whisper==20240930
+
+# DTW
+fastdtw==0.3.4
+
+# Supabase
+supabase==2.11.0
+httpx==0.28.1
+
+# Observability
+sentry-sdk[fastapi]==2.19.2

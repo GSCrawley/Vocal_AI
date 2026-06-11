@@ -14,7 +14,7 @@ Agents must treat these files as authoritative, in this order:
 6. `VocalAI Coaching Philosophy and Behavior Design Specification.pdf`
 7. Existing package and service source files
 
-If documents conflict, agents must log the conflict and resolve it explicitly before implementation. The current major conflict is Build 0.1 scope: `README.md` describes a Speaking Tier pace loop, while `docs/product/build-0.1.md`, `docs/qa/build-0.1-test-matrix.md`, `apps/mobile/src/index.ts`, `packages/content-schema/src/index.ts`, and the PDF describe a Singing Tier sustained-note/pitch loop. The recommended first build target is the sustained-note loop because it is repeated across more implementation-facing files.
+If documents conflict, agents must log the conflict and resolve it explicitly before implementation. The current major conflict is Build 0.1 scope: `README.md` describes a Speaking Tier pace loop, while `docs/product/build-0.1.md`, `docs/qa/build-0.1-test-matrix.md`, `apps/mobile/src/index.ts`, `packages/content-schema/src/index.ts`, and the PDF describe a Singing Tier sustained-note/pitch loop. The established strategy is "singing-first". The recommended first build targets are the Singing Tier features, with the Speaking Tier parked for Phase 2.
 
 ## Product Contract
 
@@ -94,11 +94,13 @@ Agents should execute in this order unless a coordinator explicitly changes the 
 3. Core package implementation and tests
 4. Mobile sustained-note experience
 5. API, Supabase schema, and persistence
-6. Audio processing and metric calibration
-7. Rewards, avatar, reflection, and progress integration
-8. QA automation and device smoke testing
-9. Render blueprint and deployment readiness
-10. Phase 2 and Phase 3 feature work
+6. Audio processing (librosa/parselmouth) and 11-metric calibration
+7. Baseline assessment flow
+8. Adaptive Coaching Engine (Tier 1-3)
+9. Rewards, avatar, reflection, and progress integration
+10. QA automation and device smoke testing
+11. Render blueprint and deployment readiness
+12. Phase 2 and Phase 3 feature work
 
 ## Required Agents
 
@@ -327,7 +329,7 @@ Acceptance checks:
 
 - Each active exercise has tier, category, target pattern, evaluation config, scoring weights, and feedback rule set.
 - Exercise IDs are versioned.
-- Build 0.1 can start from a known exercise definition                                                .
+- Build 0.1 can start from a known exercise definition .
 
 ### 8. Coaching Rules And Avatar Behavior Agent
 
@@ -736,7 +738,7 @@ task_groups:
       - reward-progress
       - mobile-app
       - qa-test-automation
-    deliverable: "Local Build 0.1 sustained-note coaching loop"
+    deliverable: 'Local Build 0.1 sustained-note coaching loop'
 
   backend_persistence:
     agents:
@@ -744,7 +746,7 @@ task_groups:
       - security-privacy-compliance
       - analytics-notification
       - infrastructure-render
-    deliverable: "Authenticated session, attempt, best-take, reflection, reward, and event persistence"
+    deliverable: 'Authenticated session, attempt, best-take, reflection, reward, and event persistence'
 
   phase_2_karaoke:
     agents:
@@ -754,7 +756,7 @@ task_groups:
       - mobile-app
       - infrastructure-render
       - qa-test-automation
-    deliverable: "Licensed educational karaoke snippet practice pipeline"
+    deliverable: 'Licensed educational karaoke snippet practice pipeline'
 ```
 
 ## Build 0.1 Acceptance Target
@@ -798,6 +800,7 @@ Do not implement these until their phase gate opens:
 - Does this keep Build 0.1 smaller than MVP?
 
 ## Postmortem: Render Build Failures (2026-05-09)
+
 All three Node services failed to deploy after apps/mobile was populated with a real Expo + Sentry React Native dependency tree. Root cause: pnpm install in each service's Render build command had no --filter flag, so the entire monorepo (including the heavy mobile workspace) was installed before the filtered build step ran. On the Starter plan's 512 MB RAM ceiling, the mobile install OOM-killed the build. Fix: add --filter "@voice/<service>..." to the install command per service. Future agents must never assume that filtering the build step is sufficient — the install step must also be filtered or the entire monorepo gets installed.
 Secondary issue: --no-frozen-lockfile masked the silent introduction of mobile dependencies into the install graph. After Build 0.1 stabilizes, switch to --frozen-lockfile so lockfile drift fails CI rather than reaching production.
 Procedural issue: the breaking commits landed directly on main with no PR review and no CI protection. Branch protection has been enabled on main (see docs/architecture/contribution-rules.md). Confirmed still active as of 2026-05-12 — verify before assigning Jules tasks that target `main` directly.

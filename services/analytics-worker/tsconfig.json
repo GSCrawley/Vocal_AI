@@ -8,8 +8,14 @@
     "types": ["node"],
     "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "src"
-  ],
-  "exclude": ["src/**/*.test.ts", "src/**/__tests__/**", "dist", "node_modules"]
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts", "src/**/__tests__/**", "dist", "node_modules"],
+  "references": [
+    {
+      "path": "../../packages/shared-types"
+    },
+    {
+      "path": "../../packages/logger"
+    }
+  ]
 }
