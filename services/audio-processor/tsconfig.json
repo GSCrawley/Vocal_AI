@@ -5,16 +5,10 @@
     "rootDir": "src",
     "ignoreDeprecations": "6.0",
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "types": []
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
     "src"
   ],
-  "exclude": [
-    "src/**/*.test.ts",
-    "src/**/__tests__/**",
-    "dist",
-    "node_modules"
-  ]
+  "exclude": ["src/**/*.test.ts", "src/**/__tests__/**", "dist", "node_modules"]
 }

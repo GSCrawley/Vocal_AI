@@ -10,14 +10,10 @@
   "scripts": {
     "build": "pnpm -r build",
     "dev": "pnpm --filter @voice/mobile dev",
-    "lint": "eslint .",
+    "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
-    "check:env": "tsx scripts/check-env-drift.ts",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "lint:fix": "eslint . --fix",
-    "prepare": "lefthook install || true"
+    "check:env": "tsx scripts/check-env-drift.ts"
   },
   "workspaces": [
     "apps/*",
@@ -29,12 +25,7 @@
     "jest": "^29.7.0",
     "ts-jest": "^29.1.2",
     "tsx": "^4.7.0",
-    "typescript": "^6.0.2",
-    "prettier": "^3",
-    "eslint": "^9",
-    "typescript-eslint": "^8",
-    "eslint-config-prettier": "^9",
-    "lefthook": "^1"
+    "typescript": "^6.0.2"
   },
   "dependencies": {
     "zod": "^4.4.3"

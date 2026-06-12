@@ -15,13 +15,13 @@ export type Tier = 'speaking' | 'singing';
 // ------------------------------------------------------------
 
 export type SpeakingGoal =
-  | 'pace' // Speaking rate and rhythm control
-  | 'prosody' // Pitch variability, intonation, avoiding monotone
-  | 'projection' // Volume, dynamics, carrying power
-  | 'resonance' // Tone placement, chest resonance, richness
-  | 'articulation' // Clarity, consonant precision
+  | 'pace'            // Speaking rate and rhythm control
+  | 'prosody'         // Pitch variability, intonation, avoiding monotone
+  | 'projection'      // Volume, dynamics, carrying power
+  | 'resonance'       // Tone placement, chest resonance, richness
+  | 'articulation'    // Clarity, consonant precision
   | 'filler_reduction' // Reducing um/uh/like/etc.
-  | 'authority' // Downward inflection, confident delivery
+  | 'authority'       // Downward inflection, confident delivery
   | 'breath_support'; // Breath endurance for extended speaking
 
 // ------------------------------------------------------------
@@ -29,27 +29,27 @@ export type SpeakingGoal =
 // ------------------------------------------------------------
 
 export type SingingGoal =
-  | 'pitch' // Pitch accuracy and matching
-  | 'stability' // Sustaining notes without wobble or drift
-  | 'range' // Expanding comfortable vocal range
-  | 'breath_control' // Breath support and endurance for singing
-  | 'tone' // Tone quality, resonance, timbre
-  | 'agility' // Moving between notes quickly and accurately
-  | 'ear_training' // Interval recognition and melodic memory
-  | 'dynamics' // Volume control (louder/softer intentionally)
-  | 'vibrato'; // Developing and controlling vibrato
+  | 'pitch'           // Pitch accuracy and matching
+  | 'stability'       // Sustaining notes without wobble or drift
+  | 'range'           // Expanding comfortable vocal range
+  | 'breath_control'  // Breath support and endurance for singing
+  | 'tone'            // Tone quality, resonance, timbre
+  | 'agility'         // Moving between notes quickly and accurately
+  | 'ear_training'    // Interval recognition and melodic memory
+  | 'dynamics'        // Volume control (louder/softer intentionally)
+  | 'vibrato';        // Developing and controlling vibrato
 
 // ------------------------------------------------------------
 // SPECIALIZATION TRACKS — Speaking Tier
 // ------------------------------------------------------------
 
 export type SpeakingTrack =
-  | 'ted_conference' // Public speaking and keynotes
-  | 'podcast' // Audio/video podcast hosting
-  | 'social_media' // Short-form video and creator content
-  | 'job_interview' // Interview confidence
-  | 'classroom' // Teaching and lecturing
-  | 'executive'; // Corporate and leadership communication
+  | 'ted_conference'   // Public speaking and keynotes
+  | 'podcast'          // Audio/video podcast hosting
+  | 'social_media'     // Short-form video and creator content
+  | 'job_interview'    // Interview confidence
+  | 'classroom'        // Teaching and lecturing
+  | 'executive';       // Corporate and leadership communication
 
 // ------------------------------------------------------------
 // STYLE PACKS — Singing Tier
@@ -78,12 +78,14 @@ export type SingingStylePack = (typeof SINGING_STYLE_PACKS)[number];
 
 export type SuccessBand = 'excellent' | 'good' | 'developing' | 'retry';
 
+
 export function scoreToBand(score: number): SuccessBand {
   if (score >= 85) return 'excellent';
   if (score >= 70) return 'good';
   if (score >= 50) return 'developing';
   return 'retry';
 }
+
 
 // ------------------------------------------------------------
 // USER PROFILE
@@ -157,16 +159,16 @@ export const EXERCISE_CATEGORIES = [
 export type ExerciseCategory = (typeof EXERCISE_CATEGORIES)[number];
 
 export const TARGET_PATTERN_TYPES = [
-  'sustained_hold', // Hold a note/pitch for duration
-  'scale_ascending', // Sing up a scale
+  'sustained_hold',   // Hold a note/pitch for duration
+  'scale_ascending',  // Sing up a scale
   'scale_descending', // Sing down a scale
-  'interval_jump', // Jump from note A to note B
-  'passage_read', // Read a text passage at target pace
-  'free_speech', // Unscripted speaking for N seconds
-  'phrase_sing', // Sing a melodic phrase
-  'karaoke_snippet', // Sing over a reference track snippet
-  'breath_only', // Breathing exercise (no pitch target)
-  'hum_resonance', // Hum for resonance placement
+  'interval_jump',    // Jump from note A to note B
+  'passage_read',     // Read a text passage at target pace
+  'free_speech',      // Unscripted speaking for N seconds
+  'phrase_sing',      // Sing a melodic phrase
+  'karaoke_snippet',  // Sing over a reference track snippet
+  'breath_only',      // Breathing exercise (no pitch target)
+  'hum_resonance',    // Hum for resonance placement
 ] as const;
 
 export type TargetPatternType = (typeof TARGET_PATTERN_TYPES)[number];
@@ -206,11 +208,11 @@ export interface LivePitchFrame {
 }
 
 export interface SingingExerciseScoreBreakdown {
-  pitchAccuracy: number; // 0–100: time-in-tolerance + median cents error
-  stability: number; // 0–100: inverse of std dev of cents error
-  onsetAccuracy?: number; // 0–100: time-to-lock normalized
-  dynamics?: number; // 0–100: RMS consistency (Phase 2)
-  vibrato?: number; // 0–100: vibrato rate/width match (Phase 2)
+  pitchAccuracy: number;   // 0–100: time-in-tolerance + median cents error
+  stability: number;       // 0–100: inverse of std dev of cents error
+  onsetAccuracy?: number;  // 0–100: time-to-lock normalized
+  dynamics?: number;       // 0–100: RMS consistency (Phase 2)
+  vibrato?: number;        // 0–100: vibrato rate/width match (Phase 2)
   overall: number;
 }
 
@@ -228,18 +230,18 @@ export interface ExerciseMetricResult {
 
 export interface LiveSpeakingFrame {
   timestampMs: number;
-  frequencyHz?: number; // F0 (fundamental frequency)
-  rmsDb?: number; // Volume level
+  frequencyHz?: number;      // F0 (fundamental frequency)
+  rmsDb?: number;            // Volume level
   voiced: boolean;
   confidence: number;
   isInPausePeriod?: boolean; // True during detected silence gap
 }
 
 export interface SpeakingExerciseScoreBreakdown {
-  pace?: number; // 0–100: WPM vs target range
-  prosody?: number; // 0–100: F0 range + intonation patterns
-  projection?: number; // 0–100: RMS level + consistency
-  fillerRate?: number; // 0–100: inverse of fillers-per-minute
+  pace?: number;             // 0–100: WPM vs target range
+  prosody?: number;          // 0–100: F0 range + intonation patterns
+  projection?: number;       // 0–100: RMS level + consistency
+  fillerRate?: number;       // 0–100: inverse of fillers-per-minute
   authorityMarkers?: number; // 0–100: sentence-final downward inflection rate
   overall: number;
 }
@@ -254,22 +256,27 @@ export interface SpeakingAnalysisResult {
   wpm: number;
   articulationRateWpm: number; // WPM excluding pauses
   meanF0Hz: number;
-  f0RangeHz: number; // Max F0 - min F0 during voiced frames
-  uptalkRatio: number; // 0–1: proportion of clauses with rising final F0
+  f0RangeHz: number;           // Max F0 - min F0 during voiced frames
+  uptalkRatio: number;         // 0–1: proportion of clauses with rising final F0
   pauseCount: number;
   meanPauseDurationMs: number;
   meanRmsDb: number;
   rmsVarianceDb: number;
   fillerEvents: FillerWordEvent[];
-  fillerRate: number; // fillers per minute
-  hnr?: number; // Harmonics-to-Noise Ratio (Phase 2)
+  fillerRate: number;          // fillers per minute
+  hnr?: number;                // Harmonics-to-Noise Ratio (Phase 2)
 }
 
 // ------------------------------------------------------------
 // KARAOKE MODE — Singing Tier, Phase 2
 // ------------------------------------------------------------
 
-export type KaraokeProcessingStatus = 'queued' | 'separating' | 'analyzing' | 'ready' | 'error';
+export type KaraokeProcessingStatus =
+  | 'queued'
+  | 'separating'
+  | 'analyzing'
+  | 'ready'
+  | 'error';
 
 export interface KaraokeSong {
   songId: string;
@@ -283,8 +290,8 @@ export interface KaraokeSong {
   vocalRange?: { lowestNote: string; highestNote: string };
   styleTags: SingingStylePack[];
   processingStatus: KaraokeProcessingStatus;
-  instrumentalUrl?: string; // Available when processingStatus = 'ready'
-  vocalAnalysisId?: string; // Reference to stored vocal analysis data
+  instrumentalUrl?: string;   // Available when processingStatus = 'ready'
+  vocalAnalysisId?: string;   // Reference to stored vocal analysis data
 }
 
 export interface KaraokeSnippet {
@@ -296,7 +303,7 @@ export interface KaraokeSnippet {
   difficulty: 1 | 2 | 3 | 4 | 5;
   lyricsText?: string;
   referencePitchCurve: LivePitchFrame[]; // Extracted from original vocal stem
-  orderInSong: number; // Snippet index for phrase map
+  orderInSong: number;                   // Snippet index for phrase map
 }
 
 export type KaraokeSnippetStatus = 'locked' | 'active' | 'in_progress' | 'completed';
@@ -304,34 +311,28 @@ export type KaraokeSnippetStatus = 'locked' | 'active' | 'in_progress' | 'comple
 export interface KaraokeSnippetProgress {
   snippetId: string;
   status: KaraokeSnippetStatus;
-  bestMatchScore?: number; // 0–100
+  bestMatchScore?: number;         // 0–100
   bestAttemptId?: string;
   totalAttempts: number;
-  completedAt?: string; // ISO 8601
+  completedAt?: string;            // ISO 8601
 }
 
 export interface KaraokeSongProgress {
   songId: string;
   userId: string;
   snippetProgress: KaraokeSnippetProgress[];
-  overallMatchScore?: number; // Average of completed snippets
+  overallMatchScore?: number;      // Average of completed snippets
   isCompleted: boolean;
   startedAt: string;
   completedAt?: string;
 }
 
 export interface KaraokeAttemptScore {
-  pitchSimilarity: number; // 0–100: DTW pitch comparison
-  timingAccuracy: number; // 0–100: phrase onset + duration
-  contourMatch: number; // 0–100: gross melodic shape
-  overall: number; // Weighted composite
-  dominantFailureMode?:
-    | 'pitch_flat'
-    | 'pitch_sharp'
-    | 'rushing'
-    | 'dragging'
-    | 'wrong_contour'
-    | 'pitch_instability';
+  pitchSimilarity: number;         // 0–100: DTW pitch comparison
+  timingAccuracy: number;          // 0–100: phrase onset + duration
+  contourMatch: number;            // 0–100: gross melodic shape
+  overall: number;                 // Weighted composite
+  dominantFailureMode?: 'pitch_flat' | 'pitch_sharp' | 'rushing' | 'dragging' | 'wrong_contour' | 'pitch_instability';
 }
 
 // ------------------------------------------------------------
@@ -451,8 +452,8 @@ export interface LessonPlan {
   tier: Tier;
   level: CurriculumLevel;
   goal: SpeakingGoal | SingingGoal;
-  sessionCount: number; // Expected number of sessions in this plan
-  exerciseSequence: string[]; // Ordered list of exerciseIds
+  sessionCount: number;            // Expected number of sessions in this plan
+  exerciseSequence: string[];      // Ordered list of exerciseIds
   unlockCondition?: {
     requiredLevel?: CurriculumLevel;
     requiredBadges?: BadgeId[];
@@ -483,7 +484,7 @@ export interface Attempt {
   tier: Tier;
   startedAt: string;
   completedAt?: string;
-  audioFileUrl?: string; // Stored in Supabase Storage
+  audioFileUrl?: string;       // Stored in Supabase Storage
   durationMs?: number;
 }
 
@@ -526,8 +527,8 @@ export interface Reflection {
   reflectionId: string;
   sessionId: string;
   userId: string;
-  prompt1Answer: string; // "What felt easiest?"
-  prompt2Answer: string; // "What will you focus on next time?"
+  prompt1Answer: string;  // "What felt easiest?"
+  prompt2Answer: string;  // "What will you focus on next time?"
   submittedAt: string;
 }
 

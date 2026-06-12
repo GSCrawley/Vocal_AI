@@ -1,7 +1,7 @@
 import { Tier, ExerciseDefinition } from '../index';
 
 describe('Shared Types', () => {
-  it('should export all required domain types', () => {
+  it('should export key shared types used in this test file', () => {
     // This is purely a type-check test, if it compiles, the types exist.
     const dummyTier: Tier = 'speaking';
     expect(dummyTier).toBe('speaking');
@@ -23,22 +23,22 @@ describe('Shared Types', () => {
       targetPatternPayload: {
         targetNote: 'A3',
         referenceToneDurationMs: 1500,
-        sustainDurationMs: 3000,
+        sustainDurationMs: 3000
       },
       evaluationConfig: {
         centsTolerance: 25,
         minimumVoicedFrames: 20,
         sustainWindowMs: 3000,
         confidenceFloor: 70,
-        allowDegradedScoring: true,
+        allowDegradedScoring: true
       },
       scoringWeights: {
         pitchAccuracy: 0.45,
         stability: 0.45,
-        completion: 0.1,
+        completion: 0.1
       },
       feedbackRuleSetId: 'rules-sustain-note-v1',
-      activeFlag: true,
+      activeFlag: true
     };
 
     // Simulate behavior modification without version bump
@@ -57,8 +57,6 @@ describe('Shared Types', () => {
       }
     };
 
-    expect(() => ensureVersionBump(exercise, modifiedExercise)).toThrow(
-      'Version must be bumped when behavior fields change'
-    );
+    expect(() => ensureVersionBump(exercise, modifiedExercise)).toThrow('Version must be bumped when behavior fields change');
   });
 });

@@ -1,13 +1,13 @@
-import '../instrument.js';
+import "../instrument.js";
 
 // All other imports below
-import { createServer, IncomingMessage, ServerResponse } from 'node:http';
+import { createServer, IncomingMessage, ServerResponse } from "node:http";
 
 const server = createServer((req: any, res: any) => {
   // server code
 });
 
-server.listen(parseInt(process.env.PORT || '3001', 10), '0.0.0.0');
+server.listen(parseInt(process.env.PORT || "3001", 10), "0.0.0.0");
 export const analyticsWorker = {
   service: 'analytics-worker',
   jobs: ['progress-snapshots', 'weekly-summaries', 'milestones'],
@@ -15,7 +15,7 @@ export const analyticsWorker = {
 
 const heartbeatLogsEnabled = process.env.ANALYTICS_WORKER_HEARTBEAT_LOGS === 'true';
 
-console.log('voice-analytics-worker started');
+console.log("voice-analytics-worker started");
 
 if (heartbeatLogsEnabled) {
   setInterval(() => {

@@ -1,8 +1,13 @@
-import '../instrument.js';
-import Fastify, { FastifyRequest, FastifyReply } from 'fastify';
-import { LivePitchFrame, SessionState, SessionEvent } from '@voice/shared-types';
-import { micCheck, scoreSustainedNote } from '@voice/audio-metrics';
-import { transition } from '@voice/exercise-engine';
+import "../instrument.js";
+import * as Sentry from "@sentry/node";
+import Fastify, { FastifyRequest, FastifyReply } from "fastify";
+import {
+  LivePitchFrame,
+  SessionState,
+  SessionEvent
+} from "@voice/shared-types";
+import { micCheck, scoreSustainedNote } from "@voice/audio-metrics";
+import { transition } from "@voice/exercise-engine";
 
 export const apiService = {
   service: 'api',
@@ -18,19 +23,19 @@ export const apiService = {
     'admin',
     'analytics-events',
     'audio-metrics',
-    'exercise-engine',
+    'exercise-engine'
   ],
 };
 
 const fastify = Fastify({
-  logger: true,
+  logger: true
 });
 
-fastify.get('/healthz', async (request: any, reply: any) => {
+fastify.get('/healthz', async () => {
   return { ok: true };
 });
 
-fastify.get('/', async (request: any, reply: any) => {
+fastify.get('/', async () => {
   return { service: 'api', status: 'stub' };
 });
 
@@ -45,31 +50,12 @@ fastify.post(
         properties: {
           frames: { type: 'array' },
           targetHz: { type: 'number' },
-          rmsDbFrames: { type: 'array', items: { type: 'number' } },
-        },
-      },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            score: { type: 'number' },
-          },
-        },
-        400: {
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-          },
-        },
-      },
-    },
+          rmsDbFrames: { type: 'array', items: { type: 'number' } }
+        }
+      }
+    }
   },
-  async (
-    request: FastifyRequest<{
-      Body: { frames: LivePitchFrame[]; targetHz: number; rmsDbFrames: number[] };
-    }>,
-    reply: FastifyReply
-  ) => {
+  async (request: FastifyRequest<{ Body: { frames: LivePitchFrame[]; targetHz: number; rmsDbFrames: number[] } }>, reply: FastifyReply) => {
     const { frames, targetHz, rmsDbFrames } = request.body;
     const checkResult = micCheck(frames, rmsDbFrames);
     if (!checkResult.ok) {
@@ -90,23 +76,12 @@ fastify.post(
         required: ['currentState', 'event'],
         properties: {
           currentState: { type: 'object' },
-          event: { type: 'string' },
-        },
-      },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            nextState: { type: 'object' },
-          },
-        },
-      },
-    },
+          event: { type: 'string' }
+        }
+      }
+    }
   },
-  async (
-    request: FastifyRequest<{ Body: { currentState: SessionState; event: SessionEvent } }>,
-    _reply: FastifyReply
-  ) => {
+  async (request: FastifyRequest<{ Body: { currentState: SessionState; event: SessionEvent } }>, reply: FastifyReply) => {
     const { currentState, event } = request.body;
     const nextState = transition(currentState, event);
     return { nextState };
@@ -117,7 +92,7 @@ const start = async () => {
   try {
     const port = parseInt(process.env.PORT || '10000', 10);
     await fastify.listen({ port, host: '0.0.0.0' });
-    fastify.log.info(`voice-api listening on PORT ${port}`);
+    fastify.log.info({ port }, 'voice-api listening');
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

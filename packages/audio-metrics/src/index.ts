@@ -5,10 +5,14 @@
 import {
   LivePitchFrame,
   SingingExerciseScoreBreakdown,
-  ExerciseMetricResult,
+  ExerciseMetricResult
 } from '@voice/shared-types';
 
-export { LivePitchFrame, SingingExerciseScoreBreakdown, ExerciseMetricResult };
+export {
+  LivePitchFrame,
+  SingingExerciseScoreBreakdown,
+  ExerciseMetricResult
+};
 
 export function hzToCents(frequencyHz: number, referenceHz: number): number {
   if (frequencyHz <= 0 || referenceHz <= 0) return 0;
@@ -37,7 +41,7 @@ export function evaluateFrame(
   if (!isUsable) {
     return {
       inTolerance: false,
-      usable: false,
+      usable: false
     };
   }
 
@@ -47,7 +51,7 @@ export function evaluateFrame(
   return {
     centsFromTarget: centsError,
     inTolerance,
-    usable: true,
+    usable: true
   };
 }
 
@@ -72,17 +76,13 @@ export function micCheck(frames: LivePitchFrame[], rmsDbFrames: number[]): MicCh
   }
 
   if (!hasUsableFrames) {
-    return { ok: false, reason: 'low_confidence' };
+     return { ok: false, reason: 'low_confidence' };
   }
 
   return { ok: true };
 }
 
-export function scorePitchAccuracy(
-  frames: LivePitchFrame[],
-  targetHz: number,
-  toleranceCents: number
-): number {
+export function scorePitchAccuracy(frames: LivePitchFrame[], targetHz: number, toleranceCents: number): number {
   let usableFrames = 0;
   let framesInTolerance = 0;
   const absoluteErrors: number[] = [];
@@ -112,7 +112,7 @@ export function scorePitchAccuracy(
   if (errorScore < 0) errorScore = 0;
   if (errorScore > 100) errorScore = 100;
 
-  return timeInToleranceRatio * 100 * 0.5 + errorScore * 0.5;
+  return (timeInToleranceRatio * 100 * 0.5) + (errorScore * 0.5);
 }
 
 export function scoreStability(frames: LivePitchFrame[]): number {
@@ -136,11 +136,7 @@ export function scoreStability(frames: LivePitchFrame[]): number {
   return stabilityScore;
 }
 
-export function scoreOnset(
-  frames: LivePitchFrame[],
-  targetHz: number,
-  toleranceCents: number
-): number {
+export function scoreOnset(frames: LivePitchFrame[], targetHz: number, toleranceCents: number): number {
   let firstUsableFrameIdx = -1;
   let lockIdx = -1;
   let continuousLockCount = 0;
@@ -178,40 +174,36 @@ export function scoreSustainedNote(
   frames: LivePitchFrame[],
   targetHz: number,
   toleranceCents: number,
-  scoringWeights: {
-    pitch: number;
-    stability: number;
-    onset?: number;
-    dynamics?: number;
-    vibrato?: number;
-  }
+  scoringWeights: { pitch: number; stability: number; onset?: number; dynamics?: number; vibrato?: number }
 ): SingingExerciseScoreBreakdown {
+
   const sumWeights = Object.values(scoringWeights).reduce((a, b) => a + (b || 0), 0);
   if (Math.abs(sumWeights - 1.0) > 0.001) {
     throw new Error('Scoring weights must sum to 1.0');
   }
 
-  for (const frame of frames) {
+  const enrichedFrames: LivePitchFrame[] = frames.map(frame => {
     if (frame.frequencyHz && frame.voiced && frame.confidence >= 0.5) {
-      frame.centsFromTarget = hzToCents(frame.frequencyHz, targetHz);
+      return { ...frame, centsFromTarget: hzToCents(frame.frequencyHz, targetHz) };
     }
-  }
+    return frame;
+  });
 
-  const pitchAccuracy = scorePitchAccuracy(frames, targetHz, toleranceCents);
-  const stability = scoreStability(frames);
+  const pitchAccuracy = scorePitchAccuracy(enrichedFrames, targetHz, toleranceCents);
+  const stability = scoreStability(enrichedFrames);
 
-  let overall = pitchAccuracy * scoringWeights.pitch + stability * scoringWeights.stability;
+  let overall = (pitchAccuracy * scoringWeights.pitch) + (stability * scoringWeights.stability);
 
   let onsetAccuracy;
   if (scoringWeights.onset) {
-    onsetAccuracy = scoreOnset(frames, targetHz, toleranceCents);
-    overall += onsetAccuracy * scoringWeights.onset;
+      onsetAccuracy = scoreOnset(enrichedFrames, targetHz, toleranceCents);
+      overall += (onsetAccuracy * scoringWeights.onset);
   }
 
   return {
     pitchAccuracy,
     stability,
     onsetAccuracy,
-    overall,
+    overall
   };
 }
