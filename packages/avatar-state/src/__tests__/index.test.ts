@@ -1,4 +1,11 @@
-import { sessionStateToAvatarState, resolveAvatarState, AVATAR_ANIMATION_ASSETS, buildIntroDialogue, buildCoachingDialogue } from '../index';
+import {
+  sessionStateToAvatarState,
+  resolveAvatarState,
+  AVATAR_ANIMATION_ASSETS,
+  buildIntroDialogue,
+  buildCoachingDialogue,
+  buildCelebrationDialogue,
+} from '../index';
 import type { CoachingPayload } from '@voice/shared-types';
 
 describe('Avatar State', () => {
@@ -54,7 +61,11 @@ describe('Avatar State', () => {
     });
 
     it('returns last session focus for returning user', () => {
-      const lines = buildIntroDialogue({ tier: 'singing', sessionCount: 1, lastSessionFocus: 'breath control' });
+      const lines = buildIntroDialogue({
+        tier: 'singing',
+        sessionCount: 1,
+        lastSessionFocus: 'breath control',
+      });
       expect(lines.length).toBe(1);
       expect(lines[0]).toEqual({
         text: "Last time you were working on breath control. Let's pick up from there.",
@@ -69,7 +80,11 @@ describe('Avatar State', () => {
     });
 
     it('appends exercise title if provided', () => {
-      const lines = buildIntroDialogue({ tier: 'singing', sessionCount: 1, exerciseTitle: 'Vocal Warmup' });
+      const lines = buildIntroDialogue({
+        tier: 'singing',
+        sessionCount: 1,
+        exerciseTitle: 'Vocal Warmup',
+      });
       expect(lines.length).toBe(1);
       expect(lines[0]).toEqual({
         text: "Today's exercise: Vocal Warmup.",
@@ -79,7 +94,11 @@ describe('Avatar State', () => {
     });
 
     it('appends exercise instruction if provided', () => {
-      const lines = buildIntroDialogue({ tier: 'singing', sessionCount: 1, exerciseInstruction: 'Take a deep breath and start.' });
+      const lines = buildIntroDialogue({
+        tier: 'singing',
+        sessionCount: 1,
+        exerciseInstruction: 'Take a deep breath and start.',
+      });
       expect(lines.length).toBe(1);
       expect(lines[0]).toEqual({
         text: 'Take a deep breath and start.',
@@ -120,7 +139,7 @@ describe('Avatar State', () => {
       praiseMessage: 'Great job!',
       correctionMessage: 'Try to keep your pitch steady.',
       actionTip: 'Take a deep breath and go again.',
-      successBand: 'good'
+      successBand: 'good',
     };
 
     it('builds dialogue for a personal best', () => {
@@ -175,7 +194,7 @@ describe('Avatar State', () => {
       praiseMessage: 'Great job!',
       correctionMessage: 'Try to keep your pitch steady.',
       actionTip: 'Take a deep breath and go again.',
-      successBand: 'good'
+      successBand: 'good',
     };
 
     it('builds dialogue for a personal best', () => {
@@ -221,6 +240,70 @@ describe('Avatar State', () => {
         text: 'Take a deep breath and go again.',
         state: 'COACHING',
         awaitUserAction: true,
+      });
+    });
+  });
+
+  describe('buildCelebrationDialogue', () => {
+    it('returns empty array when neither isMilestone nor isPersonalBest are true', () => {
+      const lines = buildCelebrationDialogue({ tier: 'speaking', isMilestone: false });
+      expect(lines.length).toBe(0);
+    });
+
+    it('returns empty array if only isPersonalBest is true but milestoneDescription is missing', () => {
+      const lines = buildCelebrationDialogue({
+        tier: 'speaking',
+        isPersonalBest: true,
+        isMilestone: false,
+      });
+      expect(lines.length).toBe(0);
+    });
+
+    it('returns custom milestone description when provided and isMilestone is true', () => {
+      const lines = buildCelebrationDialogue({
+        tier: 'speaking',
+        isMilestone: true,
+        milestoneDescription: 'You completed 10 exercises!',
+      });
+      expect(lines.length).toBe(1);
+      expect(lines[0]).toEqual({
+        text: 'You completed 10 exercises!',
+        state: 'CELEBRATING',
+        durationMs: 4000,
+      });
+    });
+
+    it('returns custom milestone description when provided and isPersonalBest is true', () => {
+      const lines = buildCelebrationDialogue({
+        tier: 'speaking',
+        isPersonalBest: true,
+        milestoneDescription: 'Awesome job!',
+      });
+      expect(lines.length).toBe(1);
+      expect(lines[0]).toEqual({
+        text: 'Awesome job!',
+        state: 'CELEBRATING',
+        durationMs: 4000,
+      });
+    });
+
+    it('returns default milestone description for speaking tier', () => {
+      const lines = buildCelebrationDialogue({ tier: 'speaking', isMilestone: true });
+      expect(lines.length).toBe(1);
+      expect(lines[0]).toEqual({
+        text: "That's a milestone. Your voice is building something real.",
+        state: 'CELEBRATING',
+        durationMs: 3500,
+      });
+    });
+
+    it('returns default milestone description for singing tier', () => {
+      const lines = buildCelebrationDialogue({ tier: 'singing', isMilestone: true });
+      expect(lines.length).toBe(1);
+      expect(lines[0]).toEqual({
+        text: "That's a milestone. Listen to how far you've come.",
+        state: 'CELEBRATING',
+        durationMs: 3500,
       });
     });
   });

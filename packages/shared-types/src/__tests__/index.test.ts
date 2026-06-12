@@ -1,10 +1,47 @@
-import {
-  UserProfile, Tier, SpeakingGoal, SingingGoal, SuccessBand,
-  ExerciseDefinition, ExerciseCategory, TargetPatternType, Session,
-  Attempt, SingingAttemptMetrics, BestTake, Reflection, LivePitchFrame,
-  CoachingPayload, AvatarBehaviorState, AvatarDialogueLine, XpEvent,
-  UserRewardState, EarnedBadge
+import type {
+  Tier,
+  ExerciseDefinition,
+  UserProfile,
+  SpeakingGoal,
+  SingingGoal,
+  SuccessBand,
+  ExerciseCategory,
+  TargetPatternType,
+  Session,
+  Attempt,
+  SingingAttemptMetrics,
+  BestTake,
+  Reflection,
+  LivePitchFrame,
+  CoachingPayload,
+  AvatarBehaviorState,
+  AvatarDialogueLine,
+  XpEvent,
+  UserRewardState,
+  EarnedBadge,
 } from '../index';
+
+// Ensure types are not considered unused by TypeScript/ESLint while acting purely as structural checks.
+export function _ensureTypesExist(
+  _profile: UserProfile,
+  _spkGoal: SpeakingGoal,
+  _sngGoal: SingingGoal,
+  _sBand: SuccessBand,
+  _exCat: ExerciseCategory,
+  _tpType: TargetPatternType,
+  _sess: Session,
+  _att: Attempt,
+  _sam: SingingAttemptMetrics,
+  _bt: BestTake,
+  _refl: Reflection,
+  _lpf: LivePitchFrame,
+  _cp: CoachingPayload,
+  _abs: AvatarBehaviorState,
+  _adl: AvatarDialogueLine,
+  _xpe: XpEvent,
+  _urs: UserRewardState,
+  _eb: EarnedBadge
+) {}
 
 describe('Shared Types', () => {
   it('should export all required domain types', () => {
@@ -29,22 +66,22 @@ describe('Shared Types', () => {
       targetPatternPayload: {
         targetNote: 'A3',
         referenceToneDurationMs: 1500,
-        sustainDurationMs: 3000
+        sustainDurationMs: 3000,
       },
       evaluationConfig: {
         centsTolerance: 25,
         minimumVoicedFrames: 20,
         sustainWindowMs: 3000,
         confidenceFloor: 70,
-        allowDegradedScoring: true
+        allowDegradedScoring: true,
       },
       scoringWeights: {
         pitchAccuracy: 0.45,
         stability: 0.45,
-        completion: 0.1
+        completion: 0.1,
       },
       feedbackRuleSetId: 'rules-sustain-note-v1',
-      activeFlag: true
+      activeFlag: true,
     };
 
     // Simulate behavior modification without version bump
@@ -63,6 +100,8 @@ describe('Shared Types', () => {
       }
     };
 
-    expect(() => ensureVersionBump(exercise, modifiedExercise)).toThrow('Version must be bumped when behavior fields change');
+    expect(() => ensureVersionBump(exercise, modifiedExercise)).toThrow(
+      'Version must be bumped when behavior fields change'
+    );
   });
 });

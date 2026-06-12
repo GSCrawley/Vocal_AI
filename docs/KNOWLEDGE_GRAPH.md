@@ -1,4 +1,5 @@
 # VOICE — Comprehensive Knowledge Graph
+
 > **Purpose**: Complete semantic model of the VOICE app. Intended as a single-file briefing for coding agents, code reviewers, and new engineers. All entities, relationships, invariants, formulas, state machines, data flows, and constraints are defined here. If something contradicts another source file, this document is the authority.
 
 ---
@@ -36,17 +37,19 @@ Animation:       Lottie (avatar)
 ```
 
 ### Core value proposition
+
 VOICE builds accurate self-hearing, self-trust, and repeatable practice habits that turn isolated good vocal moments into stable, transferable skill. It is NOT a measurement dashboard — it is a coached practice loop.
 
 ### Two tiers (domain-level split)
-| | Speaking Tier | Singing Tier |
-|---|---|---|
-| Color token | amber `#D97706` | violet `#6D28D9` |
-| Light bg | `#FEF3C7` | `#EDE9FE` |
-| Accent | `#F59E0B` | `#8B5CF6` |
-| Primary metric | WPM, F0 range, RMS, filler rate | Cents error, stability std dev |
-| On-device analysis | pYIN F0 + Silero VAD + Whisper (tiny) | pYIN pitch Hz → cents |
-| Server-side analysis | Whisper (full) filler detection | Demucs, DTW (karaoke only) |
+
+|                      | Speaking Tier                         | Singing Tier                   |
+| -------------------- | ------------------------------------- | ------------------------------ |
+| Color token          | amber `#D97706`                       | violet `#6D28D9`               |
+| Light bg             | `#FEF3C7`                             | `#EDE9FE`                      |
+| Accent               | `#F59E0B`                             | `#8B5CF6`                      |
+| Primary metric       | WPM, F0 range, RMS, filler rate       | Cents error, stability std dev |
+| On-device analysis   | pYIN F0 + Silero VAD + Whisper (tiny) | pYIN pitch Hz → cents          |
+| Server-side analysis | Whisper (full) filler detection       | Demucs, DTW (karaoke only)     |
 
 ---
 
@@ -110,6 +113,7 @@ services/notification-worker → @voice/shared-types
 ```
 
 ### Architectural invariants
+
 - `@voice/shared-types` is the ONLY leaf. No circular deps.
 - The mobile app imports ZERO domain logic directly — only through shared packages.
 - Scoring, coaching, curriculum sequencing, and reward computation all live in packages.
@@ -124,6 +128,7 @@ Each entity below lists: fields with types, constraints, and which package/servi
 ---
 
 ### 3.1 UserProfile
+
 **Owner**: `@voice/shared-types` (type) · `services/api` + Supabase (persistence)
 
 ```typescript
@@ -145,6 +150,7 @@ UserProfile {
 ```
 
 **Constraints**:
+
 - `level` is always `getLevelForXp(totalXp)` — never stored independently
 - `streakDays` resets to 1 (not 0) on first session after break
 - `streakShieldsRemaining` ≤ `Math.floor(streakDays / 7)` at time of earning
@@ -152,6 +158,7 @@ UserProfile {
 ---
 
 ### 3.2 Tier (enum)
+
 **Owner**: `@voice/shared-types`
 
 ```
@@ -163,42 +170,46 @@ Both tiers share session structure, scoring bands, avatar state machine, and rew
 ---
 
 ### 3.3 SpeakingGoal (enum)
+
 **Owner**: `@voice/shared-types`
 
-| Value | Description | Primary metric |
-|---|---|---|
-| `pace` | Speaking rate and rhythm | WPM vs target range |
-| `prosody` | Pitch variability, intonation | F0 range Hz, uptalk ratio |
-| `projection` | Volume, carrying power | mean RMS dB, RMS variance |
-| `resonance` | Tone placement, richness | HNR (Phase 2), subjective |
-| `articulation` | Consonant clarity | Articulation rate WPM |
-| `filler_reduction` | Reduce um/uh/like/etc. | Fillers per minute |
-| `authority` | Downward inflection confidence | Sentence-final F0 downturn ratio |
-| `breath_support` | Breath endurance | Pause count, mean pause duration |
+| Value              | Description                    | Primary metric                   |
+| ------------------ | ------------------------------ | -------------------------------- |
+| `pace`             | Speaking rate and rhythm       | WPM vs target range              |
+| `prosody`          | Pitch variability, intonation  | F0 range Hz, uptalk ratio        |
+| `projection`       | Volume, carrying power         | mean RMS dB, RMS variance        |
+| `resonance`        | Tone placement, richness       | HNR (Phase 2), subjective        |
+| `articulation`     | Consonant clarity              | Articulation rate WPM            |
+| `filler_reduction` | Reduce um/uh/like/etc.         | Fillers per minute               |
+| `authority`        | Downward inflection confidence | Sentence-final F0 downturn ratio |
+| `breath_support`   | Breath endurance               | Pause count, mean pause duration |
 
 ---
 
 ### 3.4 SingingGoal (enum)
+
 **Owner**: `@voice/shared-types`
 
-| Value | Description | Primary metric |
-|---|---|---|
-| `pitch` | Pitch accuracy and matching | Cents error from target |
-| `stability` | Sustaining without wobble | Std dev of cents error |
-| `range` | Expanding comfortable range | Semitones covered |
-| `breath_control` | Breath support for singing | Phrase duration, phrase count |
-| `tone` | Tone quality, timbre | HNR, CPP (Phase 2) |
-| `agility` | Moving between notes quickly | Onset accuracy, interval error |
-| `ear_training` | Interval recognition | Pitch discrimination tasks |
-| `dynamics` | Volume control | RMS range |
-| `vibrato` | Developing and controlling | Vibrato rate Hz, width cents (Phase 2) |
+| Value            | Description                  | Primary metric                         |
+| ---------------- | ---------------------------- | -------------------------------------- |
+| `pitch`          | Pitch accuracy and matching  | Cents error from target                |
+| `stability`      | Sustaining without wobble    | Std dev of cents error                 |
+| `range`          | Expanding comfortable range  | Semitones covered                      |
+| `breath_control` | Breath support for singing   | Phrase duration, phrase count          |
+| `tone`           | Tone quality, timbre         | HNR, CPP (Phase 2)                     |
+| `agility`        | Moving between notes quickly | Onset accuracy, interval error         |
+| `ear_training`   | Interval recognition         | Pitch discrimination tasks             |
+| `dynamics`       | Volume control               | RMS range                              |
+| `vibrato`        | Developing and controlling   | Vibrato rate Hz, width cents (Phase 2) |
 
 ---
 
 ### 3.5 SpeakingTrack (enum) — Phase 2
+
 `'ted_conference' | 'podcast' | 'social_media' | 'job_interview' | 'classroom' | 'executive'`
 
 Maps to WPM target context in `@voice/speaking-metrics`:
+
 - `ted_conference` → `'presentation'` (120–165 WPM)
 - `podcast` → `'conversational'` (130–180 WPM)
 - `social_media` → `'short_form'` (140–195 WPM)
@@ -209,6 +220,7 @@ Maps to WPM target context in `@voice/speaking-metrics`:
 ---
 
 ### 3.6 SingingStylePack (enum) — Phase 3
+
 `'pop' | 'jazz' | 'blues' | 'classical_opera' | 'musical_theatre' | 'rnb_soul' | 'rock' | 'heavy_metal' | 'grindcore' | 'country' | 'gospel'`
 
 Each style pack unlocks at Level 3+ and adds style-specific exercises with specialized scoring.
@@ -217,20 +229,22 @@ Each style pack unlocks at Level 3+ and adds style-specific exercises with speci
 ---
 
 ### 3.7 SuccessBand (enum)
+
 **Owner**: `@voice/shared-types`
 
-| Band | Score range | Meaning |
-|---|---|---|
-| `'excellent'` | ≥ 85 | Mastery — ready to advance |
-| `'good'` | 70–84 | Solid — one more rep or move on |
-| `'developing'` | 50–69 | Progress — needs more practice |
-| `'retry'` | < 50 | Not passing — same exercise again |
+| Band           | Score range | Meaning                           |
+| -------------- | ----------- | --------------------------------- |
+| `'excellent'`  | ≥ 85        | Mastery — ready to advance        |
+| `'good'`       | 70–84       | Solid — one more rep or move on   |
+| `'developing'` | 50–69       | Progress — needs more practice    |
+| `'retry'`      | < 50        | Not passing — same exercise again |
 
 **Invariant**: SuccessBand thresholds are identical for both tiers.
 
 ---
 
 ### 3.8 ExerciseDefinition
+
 **Owner**: `@voice/shared-types` (type) · `@voice/content-schema` (versioned schema) · Supabase (persistence)
 
 ```typescript
@@ -258,6 +272,7 @@ ExerciseDefinition {
 ```
 
 **Constraints**:
+
 - `scoringWeights` values must sum to exactly 1.0
 - Changing exercise behavior requires creating a new version (new `exerciseId` suffix `_v{N}`)
 - `activeFlag: false` exercises are never included in session plans
@@ -265,6 +280,7 @@ ExerciseDefinition {
 ---
 
 ### 3.9 ExerciseCategory (enum)
+
 **Owner**: `@voice/shared-types`
 
 ```
@@ -279,6 +295,7 @@ passaggio | dynamic_control | vibrato | style_specific | karaoke_snippet
 ---
 
 ### 3.10 TargetPatternType (enum)
+
 **Owner**: `@voice/shared-types`
 
 ```
@@ -290,6 +307,7 @@ breath_only | hum_resonance
 ---
 
 ### 3.11 Session
+
 **Owner**: `@voice/shared-types` (type) · `services/api` + Supabase (persistence)
 
 ```typescript
@@ -306,12 +324,14 @@ Session {
 ```
 
 **Constraints**:
+
 - A session without `completedAt` does not count toward streak or XP
 - Minimum viable session = 1 exercise completed
 
 ---
 
 ### 3.12 Attempt
+
 **Owner**: `@voice/shared-types` (type) · Supabase (persistence)
 
 ```typescript
@@ -333,6 +353,7 @@ One attempt = one recording pass on one exercise. Users may attempt the same exe
 ---
 
 ### 3.13 SingingAttemptMetrics
+
 **Owner**: `@voice/shared-types` · Supabase
 
 ```typescript
@@ -352,6 +373,7 @@ SingingAttemptMetrics {
 ---
 
 ### 3.14 SpeakingAttemptMetrics
+
 **Owner**: `@voice/shared-types` · Supabase
 
 ```typescript
@@ -371,6 +393,7 @@ SpeakingAttemptMetrics {
 ---
 
 ### 3.15 BestTake
+
 **Owner**: `@voice/shared-types` · Supabase
 
 ```typescript
@@ -391,6 +414,7 @@ BestTake {
 ---
 
 ### 3.16 Reflection
+
 **Owner**: `@voice/shared-types` · Supabase
 
 ```typescript
@@ -409,6 +433,7 @@ Reflection {
 ---
 
 ### 3.17 LivePitchFrame
+
 **Owner**: `@voice/shared-types` · produced in real-time on mobile
 
 ```typescript
@@ -426,6 +451,7 @@ LivePitchFrame {
 ---
 
 ### 3.18 LiveSpeakingFrame
+
 **Owner**: `@voice/shared-types` · produced in real-time on mobile
 
 ```typescript
@@ -442,6 +468,7 @@ LiveSpeakingFrame {
 ---
 
 ### 3.19 SpeakingAnalysisResult
+
 **Owner**: `@voice/shared-types` · computed post-recording
 
 ```typescript
@@ -464,6 +491,7 @@ SpeakingAnalysisResult {
 ---
 
 ### 3.20 CoachingPayload
+
 **Owner**: `@voice/shared-types` · produced by `@voice/coaching-rules`
 
 ```typescript
@@ -481,6 +509,7 @@ CoachingPayload {
 ---
 
 ### 3.21 AvatarDialogueLine
+
 **Owner**: `@voice/shared-types` · produced by `@voice/avatar-state`
 
 ```typescript
@@ -495,6 +524,7 @@ AvatarDialogueLine {
 ---
 
 ### 3.22 KaraokeSong — Phase 2
+
 **Owner**: `@voice/shared-types` · Supabase
 
 ```typescript
@@ -518,6 +548,7 @@ KaraokeSong {
 ---
 
 ### 3.23 KaraokeSnippet — Phase 2
+
 **Owner**: `@voice/shared-types` · Supabase
 
 ```typescript
@@ -537,6 +568,7 @@ KaraokeSnippet {
 ---
 
 ### 3.24 KaraokeAttemptScore — Phase 2
+
 **Owner**: `@voice/shared-types` · produced by `@voice/karaoke-engine` or `services/audio-processor`
 
 ```typescript
@@ -552,6 +584,7 @@ KaraokeAttemptScore {
 ---
 
 ### 3.25 UserRewardState
+
 **Owner**: `@voice/shared-types` · Supabase (flattened on UserProfile table)
 
 ```typescript
@@ -570,6 +603,7 @@ UserRewardState {
 ---
 
 ### 3.26 XpEvent
+
 **Owner**: `@voice/shared-types` · Supabase (xp_events table, append-only)
 
 ```typescript
@@ -588,6 +622,7 @@ All XP events are append-only. `totalXp` is the sum of all XpEvent.amount values
 ---
 
 ### 3.27 AudioProcessorJob (union type)
+
 **Owner**: `services/audio-processor/src` (TypeScript contracts only)
 
 ```
@@ -636,6 +671,7 @@ Attempt (karaoke) ──1:1──> KaraokeAttemptScore
 ## 5. STATE MACHINES
 
 ### 5.1 SessionState machine
+
 **Owner**: `@voice/shared-types` · managed by `@voice/exercise-engine`
 
 ```
@@ -684,6 +720,7 @@ SESSION_COMPLETE
 ---
 
 ### 5.2 AvatarBehaviorState machine
+
 **Owner**: `@voice/shared-types` · `@voice/avatar-state`
 
 ```
@@ -699,10 +736,12 @@ CELEBRATING    → LISTENING     (user tries again from celebrating state)
 ```
 
 **Avatar color per tier**:
+
 - Speaking: primary `#D97706`, accent `#F59E0B`, bg `#FEF3C7`
 - Singing: primary `#6D28D9`, accent `#8B5CF6`, bg `#EDE9FE`
 
 **Animation asset map** (Lottie files):
+
 ```
 IDLE        → avatar_idle.json
 INTRO       → avatar_intro.json
@@ -715,6 +754,7 @@ CELEBRATING → avatar_celebrating.json
 ---
 
 ### 5.3 KaraokeProcessingStatus machine — Phase 2
+
 ```
 queued → separating → analyzing → ready
 queued → error
@@ -723,6 +763,7 @@ analyzing → error
 ```
 
 Transition triggers:
+
 - `queued`: API receives song selection, pushes VocalSeparationJob to Redis
 - `separating`: Python worker picks up job, runs Demucs (~30s)
 - `analyzing`: Demucs completes, VocalAnalysisJob dispatched (pYIN on vocal stem)
@@ -732,9 +773,11 @@ Transition triggers:
 ---
 
 ### 5.4 KaraokeSnippetStatus — Phase 2
+
 ```
 locked → active → in_progress → completed
 ```
+
 - `locked`: snippet not yet accessible (previous snippet not completed)
 - `active`: snippet is available to attempt
 - `in_progress`: user has attempted but not yet reached match threshold
@@ -908,17 +951,20 @@ Karaoke Result Screen
 ## 7. AUDIO PIPELINE SPECIFICATIONS
 
 ### 7.1 On-device audio capture
+
 - Sample rate: **16,000 Hz** (mono)
 - Frame size: **20ms** (320 samples at 16kHz)
 - Format: PCM Int16 → Float32 for processing
 - Library: `expo-av` (recording) + `react-native-audio-api` (real-time frames)
 
 ### 7.2 Voice Activity Detection (VAD)
+
 - Model: **Silero VAD** (ONNX, ~1MB) run via ONNX Runtime JS
 - Output: voiced/unvoiced boolean per frame, confidence float
 - Pause threshold: consecutive unvoiced frames ≥ 250ms = pause event
 
 ### 7.3 Pitch Detection — pYIN
+
 - Algorithm: **pYIN** (probabilistic YIN), JS/WASM port
 - Input: PCM Float32, 16kHz
 - Output: `frequencyHz` (Hz) per 20ms frame, `confidence` [0,1]
@@ -928,18 +974,20 @@ Karaoke Result Screen
 - Pitch tolerance window: **±25 cents** for singing (within-tolerance scoring)
 
 ### 7.4 Speaking analysis — post-recording
-| Metric | Method | Formula |
-|---|---|---|
-| WPM | Word count / elapsed seconds × 60 | Whisper transcript word count |
-| Articulation rate | WPM excluding pause frames | `words / (totalTime - pauseTime) × 60` |
-| F0 range | max(F0) - min(F0) across voiced frames | pYIN output |
-| Uptalk ratio | Proportion of clause-final frames with rising F0 | sliding window on voiced F0 |
-| Pause count | Gaps > 250ms in Silero VAD output | count of pause events |
-| RMS dB | `20 * log10(RMS of PCM samples)` | per-frame, then mean |
-| Filler rate | Whisper transcript → filler word count / minutes | |
-| HNR | Harmonics-to-Noise Ratio (Phase 2) | Phase 2 only |
+
+| Metric            | Method                                           | Formula                                |
+| ----------------- | ------------------------------------------------ | -------------------------------------- |
+| WPM               | Word count / elapsed seconds × 60                | Whisper transcript word count          |
+| Articulation rate | WPM excluding pause frames                       | `words / (totalTime - pauseTime) × 60` |
+| F0 range          | max(F0) - min(F0) across voiced frames           | pYIN output                            |
+| Uptalk ratio      | Proportion of clause-final frames with rising F0 | sliding window on voiced F0            |
+| Pause count       | Gaps > 250ms in Silero VAD output                | count of pause events                  |
+| RMS dB            | `20 * log10(RMS of PCM samples)`                 | per-frame, then mean                   |
+| Filler rate       | Whisper transcript → filler word count / minutes |                                        |
+| HNR               | Harmonics-to-Noise Ratio (Phase 2)               | Phase 2 only                           |
 
 ### 7.5 Vocal separation — Demucs
+
 - Model: **htdemucs** (Meta, 4-stem)
 - Outputs used: `vocals` stem + `other` (instrumental) stem
 - Expected duration: ~30s for a 3-minute song (GPU) / ~2 min (CPU)
@@ -947,11 +995,13 @@ Karaoke Result Screen
 - Infrastructure: Python/FastAPI service, GPU-capable container (Phase 2)
 
 ### 7.6 Filler word detection — Whisper
+
 - Phase 1: `whisper.cpp` tiny model, on-device, approximate detection
 - Phase 2: OpenAI Whisper medium/large via audio-processor service, precise
 - Filler vocabulary: `["um", "uh", "like", "you know", "I mean", "basically", "literally", "right?", "so yeah"]`
 
 ### 7.7 DTW comparison — Karaoke
+
 - Algorithm: **Dynamic Time Warping** on pitch frame sequences
 - User frame alignment: trim silence from start/end; align to snippet start time
 - Distance metric: absolute cents difference per frame pair
@@ -966,6 +1016,7 @@ Karaoke Result Screen
 ## 8. SCORING FORMULAS AND INVARIANTS
 
 ### 8.1 Singing — overall score
+
 ```
 overallScore = round(
   pitchAccuracy * exerciseScoringWeights.pitchAccuracy +
@@ -975,6 +1026,7 @@ overallScore = round(
 ```
 
 **Pitch accuracy formula**:
+
 ```
 timeInTolerance = frames where abs(centsFromTarget) ≤ 25 AND voiced=true
 timeInTolerancePct = timeInTolerance / totalVoicedFrames
@@ -987,12 +1039,14 @@ pitchAccuracy = clamp(pitchAccuracy, 0, 100)
 ```
 
 **Stability formula**:
+
 ```
 centsStdDev = stdDev(centsFromTarget for voiced frames)
 stability = max(0, 100 - centsStdDev * 3)
 ```
 
 **Onset accuracy formula**:
+
 ```
 timeToLockMs = first frame where voiced=true AND abs(centsFromTarget) ≤ 25
 onsetAccuracy = max(0, 100 - (timeToLockMs / durationTargetSeconds / 1000) * 100)
@@ -1003,6 +1057,7 @@ onsetAccuracy = max(0, 100 - (timeToLockMs / durationTargetSeconds / 1000) * 100
 ### 8.2 Speaking — overall score (goal-weighted)
 
 Goal → scoring weights:
+
 ```
 pace:             { pace:0.60, prosody:0.15, projection:0.15, fillerRate:0.10 }
 prosody:          { pace:0.20, prosody:0.60, projection:0.10, fillerRate:0.10 }
@@ -1015,6 +1070,7 @@ breath_support:   { pace:0.20, prosody:0.20, projection:0.50, fillerRate:0.10 }
 ```
 
 **Pace score**:
+
 ```
 if wpm in [min, max]:
   distanceFromTarget = abs(wpm - target)
@@ -1026,6 +1082,7 @@ else:
 ```
 
 WPM targets by context:
+
 ```
 presentation:   { min:120, target:145, max:165 }
 conversational: { min:130, target:155, max:180 }
@@ -1035,6 +1092,7 @@ interview:      { min:120, target:140, max:160 }
 ```
 
 **Prosody score**:
+
 ```
 F0 range scoring:
   < 10Hz  → 20
@@ -1048,6 +1106,7 @@ prosodyScore = max(0, min(100, rangeScore - uptalkPenalty))
 ```
 
 **Projection score**:
+
 ```
 meanRmsDb > -10:    levelScore = 70   (risk of clipping)
 -18 to -10:         levelScore = 100  (target zone)
@@ -1059,6 +1118,7 @@ projectionScore = min(100, levelScore + varianceBonus)
 ```
 
 **Filler score**:
+
 ```
 fillerRate ≤ 1/min  → 100
 1–2/min             → 90
@@ -1071,6 +1131,7 @@ fillerRate ≤ 1/min  → 100
 ---
 
 ### 8.3 SuccessBand mapping (shared)
+
 ```
 score ≥ 85 → 'excellent'
 score ≥ 70 → 'good'
@@ -1081,6 +1142,7 @@ score < 50 → 'retry'
 ---
 
 ### 8.4 Karaoke composite score — Phase 2
+
 ```
 overall = round(
   pitchSimilarity * 0.50 +
@@ -1090,6 +1152,7 @@ overall = round(
 ```
 
 **Match threshold to complete snippet**:
+
 ```
 userLevel 1–2: overall ≥ 70
 userLevel 3–4: overall ≥ 80
@@ -1100,6 +1163,7 @@ userLevel 3–4: overall ≥ 80
 ## 9. REWARD SYSTEM RULES
 
 ### 9.1 XP table
+
 ```
 session_complete:          10 XP   (always, even if score is low)
 score_good:                 5 XP   (band = 'good')
@@ -1114,6 +1178,7 @@ streak_milestone:       30–200 XP  (see streak milestones below)
 ```
 
 **XP event ordering at session end**:
+
 1. Show XP breakdown (before updating level display)
 2. Update totalXp
 3. Check for level-up → show LevelUp modal
@@ -1123,6 +1188,7 @@ streak_milestone:       30–200 XP  (see streak milestones below)
 ---
 
 ### 9.2 Level thresholds
+
 ```
 Level 1  (Finding My Voice):     0 XP
 Level 2  (First Breath):       100 XP
@@ -1140,6 +1206,7 @@ Level 11+: +2000 XP per level beyond 10
 ---
 
 ### 9.3 Streak rules
+
 ```
 daysDiff = today - lastSessionDate (in calendar days)
 
@@ -1152,6 +1219,7 @@ daysDiff > 2    OR (daysDiff = 2 AND shields = 0):
 ```
 
 **Streak milestones** (XP awarded when newStreakDays hits milestone):
+
 ```
 7 days:   30 XP
 14 days:  30 XP
@@ -1205,27 +1273,29 @@ daysDiff > 2    OR (daysDiff = 2 AND shields = 0):
 
 ### 9.5 Unlockable content
 
-| Content ID | Unlock condition |
-|---|---|
-| `karaoke_mode` | Level ≥ 4 |
-| `style_pack_{n}` | Level ≥ 3 AND style pack prerequisites met |
-| `speaking_track_{n}` | Level ≥ 3 (Phase 2) |
-| `long_form_exercises` | sessionCount ≥ 30 |
-| `avatar_color_variant_1` | Level ≥ 4 |
-| `avatar_color_variant_2` | Level ≥ 6 |
-| `avatar_accessory_headphones` | streakDays ≥ 30 |
-| `avatar_accessory_microphone` | streakDays ≥ 60 |
-| `app_theme_dark` | Level ≥ 5 |
-| `app_theme_warm` | Level ≥ 5 |
+| Content ID                    | Unlock condition                           |
+| ----------------------------- | ------------------------------------------ |
+| `karaoke_mode`                | Level ≥ 4                                  |
+| `style_pack_{n}`              | Level ≥ 3 AND style pack prerequisites met |
+| `speaking_track_{n}`          | Level ≥ 3 (Phase 2)                        |
+| `long_form_exercises`         | sessionCount ≥ 30                          |
+| `avatar_color_variant_1`      | Level ≥ 4                                  |
+| `avatar_color_variant_2`      | Level ≥ 6                                  |
+| `avatar_accessory_headphones` | streakDays ≥ 30                            |
+| `avatar_accessory_microphone` | streakDays ≥ 60                            |
+| `app_theme_dark`              | Level ≥ 5                                  |
+| `app_theme_warm`              | Level ≥ 5                                  |
 
 ---
 
 ## 10. API SURFACE
 
 ### Base URL
+
 `https://api.voice.app/v1`
 
 ### Auth
+
 All endpoints require `Authorization: Bearer {supabase_jwt}`. The JWT is issued by Supabase Auth on sign-in.
 
 ### Endpoints
@@ -1272,6 +1342,7 @@ GET    /v1/karaoke/attempts/{attemptId}
 ### Key request/response contracts
 
 **POST /v1/sessions/{sessionId}/attempts** — submit a completed attempt
+
 ```json
 Request body:
 {
@@ -1309,6 +1380,7 @@ Response body:
 ```
 
 **POST /v1/sessions/{sessionId}/complete**
+
 ```json
 Request: {}
 
@@ -1332,6 +1404,7 @@ Response:
 ## 11. NAVIGATION GRAPH
 
 ### Onboarding Stack (unauthenticated)
+
 ```
 Welcome
   ↓
@@ -1353,6 +1426,7 @@ SchedulePrompt      [reminder time picker]
 ```
 
 ### Main Tab Navigator
+
 ```
 HomeTab       → Home Dashboard
 PracticeTab   → Practice Home
@@ -1361,6 +1435,7 @@ SettingsTab   → Settings Home
 ```
 
 ### Session Stack (both tiers)
+
 ```
 SessionLoader
   ↓
@@ -1382,6 +1457,7 @@ SessionComplete
 ```
 
 ### Karaoke Mode Stack — Phase 2
+
 ```
 KaraokeHome             ← songs in progress + search entry
   ↓
@@ -1406,6 +1482,7 @@ SnippetComplete         ← celebrates; unlocks next snippet
 ```
 
 ### Screen name convention (React Navigation route names)
+
 ```
 Auth:       Welcome, TierSelect, GoalSelect, MicPermission, MicCheck,
             BaselineAssess, FirstWin, SchedulePrompt
@@ -1430,19 +1507,21 @@ Modals:     VocalSafetyModal, MicCheckModal, BadgeUnlockModal,
 ```
 
 ### Modal triggers
-| Modal | Trigger condition |
-|---|---|
-| VocalSafetyModal | High SPL + high F0 + unstable phonation detected simultaneously |
-| MicCheckModal | >10 min since last signal quality check at session start |
-| BadgeUnlockModal | evaluateBadges() returns ≥ 1 new badge |
-| LevelUpModal | getLevelForXp(newTotal) > getLevelForXp(prevTotal) |
-| StreakBrokenModal | computeStreakUpdate().streakBroken === true |
+
+| Modal             | Trigger condition                                               |
+| ----------------- | --------------------------------------------------------------- |
+| VocalSafetyModal  | High SPL + high F0 + unstable phonation detected simultaneously |
+| MicCheckModal     | >10 min since last signal quality check at session start        |
+| BadgeUnlockModal  | evaluateBadges() returns ≥ 1 new badge                          |
+| LevelUpModal      | getLevelForXp(newTotal) > getLevelForXp(prevTotal)              |
+| StreakBrokenModal | computeStreakUpdate().streakBroken === true                     |
 
 ---
 
 ## 12. BUSINESS RULES AND CONSTRAINTS
 
 ### 12.1 Coaching rules (invariants for all dialogue copy)
+
 1. **One correction per attempt** — CoachingPayload.correctionMessage is exactly one sentence, addressing exactly one issue.
 2. **Specificity** — Praise references a specific measurable event ("You held within ±20 cents for 4.2 seconds"), never generic ("Good job!").
 3. **No shame** — Never use "wrong", "bad", "failed". Use "developing", "getting there", "let's try", "work on".
@@ -1453,37 +1532,44 @@ Modals:     VocalSafetyModal, MicCheckModal, BadgeUnlockModal,
 8. **Reflection before reward** — In session-complete flow, reflection prompt appears BEFORE XP display. This is non-negotiable for the SRL design.
 
 ### 12.2 Exercise versioning
+
 - Never mutate a published exercise definition.
 - Behavior changes require a new `exerciseId` with incremented version suffix: `speak_pace_001_v2`.
 - Old exercise IDs remain valid in historical sessions and BestTake records.
 
 ### 12.3 BestTake
+
 - Exactly one active BestTake per (userId, exerciseId) at any time.
 - Audio is stored only with explicit user consent (audio storage opt-in during onboarding).
 - BestTake audio is replayed immediately at session end (BestTakePlayback screen), and is accessible in Progress → BestTakesArchive.
 
 ### 12.4 Mic check gate
+
 - Mic check is mandatory on first session per device.
 - Subsequent sessions: re-check if >10 minutes since last passing check.
 - If signal quality fails (noise floor too high, or consistent clipping), block exercise start and show MicCheckModal.
 
 ### 12.5 Session minimum
+
 - A session must contain at least 1 completed attempt to count as a completed session for streak and XP purposes.
 - Abandoned sessions (no `completedAt`) are stored but excluded from all aggregate computations.
 
 ### 12.6 Audio data
+
 - Raw audio frames are never stored on the backend unless the user explicitly opts in.
 - Opt-in happens during onboarding. Default is off.
 - Audio stored in Supabase Storage under: `user-audio/{userId}/{sessionId}/{attemptId}.wav`
 - Audio for best takes only is stored when opt-in is on.
 
 ### 12.7 Karaoke — legal
+
 - Karaoke Mode is a licensed educational feature, not a copyright circumvention tool.
 - Instrumental stems are not downloadable by users.
 - Stems are stored per-user-session and not shared between users.
 - Song search only surfaces songs with available licenses (internal allowlist). Phase 2.
 
 ### 12.8 Vocal safety — grindcore / extreme styles
+
 - `grindcore` style pack requires mandatory VocalSafetyModal on first entry (not dismissable until user confirms).
 - All extreme-style exercises are prefixed with a technique note: "This technique requires proper breath support and a warmed-up instrument."
 - High-strain proxy = (meanRmsDb > -10 dBFS) AND (frequencyHz > 880 Hz) AND (stability < 40) for ≥ 3 consecutive seconds.
@@ -1493,53 +1579,57 @@ Modals:     VocalSafetyModal, MicCheckModal, BadgeUnlockModal,
 ## 13. TECHNOLOGY BINDINGS
 
 ### Mobile (apps/mobile)
-| Concern | Technology |
-|---|---|
-| Framework | Expo SDK 51+ (React Native) |
-| Language | TypeScript |
-| State | Zustand |
-| Navigation | React Navigation v6 |
-| Audio capture | expo-av + react-native-audio-api |
-| Pitch detection | pYIN (JS/WASM), bundled |
-| VAD | Silero VAD (ONNX Runtime JS) |
-| Filler detection Phase 1 | whisper.cpp (tiny model, ONNX) |
-| Avatar animation | lottie-react-native |
-| Design tokens | @voice/ui-tokens |
-| HTTP client | Axios or native fetch |
-| Realtime | @supabase/supabase-js (Realtime channels) |
+
+| Concern                  | Technology                                |
+| ------------------------ | ----------------------------------------- |
+| Framework                | Expo SDK 51+ (React Native)               |
+| Language                 | TypeScript                                |
+| State                    | Zustand                                   |
+| Navigation               | React Navigation v6                       |
+| Audio capture            | expo-av + react-native-audio-api          |
+| Pitch detection          | pYIN (JS/WASM), bundled                   |
+| VAD                      | Silero VAD (ONNX Runtime JS)              |
+| Filler detection Phase 1 | whisper.cpp (tiny model, ONNX)            |
+| Avatar animation         | lottie-react-native                       |
+| Design tokens            | @voice/ui-tokens                          |
+| HTTP client              | Axios or native fetch                     |
+| Realtime                 | @supabase/supabase-js (Realtime channels) |
 
 ### Backend API (services/api)
-| Concern | Technology |
-|---|---|
-| Runtime | Node.js 20 LTS |
-| Framework | Fastify |
-| Language | TypeScript |
-| Database | Supabase (PostgreSQL 15) |
-| Auth | Supabase Auth (JWT) |
-| Storage | Supabase Storage (S3-compatible) |
-| Job queue | Redis (BullMQ) |
-| ORM | Prisma or raw Supabase client |
+
+| Concern   | Technology                       |
+| --------- | -------------------------------- |
+| Runtime   | Node.js 20 LTS                   |
+| Framework | Fastify                          |
+| Language  | TypeScript                       |
+| Database  | Supabase (PostgreSQL 15)         |
+| Auth      | Supabase Auth (JWT)              |
+| Storage   | Supabase Storage (S3-compatible) |
+| Job queue | Redis (BullMQ)                   |
+| ORM       | Prisma or raw Supabase client    |
 
 ### Audio Processor (services/audio-processor)
-| Concern | Technology |
-|---|---|
-| Runtime | Python 3.11 |
-| Framework | FastAPI |
-| Vocal separation | Demucs (htdemucs model) |
-| Pitch analysis | pYIN (librosa) |
-| ASR | OpenAI Whisper |
-| DTW | dtw-python or custom NumPy impl |
-| Job queue consumer | Redis (rq or celery) |
-| GPU | CUDA if available; CPU fallback |
+
+| Concern            | Technology                      |
+| ------------------ | ------------------------------- |
+| Runtime            | Python 3.11                     |
+| Framework          | FastAPI                         |
+| Vocal separation   | Demucs (htdemucs model)         |
+| Pitch analysis     | pYIN (librosa)                  |
+| ASR                | OpenAI Whisper                  |
+| DTW                | dtw-python or custom NumPy impl |
+| Job queue consumer | Redis (rq or celery)            |
+| GPU                | CUDA if available; CPU fallback |
 
 ### Shared tooling
-| Concern | Technology |
-|---|---|
-| Monorepo | pnpm workspaces |
-| Type checking | TypeScript 5.x, strict mode |
-| Build | tsc (packages), Expo EAS (mobile) |
-| Testing | Jest |
-| Linting | ESLint + Prettier |
+
+| Concern       | Technology                        |
+| ------------- | --------------------------------- |
+| Monorepo      | pnpm workspaces                   |
+| Type checking | TypeScript 5.x, strict mode       |
+| Build         | tsc (packages), Expo EAS (mobile) |
+| Testing       | Jest                              |
+| Linting       | ESLint + Prettier                 |
 
 ---
 
@@ -1547,34 +1637,34 @@ Modals:     VocalSafetyModal, MicCheckModal, BadgeUnlockModal,
 
 Features gated by release phase. Implement as feature flags keyed on user level and server-side phase config.
 
-| Feature | Phase | Gate condition |
-|---|---|---|
-| Singing Tier (full) | Build 0.1 | Always on |
-| Speaking Tier (full) | Build 0.2 / MVP | Always on |
-| Both tiers simultaneously | MVP | Always on |
-| Onboarding (full 8 steps) | MVP | Always on |
-| Avatar + all states | MVP | Always on |
-| Reward system (XP/streak/badges) | MVP | Always on |
-| Best-take save and replay | MVP | Always on |
-| Session reflection | MVP | Always on |
-| Push notifications | Phase 2 | Server config flag |
-| Karaoke Mode | Phase 2 | userLevel ≥ 4 |
-| Specialization Tracks (Speaking) | Phase 2 | userLevel ≥ 3 |
-| Adaptive difficulty | Phase 2 | Server config flag |
-| Real-time filler detection | Phase 2 | Server config flag |
-| SOVT exercises | Phase 2 | Server config flag |
-| Style Packs (Singing) | Phase 3 | userLevel ≥ 3, pack unlocked |
-| HNR metric | Phase 2 | Server config flag |
-| CPP metric | Phase 2 | Server config flag |
-| Vibrato analysis | Phase 2 | Server config flag |
-| ElevenLabs TTS (avatar voice) | Phase 2 | Server config flag |
-| Avatar cosmetic customization | Phase 3 | unlockedContent includes variant |
-| Community features | Phase 3 | Server config flag |
+| Feature                          | Phase     | Gate condition                   |
+| -------------------------------- | --------- | -------------------------------- |
+| Singing Tier (full)              | Build 0.1 | Always on                        |
+| Speaking Tier (full)             | Phase 2   | Always on                        |
+| Both tiers simultaneously        | Phase 2   | Always on                        |
+| Onboarding (full 8 steps)        | MVP       | Always on                        |
+| Avatar + all states              | MVP       | Always on                        |
+| Reward system (XP/streak/badges) | MVP       | Always on                        |
+| Best-take save and replay        | MVP       | Always on                        |
+| Session reflection               | MVP       | Always on                        |
+| Push notifications               | Phase 2   | Server config flag               |
+| Karaoke Mode                     | Phase 2   | userLevel ≥ 4                    |
+| Specialization Tracks (Speaking) | Phase 2   | userLevel ≥ 3                    |
+| Adaptive difficulty              | Phase 2   | Server config flag               |
+| Real-time filler detection       | Phase 2   | Server config flag               |
+| SOVT exercises                   | Phase 2   | Server config flag               |
+| Style Packs (Singing)            | Phase 3   | userLevel ≥ 3, pack unlocked     |
+| HNR metric                       | Phase 2   | Server config flag               |
+| CPP metric                       | Phase 2   | Server config flag               |
+| Vibrato analysis                 | Phase 2   | Server config flag               |
+| ElevenLabs TTS (avatar voice)    | Phase 2   | Server config flag               |
+| Avatar cosmetic customization    | Phase 3   | unlockedContent includes variant |
+| Community features               | Phase 3   | Server config flag               |
 
 ---
 
-*End of knowledge graph. Last updated: 2026-04-19. If any detail conflicts with a source file in this monorepo, update this document to reflect the resolution — this file is the authority.*
-
+_End of knowledge graph. Last updated: 2026-04-19. If any detail conflicts with a source file in this monorepo, update this document to reflect the resolution — this file is the authority._
 
 ### Open Items Resolutions
+
 - Build 0.1 scope resolution: Build 0.1 is defined as the Singing Tier sustained-note/pitch loop. README.md and product-vision.md have been updated to reflect this.
