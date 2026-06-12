@@ -5,14 +5,11 @@
     "rootDir": "src",
     "ignoreDeprecations": "6.0",
     "skipLibCheck": true,
-    "composite": true,
-    "types": []
+    "composite": true
   },
   "include": ["src"],
   "references": [
-    {
-      "path": "../shared-types"
-    }
+    { "path": "../shared-types" }
   ],
   "exclude": ["src/**/*.test.ts", "src/**/__tests__/**", "dist", "node_modules"]
 }

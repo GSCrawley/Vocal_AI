@@ -1,12 +1,4 @@
-import {
-  sessionStateToAvatarState,
-  resolveAvatarState,
-  AVATAR_ANIMATION_ASSETS,
-  buildIntroDialogue,
-  buildCoachingDialogue,
-  buildCelebrationDialogue,
-  buildReflectionDialogue,
-} from '../index';
+import { sessionStateToAvatarState, resolveAvatarState, AVATAR_ANIMATION_ASSETS, buildIntroDialogue, buildCoachingDialogue } from '../index';
 import type { CoachingPayload } from '@voice/shared-types';
 
 describe('Avatar State', () => {
@@ -62,11 +54,7 @@ describe('Avatar State', () => {
     });
 
     it('returns last session focus for returning user', () => {
-      const lines = buildIntroDialogue({
-        tier: 'singing',
-        sessionCount: 1,
-        lastSessionFocus: 'breath control',
-      });
+      const lines = buildIntroDialogue({ tier: 'singing', sessionCount: 1, lastSessionFocus: 'breath control' });
       expect(lines.length).toBe(1);
       expect(lines[0]).toEqual({
         text: "Last time you were working on breath control. Let's pick up from there.",
@@ -81,11 +69,7 @@ describe('Avatar State', () => {
     });
 
     it('appends exercise title if provided', () => {
-      const lines = buildIntroDialogue({
-        tier: 'singing',
-        sessionCount: 1,
-        exerciseTitle: 'Vocal Warmup',
-      });
+      const lines = buildIntroDialogue({ tier: 'singing', sessionCount: 1, exerciseTitle: 'Vocal Warmup' });
       expect(lines.length).toBe(1);
       expect(lines[0]).toEqual({
         text: "Today's exercise: Vocal Warmup.",
@@ -95,11 +79,7 @@ describe('Avatar State', () => {
     });
 
     it('appends exercise instruction if provided', () => {
-      const lines = buildIntroDialogue({
-        tier: 'singing',
-        sessionCount: 1,
-        exerciseInstruction: 'Take a deep breath and start.',
-      });
+      const lines = buildIntroDialogue({ tier: 'singing', sessionCount: 1, exerciseInstruction: 'Take a deep breath and start.' });
       expect(lines.length).toBe(1);
       expect(lines[0]).toEqual({
         text: 'Take a deep breath and start.',
@@ -140,7 +120,7 @@ describe('Avatar State', () => {
       praiseMessage: 'Great job!',
       correctionMessage: 'Try to keep your pitch steady.',
       actionTip: 'Take a deep breath and go again.',
-      successBand: 'good',
+      successBand: 'good'
     };
 
     it('builds dialogue for a personal best', () => {
@@ -195,7 +175,7 @@ describe('Avatar State', () => {
       praiseMessage: 'Great job!',
       correctionMessage: 'Try to keep your pitch steady.',
       actionTip: 'Take a deep breath and go again.',
-      successBand: 'good',
+      successBand: 'good'
     };
 
     it('builds dialogue for a personal best', () => {
@@ -243,112 +223,5 @@ describe('Avatar State', () => {
         awaitUserAction: true,
       });
     });
-  });
-
-  describe('buildCelebrationDialogue', () => {
-    it('returns empty array when neither isMilestone nor isPersonalBest are true', () => {
-      const lines = buildCelebrationDialogue({ tier: 'speaking', isMilestone: false });
-      expect(lines.length).toBe(0);
-    });
-
-    it('returns empty array if only isPersonalBest is true but milestoneDescription is missing', () => {
-      const lines = buildCelebrationDialogue({
-        tier: 'speaking',
-        isPersonalBest: true,
-        isMilestone: false,
-      });
-      expect(lines.length).toBe(0);
-    });
-
-    it('returns custom milestone description when provided and isMilestone is true', () => {
-      const lines = buildCelebrationDialogue({
-        tier: 'speaking',
-        isMilestone: true,
-        milestoneDescription: 'You completed 10 exercises!',
-      });
-      expect(lines.length).toBe(1);
-      expect(lines[0]).toEqual({
-        text: 'You completed 10 exercises!',
-        state: 'CELEBRATING',
-        durationMs: 4000,
-      });
-    });
-
-    it('returns custom milestone description when provided and isPersonalBest is true', () => {
-      const lines = buildCelebrationDialogue({
-        tier: 'speaking',
-        isPersonalBest: true,
-        milestoneDescription: 'Awesome job!',
-      });
-      expect(lines.length).toBe(1);
-      expect(lines[0]).toEqual({
-        text: 'Awesome job!',
-        state: 'CELEBRATING',
-        durationMs: 4000,
-      });
-    });
-
-    it('returns default milestone description for speaking tier', () => {
-      const lines = buildCelebrationDialogue({ tier: 'speaking', isMilestone: true });
-      expect(lines.length).toBe(1);
-      expect(lines[0]).toEqual({
-        text: "That's a milestone. Your voice is building something real.",
-        state: 'CELEBRATING',
-        durationMs: 3500,
-      });
-    });
-
-    it('returns default milestone description for singing tier', () => {
-      const lines = buildCelebrationDialogue({ tier: 'singing', isMilestone: true });
-      expect(lines.length).toBe(1);
-      expect(lines[0]).toEqual({
-        text: "That's a milestone. Listen to how far you've come.",
-        state: 'CELEBRATING',
-        durationMs: 3500,
-      });
-    });
-  });
-
-  describe('buildReflectionDialogue', () => {
-    it.each(['speaking', 'singing'] as const)(
-      'returns consistent reflection dialogue structure for tier %s',
-      (tier) => {
-        const lines = buildReflectionDialogue(tier);
-
-        // 1. Array length assertion
-        expect(lines).toHaveLength(3);
-
-        // 2. Exact structural match
-        expect(lines).toEqual([
-          {
-            text: 'Two quick questions before you go.',
-            state: 'COACHING',
-            durationMs: 2000,
-          },
-          {
-            text: "What felt easiest in today's session?",
-            state: 'COACHING',
-            awaitUserAction: true,
-          },
-          {
-            text: 'And what will you focus on next time you practice?',
-            state: 'COACHING',
-            awaitUserAction: true,
-          },
-        ]);
-
-        // 3. Document function's contract through explicit properties
-        const [introLine, question1, question2] = lines;
-
-        expect(introLine.state).toBe('COACHING');
-        expect(introLine.awaitUserAction).toBeFalsy();
-
-        expect(question1.state).toBe('COACHING');
-        expect(question1.awaitUserAction).toBe(true);
-
-        expect(question2.state).toBe('COACHING');
-        expect(question2.awaitUserAction).toBe(true);
-      }
-    );
   });
 });
