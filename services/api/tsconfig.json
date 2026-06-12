@@ -11,19 +11,17 @@
     "declaration": false,
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*"
+  ],
   "references": [
-    {
-      "path": "../../packages/shared-types"
-    },
-    {
-      "path": "../../packages/audio-metrics"
-    },
-    {
-      "path": "../../packages/exercise-engine"
-    }
+    { "path": "../../packages/shared-types" },
+    { "path": "../../packages/audio-metrics" },
+    { "path": "../../packages/exercise-engine" }
   ],
   "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts", "src/**/__tests__/**", "dist", "node_modules"]
 }
