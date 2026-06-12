@@ -27,4 +27,4 @@ COPY . .
 
 # Default: FastAPI process
 # Override CMD in render.yaml for worker process
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
