@@ -6,7 +6,10 @@ import AppNavigator from './src/navigation/AppNavigator';
 import * as Sentry from '@sentry/react-native';
 
 Sentry.init({
-  dsn: 'https://fe68662341268013a48f2f99eda677ba@o4509629278519296.ingest.us.sentry.io/4511355776729088',
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+
+  // Adds more context data to events (IP address, cookies, user, etc.)
+  // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
   sendDefaultPii: false,
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1,

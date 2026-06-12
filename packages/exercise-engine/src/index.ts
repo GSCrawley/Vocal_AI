@@ -103,7 +103,7 @@ export function completeAttempt(plan: SessionPlan, attemptId: string, now: numbe
 
   const updatedAttempts = [...plan.attempts];
   const attempt = updatedAttempts[attemptIndex];
-  
+
   if (attempt.status !== 'in_progress') {
     throw new Error(`Attempt ${attemptId} is not in progress`);
   }

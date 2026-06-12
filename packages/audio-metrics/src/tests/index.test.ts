@@ -1,4 +1,4 @@
-import { 
+import {
   centsToHz,
   scoreSustainedNote,
   micCheck

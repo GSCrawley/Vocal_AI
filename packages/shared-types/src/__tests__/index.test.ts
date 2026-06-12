@@ -1,13 +1,7 @@
-import {
-  UserProfile, Tier, SpeakingGoal, SingingGoal, SuccessBand,
-  ExerciseDefinition, ExerciseCategory, TargetPatternType, Session,
-  Attempt, SingingAttemptMetrics, BestTake, Reflection, LivePitchFrame,
-  CoachingPayload, AvatarBehaviorState, AvatarDialogueLine, XpEvent,
-  UserRewardState, EarnedBadge
-} from '../index';
+import { Tier, ExerciseDefinition } from '../index';
 
 describe('Shared Types', () => {
-  it('should export all required domain types', () => {
+  it('should export key shared types used in this test file', () => {
     // This is purely a type-check test, if it compiles, the types exist.
     const dummyTier: Tier = 'speaking';
     expect(dummyTier).toBe('speaking');

@@ -119,7 +119,7 @@ Supabase is recommended because:
 
 ### Audio processor (`services/audio-processor`)
 
-**Runtime**: Python (FastAPI)  
+**Runtime**: Python (FastAPI)
 **Reason**: Python has the best ecosystem for audio ML (Demucs, librosa, crepe, openai-whisper). This service is separate from the Node.js API and handles async jobs.
 
 - Demucs for vocal separation

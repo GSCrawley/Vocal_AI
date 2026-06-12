@@ -29,7 +29,7 @@ describe('exercise-engine', () => {
 
     it('supports sustained-note Build 0.1 happy path', () => {
       let state = initialSessionState;
-      
+
       const events: SessionEvent[] = [
         { type: 'LOAD' },
         { type: 'LOADED' },
@@ -102,13 +102,13 @@ describe('exercise-engine', () => {
 
       const now = Date.now();
       plan = startAttempt(plan, 'attempt-1', now);
-      
+
       expect(plan.attempts).toHaveLength(1);
       expect(plan.attempts[0].status).toBe('in_progress');
       expect(canAwardXp(plan)).toBe(false);
 
       plan = completeAttempt(plan, 'attempt-1', now + 5000);
-      
+
       expect(plan.attempts[0].status).toBe('completed');
       expect(canAwardXp(plan)).toBe(true);
     });
