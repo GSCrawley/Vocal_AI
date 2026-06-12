@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "main": "src/index.ts",
   "scripts": {
-    "build": "tsc -b tsconfig.json",
+    "build": "tsc",
     "typecheck": "tsc -b tsconfig.json",
     "test": "jest --passWithNoTests"
   },

@@ -24,26 +24,24 @@ VOICE's core value lives in real-time audio interaction on a mobile device. The 
 
 ### Recording and playback
 
-| Capability           | Library                  | Notes                                                                             |
-| -------------------- | ------------------------ | --------------------------------------------------------------------------------- |
-| Audio recording      | `expo-av`                | Handles permissions, session management, and file recording                       |
-| Raw PCM streaming    | `react-native-audio-api` | Provides access to Web Audio API–style processing; needed for live pitch tracking |
-| Playback             | `expo-av`                | Handles both recorded audio and reference tones                                   |
-| Audio session config | `expo-av` (iOS)          | Configures AVAudioSession for measurement mode                                    |
+| Capability | Library | Notes |
+|---|---|---|
+| Audio recording | `expo-av` | Handles permissions, session management, and file recording |
+| Raw PCM streaming | `react-native-audio-api` | Provides access to Web Audio API–style processing; needed for live pitch tracking |
+| Playback | `expo-av` | Handles both recorded audio and reference tones |
+| Audio session config | `expo-av` (iOS) | Configures AVAudioSession for measurement mode |
 
 ### Pitch detection (singing tier)
 
 **Algorithm: pYIN** (probabilistic YIN)
 
 pYIN is the recommended algorithm because:
-
 - YIN is a foundational F0 estimator with strong accuracy across vocal frequency ranges
 - pYIN adds probabilistic candidates and Hidden Markov Model smoothing for more stable real-time tracking
 - It handles voiced/unvoiced transitions gracefully, which is critical for singing feedback
 - The algorithm is implementable in JavaScript (pitchy library uses YIN-family approach) or as a WebAssembly module compiled from C
 
 **Implementation path**:
-
 1. MVP: Use `pitchy` (JS YIN implementation) — fast enough for ~50ms frame updates
 2. Phase 2: Compile pYIN to WASM for better latency and accuracy under load
 3. Cents conversion: `cents = 1200 * log2(frequency / referenceFrequency)` where A4 = 440Hz
@@ -54,16 +52,16 @@ pYIN is the recommended algorithm because:
 
 Speaking metrics require a different set of algorithms from singing:
 
-| Metric                      | Algorithm                                              | Implementation                                   |
-| --------------------------- | ------------------------------------------------------ | ------------------------------------------------ |
-| Fundamental frequency (F0)  | pYIN (speech range: 85–255Hz)                          | Same pitch detector, different range params      |
-| Pitch variability / prosody | Rolling std dev of F0; intonation slope analysis       | Custom DSP                                       |
-| Speaking rate (WPM)         | Voice Activity Detection (VAD) + word count estimation | Silero VAD (WASM)                                |
-| Pause detection             | VAD + silence segmentation                             | Silero VAD                                       |
-| Intensity / dynamics        | RMS energy envelope                                    | Custom DSP                                       |
-| Harmonics-to-Noise Ratio    | Autocorrelation method                                 | Custom DSP                                       |
-| Filler word detection       | On-device ASR                                          | Whisper.cpp (tiny model, WASM) or cloud fallback |
-| Resonance / spectral tilt   | LPC spectral envelope analysis                         | Phase 2                                          |
+| Metric | Algorithm | Implementation |
+|---|---|---|
+| Fundamental frequency (F0) | pYIN (speech range: 85–255Hz) | Same pitch detector, different range params |
+| Pitch variability / prosody | Rolling std dev of F0; intonation slope analysis | Custom DSP |
+| Speaking rate (WPM) | Voice Activity Detection (VAD) + word count estimation | Silero VAD (WASM) |
+| Pause detection | VAD + silence segmentation | Silero VAD |
+| Intensity / dynamics | RMS energy envelope | Custom DSP |
+| Harmonics-to-Noise Ratio | Autocorrelation method | Custom DSP |
+| Filler word detection | On-device ASR | Whisper.cpp (tiny model, WASM) or cloud fallback |
+| Resonance / spectral tilt | LPC spectral envelope analysis | Phase 2 |
 
 **Filler word detection note**: On-device Whisper (tiny model) is ~39MB and runs at roughly real-time on modern mobile hardware. For MVP, a simpler approach is to use a cloud ASR endpoint (Deepgram or similar) post-recording for filler analysis, then display results on the result screen. Real-time filler detection is a Phase 2 goal.
 
@@ -81,7 +79,6 @@ Vocal separation is a server-side operation. On-device models are not yet reliab
 - Typical processing time: 2–5× real-time on CPU; near-real-time on GPU
 
 **Pipeline**:
-
 1. User selects a song in the app
 2. App sends song title / artist to the API
 3. API resolves the song via a licensed audio source or YouTube audio (per legal review)
@@ -115,7 +112,6 @@ Vocal separation is a server-side operation. On-device models are not yet reliab
 **Database**: Supabase (PostgreSQL + Auth + Storage + Realtime)
 
 Supabase is recommended because:
-
 - Managed Postgres with row-level security — right model for per-user training data
 - Built-in auth (email, Google, Apple Sign-In) — critical for mobile
 - Storage for audio files (best takes, processed instrumentals)
@@ -123,14 +119,12 @@ Supabase is recommended because:
 
 ### Audio processor (`services/audio-processor`)
 
-**Runtime**: Python (FastAPI + RQ)
-**Reason**: Python has the best ecosystem for audio ML (Demucs, librosa, crepe, openai-whisper, parselmouth). This service is separate from the Node.js API and handles async jobs.
+**Runtime**: Python (FastAPI)
+**Reason**: Python has the best ecosystem for audio ML (Demucs, librosa, crepe, openai-whisper). This service is separate from the Node.js API and handles async jobs.
 
 - Demucs for vocal separation
-- pYIN (librosa) for default reference vocal pitch extraction
-- Crepe (opt-in) for higher accuracy pitch extraction
-- parselmouth (Praat bindings) for voice quality (HNR, CPP, jitter, shimmer)
-- Whisper for filler word analysis
+- Crepe or pYIN (Python) for reference vocal pitch extraction
+- Whisper for filler word analysis (batch mode)
 - Jobs queued via Redis (BullMQ compatible pattern from Node side)
 
 ### Analytics worker (`services/analytics-worker`)
@@ -161,7 +155,6 @@ Streak reminders, milestone celebrations, personalized practice suggestions. Int
 **pnpm** with workspaces (already configured in root `package.json` and `pnpm-workspace.yaml`).
 
 Benefits for this monorepo:
-
 - Single `node_modules` with symlinked packages — much faster installs
 - Strict dependency isolation prevents accidental cross-package imports
 - `--filter` flag for running commands in specific packages or apps
