@@ -38,6 +38,7 @@ describe('scoreProsody', () => {
   });
 
   it('handles somewhat expressive speech (20 <= F0 < 40Hz)', () => {
+    expect(scoreProsody(20, 0)).toBe(65);
     expect(scoreProsody(30, 0)).toBe(65);
   });
 
