@@ -33,6 +33,7 @@ describe('scoreProsody', () => {
   });
 
   it('handles slightly monotone speech (10 <= F0 < 20Hz)', () => {
+    expect(scoreProsody(10, 0)).toBe(40);
     expect(scoreProsody(15, 0)).toBe(40);
   });
 
