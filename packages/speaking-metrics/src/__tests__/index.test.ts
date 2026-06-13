@@ -73,7 +73,11 @@ describe('scoreProsody', () => {
 });
 
 describe('mapSpeakingScoreToCoaching', () => {
-  // We'll import it here, since it might not be imported at the top of the file yet
+  let mapSpeakingScoreToCoaching!: typeof import('../index').mapSpeakingScoreToCoaching;
+
+  beforeAll(async () => {
+    ({ mapSpeakingScoreToCoaching } = await import('../index'));
+  });
   const mockAnalysis = {
     wpm: 150,
     articulationRateWpm: 150,
