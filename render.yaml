@@ -188,3 +188,47 @@ services:
         sync: false
       - key: NODE_OPTIONS
         value: "--max-old-space-size=400"
+
+  - type: web
+    name: voice-audio-processor
+    region: oregon
+    runtime: docker
+    plan: pro
+    dockerfilePath: services/audio-processor/python/Dockerfile
+    dockerContext: services/audio-processor/python
+    healthCheckPath: /healthz
+    autoDeployTrigger: checksPass
+    buildFilter:
+      paths:
+        - services/audio-processor/python/**
+    envVars:
+      - fromGroup: voice-shared-env
+      - fromGroup: voice-secrets
+      - key: PORT
+        value: "8000"
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: voice-redis
+          property: connectionString
+
+  - type: worker
+    name: voice-audio-worker
+    region: oregon
+    runtime: docker
+    plan: pro
+    dockerfilePath: services/audio-processor/python/Dockerfile
+    dockerContext: services/audio-processor/python
+    dockerCommand: python -m app.worker
+    autoDeployTrigger: checksPass
+    buildFilter:
+      paths:
+        - services/audio-processor/python/**
+    envVars:
+      - fromGroup: voice-shared-env
+      - fromGroup: voice-secrets
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: voice-redis
+          property: connectionString
