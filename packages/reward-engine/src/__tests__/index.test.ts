@@ -47,7 +47,7 @@ describe('getLevelForXp', () => {
 
 describe('getXpToNextLevel', () => {
   it('returns XP remaining to next level', () => {
-    expect(getXpToNextLevel(0)).toBe(100); // Level 1 → 2 at 100
+    expect(getXpToNextLevel(0)).toBe(100);   // Level 1 → 2 at 100
     expect(getXpToNextLevel(100)).toBe(150); // Level 2 → 3 at 250
   });
 
@@ -80,28 +80,28 @@ describe('buildXpEvent', () => {
 describe('computeSessionXp', () => {
   it('always includes session_complete XP', () => {
     const { events, total } = computeSessionXp('developing', false, false, false);
-    expect(events.some((e) => e.source === 'session_complete')).toBe(true);
+    expect(events.some(e => e.source === 'session_complete')).toBe(true);
     expect(total).toBeGreaterThanOrEqual(10);
   });
 
   it('adds bonus XP for excellent score', () => {
     const { events } = computeSessionXp('excellent', false, false, false);
-    expect(events.some((e) => e.source === 'score_excellent')).toBe(true);
+    expect(events.some(e => e.source === 'score_excellent')).toBe(true);
   });
 
   it('adds bonus XP for personal best', () => {
     const { events } = computeSessionXp('good', true, false, false);
-    expect(events.some((e) => e.source === 'personal_best')).toBe(true);
+    expect(events.some(e => e.source === 'personal_best')).toBe(true);
   });
 
   it('adds reflection XP when completed', () => {
     const { events } = computeSessionXp('good', false, false, true);
-    expect(events.some((e) => e.source === 'reflection_complete')).toBe(true);
+    expect(events.some(e => e.source === 'reflection_complete')).toBe(true);
   });
 
   it('adds new exercise type XP', () => {
     const { events } = computeSessionXp('developing', false, true, false);
-    expect(events.some((e) => e.source === 'new_exercise_type')).toBe(true);
+    expect(events.some(e => e.source === 'new_exercise_type')).toBe(true);
   });
 });
 
@@ -176,30 +176,30 @@ describe('evaluateBadges', () => {
 
   it('awards first_note on first singing session', () => {
     const badges = evaluateBadges(baseInput, []);
-    expect(badges.some((b) => b.badgeId === 'first_note')).toBe(true);
+    expect(badges.some(b => b.badgeId === 'first_note')).toBe(true);
   });
 
   it('awards steady when stability score >= 80', () => {
     const input: BadgeCheckInput = { ...baseInput, topScoreByExercise: { stability: 85 } };
     const badges = evaluateBadges(input, []);
-    expect(badges.some((b) => b.badgeId === 'steady')).toBe(true);
+    expect(badges.some(b => b.badgeId === 'steady')).toBe(true);
   });
 
   it('awards in_tune when any exercise score >= 80', () => {
     const input: BadgeCheckInput = { ...baseInput, topScoreByExercise: { pitch: 82 } };
     const badges = evaluateBadges(input, []);
-    expect(badges.some((b) => b.badgeId === 'in_tune')).toBe(true);
+    expect(badges.some(b => b.badgeId === 'in_tune')).toBe(true);
   });
 
   it('does not re-award already earned badges', () => {
     const badges = evaluateBadges(baseInput, ['first_note']);
-    expect(badges.some((b) => b.badgeId === 'first_note')).toBe(false);
+    expect(badges.some(b => b.badgeId === 'first_note')).toBe(false);
   });
 
   it('awards both_voices when both tiers have been used', () => {
     const input: BadgeCheckInput = { ...baseInput, bothTiersUsed: true };
     const badges = evaluateBadges(input, []);
-    expect(badges.some((b) => b.badgeId === 'both_voices')).toBe(true);
+    expect(badges.some(b => b.badgeId === 'both_voices')).toBe(true);
   });
 });
 
