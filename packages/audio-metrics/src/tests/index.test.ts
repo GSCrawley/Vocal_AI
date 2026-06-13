@@ -1,4 +1,4 @@
-import { centsToHz, scoreSustainedNote, micCheck } from '../index';
+import { centsToHz, scoreSustainedNote, micCheck, scoreStability } from '../index';
 import { LivePitchFrame } from '@voice/shared-types';
 
 describe('audio-metrics', () => {
@@ -34,6 +34,57 @@ describe('audio-metrics', () => {
       const frames = [createFrame(0)];
       const result = micCheck(frames, [-10, -20]);
       expect(result.ok).toBe(true);
+    });
+  });
+
+  describe('scoreStability', () => {
+    it('returns 0 when fewer than 2 valid frames are provided', () => {
+      // 0 valid frames
+      expect(scoreStability([])).toBe(0);
+      // 1 valid frame
+      expect(scoreStability([createFrame(0, { centsFromTarget: 0 })])).toBe(0);
+    });
+
+    it('ignores unvoiced or low confidence frames', () => {
+      const frames = [
+        createFrame(0, { centsFromTarget: 0 }),
+        createFrame(0, { centsFromTarget: 0, voiced: false }),
+        createFrame(0, { centsFromTarget: 0, confidence: 0.4 }),
+      ];
+      // Only 1 valid frame remains, so returns 0
+      expect(scoreStability(frames)).toBe(0);
+    });
+
+    it('scores 100 for perfect stability (zero variance)', () => {
+      const frames = [
+        createFrame(0, { centsFromTarget: 10 }),
+        createFrame(0, { centsFromTarget: 10 }),
+        createFrame(0, { centsFromTarget: 10 }),
+      ];
+      expect(scoreStability(frames)).toBe(100);
+    });
+
+    it('returns higher score for low variance compared to high variance', () => {
+      const lowVarianceFrames = [
+        createFrame(0, { centsFromTarget: 0 }),
+        createFrame(0, { centsFromTarget: 5 }),
+        createFrame(0, { centsFromTarget: -5 }),
+        createFrame(0, { centsFromTarget: 0 }),
+      ];
+
+      const highVarianceFrames = [
+        createFrame(0, { centsFromTarget: 0 }),
+        createFrame(0, { centsFromTarget: 30 }),
+        createFrame(0, { centsFromTarget: -30 }),
+        createFrame(0, { centsFromTarget: 0 }),
+      ];
+
+      const lowScore = scoreStability(lowVarianceFrames);
+      const highScore = scoreStability(highVarianceFrames);
+
+      expect(lowScore).toBeGreaterThan(highScore);
+      expect(lowScore).toBeGreaterThan(50);
+      expect(highScore).toBeLessThan(100);
     });
   });
 
