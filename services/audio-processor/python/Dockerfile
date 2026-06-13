@@ -27,4 +27,4 @@ COPY . .
 
 # Default: FastAPI process
 # Override CMD in render.yaml for worker process
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", "port=\"${PORT:-8000}\"; case \"$port\" in (''|*[!0-9]*) printf 'Invalid PORT: %s\n' \"$port\" >&2; exit 1;; esac; exec uvicorn app.main:app --host 0.0.0.0 --port \"$port\""]
