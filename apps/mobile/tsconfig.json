@@ -20,10 +20,8 @@
       "@voice/karaoke-engine": ["packages/karaoke-engine/src"],
       "@voice/reward-engine": ["packages/reward-engine/src"],
       "@voice/speaking-metrics": ["packages/speaking-metrics/src"]
-    }
+    },
+    "types": []
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
-  ]
+  "include": ["**/*.ts", "**/*.tsx"]
 }

@@ -3,9 +3,8 @@
   "compilerOptions": {
     "outDir": "./dist",
     "declaration": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "types": []
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }

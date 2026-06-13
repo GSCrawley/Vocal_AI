@@ -1,0 +1,10 @@
+node_modules
+dist
+build
+.next
+coverage
+pnpm-lock.yaml
+services/audio-processor/**
+*.pdf
+.DS_Store
+*.d.ts

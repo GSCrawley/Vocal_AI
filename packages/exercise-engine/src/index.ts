@@ -1,6 +1,6 @@
-export { type SessionState, SessionEvent, initialSessionState } from '@voice/shared-types';
+export { initialSessionState } from '@voice/shared-types';
+export type { SessionState, SessionEvent } from '@voice/shared-types';
 import { SessionState, ExerciseDefinition, Tier, SessionEvent } from '@voice/shared-types';
-
 
 export interface Attempt {
   attemptId: string;
@@ -66,13 +66,17 @@ export function transition(state: SessionState, event: SessionEvent): SessionSta
   throw new Error(`Invalid transition: state ${state}, event ${event.type}`);
 }
 
-export function buildSessionPlan(params: { sessionId: string; tier: Tier; exercises: ExerciseDefinition[] }): SessionPlan {
+export function buildSessionPlan(params: {
+  sessionId: string;
+  tier: Tier;
+  exercises: ExerciseDefinition[];
+}): SessionPlan {
   return {
     sessionId: params.sessionId,
     tier: params.tier,
-    exerciseIds: params.exercises.map(e => e.exerciseId),
+    exerciseIds: params.exercises.map((e) => e.exerciseId),
     currentIndex: 0,
-    attempts: []
+    attempts: [],
   };
 }
 
@@ -86,40 +90,40 @@ export function startAttempt(plan: SessionPlan, attemptId: string, now: number):
     attemptId,
     exerciseId: currentExerciseId,
     startedAt: now,
-    status: 'in_progress'
+    status: 'in_progress',
   };
 
   return {
     ...plan,
-    attempts: [...plan.attempts, newAttempt]
+    attempts: [...plan.attempts, newAttempt],
   };
 }
 
 export function completeAttempt(plan: SessionPlan, attemptId: string, now: number): SessionPlan {
-  const attemptIndex = plan.attempts.findIndex(a => a.attemptId === attemptId);
+  const attemptIndex = plan.attempts.findIndex((a) => a.attemptId === attemptId);
   if (attemptIndex === -1) {
     throw new Error(`Attempt ${attemptId} not found`);
   }
 
-  const updatedAttempts = [...plan.attempts];
-  const attempt = updatedAttempts[attemptIndex];
+  const attempt = plan.attempts[attemptIndex];
 
   if (attempt.status !== 'in_progress') {
     throw new Error(`Attempt ${attemptId} is not in progress`);
   }
 
+  const updatedAttempts = [...plan.attempts];
   updatedAttempts[attemptIndex] = {
     ...attempt,
     endedAt: now,
-    status: 'completed'
+    status: 'completed',
   };
 
   return {
     ...plan,
-    attempts: updatedAttempts
+    attempts: updatedAttempts,
   };
 }
 
 export function canAwardXp(plan: SessionPlan): boolean {
-  return plan.attempts.some(a => a.status === 'completed');
+  return plan.attempts.some((a) => a.status === 'completed');
 }
