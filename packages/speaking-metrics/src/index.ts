@@ -197,8 +197,8 @@ export function mapSpeakingScoreToCoaching(
 
   return {
     praiseMessage: band === 'excellent' ? 'Really strong.' : band === 'good' ? 'Good work.' : band === 'developing' ? 'Getting there.' : 'You got through it.',
-    correctionMessage: corrections[primaryGoal](),
-    actionTip: actionTips[primaryGoal][band],
+    correctionMessage: corrections[primaryGoal]?.() ?? 'Keep practicing and focusing on your goals.',
+    actionTip: actionTips[primaryGoal]?.[band] ?? 'Keep going.',
     successBand: band,
   };
 }
