@@ -3,6 +3,7 @@ import {
   scorePace,
   computeSpeakingScore,
   scoreProjection,
+  mapSpeakingScoreToCoaching,
 } from '../index';
 
 describe('generateSpeakingFeedback', () => {
@@ -258,5 +259,262 @@ describe('scoreProjection', () => {
 
     // Infinity variance -> bonus capped at 10. levelScore = 80 (-20 dB) + 10 = 90
     expect(scoreProjection(-20, Number.POSITIVE_INFINITY)).toBe(90);
+  });
+});
+
+describe('mapSpeakingScoreToCoaching', () => {
+  // We'll import it here, since it might not be imported at the top of the file yet
+  const mockAnalysis = {
+    wpm: 150,
+    articulationRateWpm: 150,
+    meanF0Hz: 120,
+    f0RangeHz: 30,
+    uptalkRatio: 0.2,
+    pauseCount: 5,
+    meanPauseDurationMs: 500,
+    meanRmsDb: -20,
+    rmsVarianceDb: 5,
+    fillerEvents: [],
+    fillerRate: 0,
+  };
+
+  const mockScore = {
+    pace: 85,
+    prosody: 85,
+    projection: 85,
+    fillerRate: 85,
+    overall: 85, // 'excellent' band
+  };
+
+  describe('praiseMessage generation', () => {
+    it('returns "Really strong." for excellent band (score >= 85)', () => {
+      const result = mapSpeakingScoreToCoaching(
+        { ...mockScore, overall: 85 },
+        'pace',
+        mockAnalysis
+      );
+      expect(result.praiseMessage).toBe('Really strong.');
+    });
+
+    it('returns "Good work." for good band (70 <= score < 85)', () => {
+      const result = mapSpeakingScoreToCoaching(
+        { ...mockScore, overall: 75 },
+        'pace',
+        mockAnalysis
+      );
+      expect(result.praiseMessage).toBe('Good work.');
+    });
+
+    it('returns "Getting there." for developing band (50 <= score < 70)', () => {
+      const result = mapSpeakingScoreToCoaching(
+        { ...mockScore, overall: 60 },
+        'pace',
+        mockAnalysis
+      );
+      expect(result.praiseMessage).toBe('Getting there.');
+    });
+
+    it('returns "You got through it." for retry band (score < 50)', () => {
+      const result = mapSpeakingScoreToCoaching(
+        { ...mockScore, overall: 40 },
+        'pace',
+        mockAnalysis
+      );
+      expect(result.praiseMessage).toBe('You got through it.');
+    });
+  });
+
+  describe('correctionMessage generation by primaryGoal', () => {
+    describe('pace', () => {
+      it('gives slow down advice if pace is low and wpm is high', () => {
+        const result = mapSpeakingScoreToCoaching({ ...mockScore, pace: 60 }, 'pace', {
+          ...mockAnalysis,
+          wpm: 170,
+        });
+        expect(result.correctionMessage).toBe(
+          'You came in too fast. Slow down and trust the pauses.'
+        );
+      });
+
+      it('gives speed up advice if pace is low and wpm is low', () => {
+        const result = mapSpeakingScoreToCoaching({ ...mockScore, pace: 60 }, 'pace', {
+          ...mockAnalysis,
+          wpm: 140,
+        });
+        expect(result.correctionMessage).toBe(
+          'You came in too slow. Aim for a more natural, conversational pace.'
+        );
+      });
+
+      it('gives good pace advice if pace is high', () => {
+        const result = mapSpeakingScoreToCoaching({ ...mockScore, pace: 80 }, 'pace', mockAnalysis);
+        expect(result.correctionMessage).toBe('Good pace — keep that rhythm going.');
+      });
+    });
+
+    describe('prosody', () => {
+      it('gives uptalk advice if uptalkRatio is > 0.4', () => {
+        const result = mapSpeakingScoreToCoaching(mockScore, 'prosody', {
+          ...mockAnalysis,
+          uptalkRatio: 0.5,
+        });
+        expect(result.correctionMessage).toBe(
+          'Your sentences are ending like questions. Bring the pitch down at the end of each statement.'
+        );
+      });
+
+      it('gives flat voice advice if f0RangeHz is < 20', () => {
+        const result = mapSpeakingScoreToCoaching(mockScore, 'prosody', {
+          ...mockAnalysis,
+          uptalkRatio: 0.2,
+          f0RangeHz: 15,
+        });
+        expect(result.correctionMessage).toBe(
+          'Your voice stayed very flat — vary your pitch more to keep listeners engaged.'
+        );
+      });
+
+      it('gives good expressiveness advice if prosody is good', () => {
+        const result = mapSpeakingScoreToCoaching(mockScore, 'prosody', {
+          ...mockAnalysis,
+          uptalkRatio: 0.2,
+          f0RangeHz: 30,
+        });
+        expect(result.correctionMessage).toBe(
+          'Good expressiveness — your pitch was varied and engaging.'
+        );
+      });
+    });
+
+    describe('projection', () => {
+      it('gives quiet advice if projection is low and meanRmsDb < -25', () => {
+        const result = mapSpeakingScoreToCoaching({ ...mockScore, projection: 60 }, 'projection', {
+          ...mockAnalysis,
+          meanRmsDb: -30,
+        });
+        expect(result.correctionMessage).toBe(
+          'Your voice was too quiet — project from the chest, not just the throat.'
+        );
+      });
+
+      it('gives vary dynamics advice if projection is low but not too quiet', () => {
+        const result = mapSpeakingScoreToCoaching({ ...mockScore, projection: 60 }, 'projection', {
+          ...mockAnalysis,
+          meanRmsDb: -20,
+        });
+        expect(result.correctionMessage).toBe(
+          'Good volume. Work on varying dynamics for emphasis.'
+        );
+      });
+
+      it('gives strong projection advice if projection is good', () => {
+        const result = mapSpeakingScoreToCoaching(
+          { ...mockScore, projection: 80 },
+          'projection',
+          mockAnalysis
+        );
+        expect(result.correctionMessage).toBe('Strong projection — it carried well.');
+      });
+    });
+
+    describe('filler_reduction', () => {
+      it('gives high filler advice if fillerRate > 4', () => {
+        const result = mapSpeakingScoreToCoaching(mockScore, 'filler_reduction', {
+          ...mockAnalysis,
+          fillerRate: 5,
+        });
+        expect(result.correctionMessage).toContain('replace every "um" with a silent pause.');
+      });
+
+      it('gives medium filler advice if fillerRate > 2 but <= 4', () => {
+        const result = mapSpeakingScoreToCoaching(mockScore, 'filler_reduction', {
+          ...mockAnalysis,
+          fillerRate: 3,
+        });
+        expect(result.correctionMessage).toContain('A few fillers slipped in.');
+      });
+
+      it('gives good filler advice if fillerRate <= 2', () => {
+        const result = mapSpeakingScoreToCoaching(mockScore, 'filler_reduction', {
+          ...mockAnalysis,
+          fillerRate: 1,
+        });
+        expect(result.correctionMessage).toBe('Almost filler-free — well done.');
+      });
+    });
+
+    describe('authority', () => {
+      it('gives uptalk advice if uptalkRatio > 0.5', () => {
+        const result = mapSpeakingScoreToCoaching(mockScore, 'authority', {
+          ...mockAnalysis,
+          uptalkRatio: 0.6,
+        });
+        expect(result.correctionMessage).toContain('Too much uptalk.');
+      });
+
+      it('gives good authority advice if uptalkRatio <= 0.5', () => {
+        const result = mapSpeakingScoreToCoaching(mockScore, 'authority', {
+          ...mockAnalysis,
+          uptalkRatio: 0.3,
+        });
+        expect(result.correctionMessage).toBe(
+          'Authority markers were good — confident, direct delivery.'
+        );
+      });
+    });
+
+    describe('static corrections', () => {
+      it('returns correct static string for resonance', () => {
+        const result = mapSpeakingScoreToCoaching(mockScore, 'resonance', mockAnalysis);
+        expect(result.correctionMessage).toBe(
+          'Focus on feeling the vibration in your chest as you speak. Think "low and forward," not "high and back."'
+        );
+      });
+
+      it('returns correct static string for articulation', () => {
+        const result = mapSpeakingScoreToCoaching(mockScore, 'articulation', mockAnalysis);
+        expect(result.correctionMessage).toBe(
+          'Consonants were clear. Keep opening your mouth fully — clarity comes from space, not force.'
+        );
+      });
+
+      it('returns correct static string for breath_support', () => {
+        const result = mapSpeakingScoreToCoaching(mockScore, 'breath_support', mockAnalysis);
+        expect(result.correctionMessage).toBe(
+          "Keep the breath flowing through to the end of each sentence. Don't run out of air before the period."
+        );
+      });
+    });
+  });
+
+  describe('actionTip generation', () => {
+    it('returns appropriate tip for a given goal and band', () => {
+      const result = mapSpeakingScoreToCoaching(
+        { ...mockScore, overall: 40 },
+        'pace',
+        mockAnalysis
+      );
+      // retry band, pace goal
+      expect(result.actionTip).toBe('Read just one paragraph. Very slowly.');
+    });
+
+    it('returns appropriate tip for another goal and band combination', () => {
+      const result = mapSpeakingScoreToCoaching(
+        { ...mockScore, overall: 75 },
+        'prosody',
+        mockAnalysis
+      );
+      // good band, prosody goal
+      expect(result.actionTip).toBe('Try emphasizing the key word in each sentence.');
+    });
+  });
+
+  describe('edge cases and unexpected inputs', () => {
+    it('handles unexpected goal gracefully', () => {
+      // By bypassing type checking, simulate what happens if a new or invalid goal is passed
+      const result = mapSpeakingScoreToCoaching(mockScore, 'unknown_goal' as any, mockAnalysis);
+      expect(result.correctionMessage).toBe('Keep practicing and focusing on your goals.');
+      expect(result.actionTip).toBe('Keep going.');
+    });
   });
 });

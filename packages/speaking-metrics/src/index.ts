@@ -283,8 +283,10 @@ export function mapSpeakingScoreToCoaching(
           : band === 'developing'
             ? 'Getting there.'
             : 'You got through it.',
-    correctionMessage: corrections[primaryGoal](),
-    actionTip: actionTips[primaryGoal][band],
+    correctionMessage: corrections[primaryGoal]
+      ? corrections[primaryGoal]()
+      : 'Keep practicing and focusing on your goals.',
+    actionTip: actionTips[primaryGoal] ? actionTips[primaryGoal][band] : 'Keep going.',
     successBand: band,
   };
 }
