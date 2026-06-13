@@ -1,25 +1,51 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import { colors } from '@voice/ui-tokens';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/AppNavigator';
+import { useRecording } from '../hooks/useRecording';
+import { usePitchAnalysis } from '../hooks/usePitchAnalysis';
+import { BUILD_01_EXERCISE } from '../constants/exercise';
 
-interface MicCheckScreenProps {
-  onComplete: () => void;
-  onBack: () => void;
-}
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'MicCheck'>;
 
-export function MicCheckScreen({ onComplete, onBack }: MicCheckScreenProps) {
+export default function MicCheckScreen() {
+  const navigation = useNavigation<NavigationProp>();
+  const { startRecording, stopRecording, isRecording } = useRecording();
+  const { analyzeRecording } = usePitchAnalysis();
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const runCheck = async () => {
+    setErrorMsg(null);
+    await startRecording();
+
+    // Record for 2 seconds
+    setTimeout(async () => {
+      const { uri, frames } = await stopRecording();
+      const result = await analyzeRecording(uri, frames, BUILD_01_EXERCISE);
+
+      if (result.ok) {
+        navigation.navigate('ExerciseIntro');
+      } else {
+        setErrorMsg(`Mic check failed: ${result.reason || 'Unknown error'}. Please try again.`);
+      }
+    }, 2000);
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Mic Check</Text>
-      <Text style={styles.subtitle}>
-        Say "ah" at a comfortable volume for two seconds. If your room is quiet and the mic signal
-        is clear, continue.
-      </Text>
-      <View style={styles.buttonRow}>
-        <Button title="Back" onPress={onBack} color={colors.muted} />
-        <Button title="Mic Check Passed" onPress={onComplete} color={colors.success} />
-      </View>
-      <Text style={styles.note}>Safety reminder: stop if your voice feels strained.</Text>
+      <Text style={styles.title}>Let's check your mic</Text>
+      <Text style={styles.body}>Say something for 2 seconds.</Text>
+
+      {errorMsg && <Text style={styles.error}>{errorMsg}</Text>}
+
+      <Button
+        color={colors.accent}
+        title={isRecording ? "Listening..." : "Start Mic Check"}
+        onPress={runCheck}
+        disabled={isRecording}
+      />
     </View>
   );
 }
@@ -27,33 +53,26 @@ export function MicCheckScreen({ onComplete, onBack }: MicCheckScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
     backgroundColor: colors.background,
+    justifyContent: 'center',
+    padding: 24,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
     color: colors.text,
-    marginBottom: 12,
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
   },
-  subtitle: {
-    fontSize: 16,
+  body: {
     color: colors.muted,
-    marginBottom: 24,
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  note: {
-    marginTop: 16,
-    color: colors.warning,
+    fontSize: 16,
+    marginBottom: 32,
     textAlign: 'center',
   },
-  buttonRow: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
+  error: {
+    color: colors.danger,
+    marginBottom: 16,
+    textAlign: 'center',
   },
 });

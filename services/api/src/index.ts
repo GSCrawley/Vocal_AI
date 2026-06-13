@@ -1,9 +1,13 @@
-import '../instrument.js';
-import Fastify, { FastifyRequest, FastifyReply } from 'fastify';
-import fastifyJwt from '@fastify/jwt';
-import { LivePitchFrame, SessionState, SessionEvent } from '@voice/shared-types';
-import { micCheck, scoreSustainedNote } from '@voice/audio-metrics';
-import { transition } from '@voice/exercise-engine';
+import "../instrument.js";
+import * as Sentry from "@sentry/node";
+import Fastify, { FastifyRequest, FastifyReply } from "fastify";
+import {
+  LivePitchFrame,
+  SessionState,
+  SessionEvent
+} from "@voice/shared-types";
+import { micCheck, scoreSustainedNote } from "@voice/audio-metrics";
+import { transition } from "@voice/exercise-engine";
 
 export const apiService = {
   service: 'api',
@@ -19,45 +23,24 @@ export const apiService = {
     'admin',
     'analytics-events',
     'audio-metrics',
-    'exercise-engine',
+    'exercise-engine'
   ],
 };
 
-export const app = Fastify({
-  logger: true,
+const fastify = Fastify({
+  logger: true
 });
 
-if (!process.env.JWT_SECRET && process.env.NODE_ENV !== 'test') {
-  app.log.error('JWT_SECRET environment variable is missing');
-  process.exit(1);
-}
-
-app.register(fastifyJwt, {
-  secret: process.env.JWT_SECRET || 'test-secret',
-});
-
-app.addHook('onRequest', async (request, reply) => {
-  const pathname = (request.raw.url ?? '').split('?')[0];
-  if (pathname === '/healthz' || pathname === '/') {
-    return;
-  }
-  try {
-    await request.jwtVerify();
-  } catch {
-    return reply.code(401).send({ error: 'Unauthorized' });
-  }
-});
-
-app.get('/healthz', async (_request: FastifyRequest, _reply: FastifyReply) => {
+fastify.get('/healthz', async () => {
   return { ok: true };
 });
 
-app.get('/', async (_request: FastifyRequest, _reply: FastifyReply) => {
+fastify.get('/', async () => {
   return { service: 'api', status: 'stub' };
 });
 
 // Placeholder route for processing audio with audio-metrics
-app.post(
+fastify.post(
   '/process-audio',
   {
     schema: {
@@ -67,37 +50,12 @@ app.post(
         properties: {
           frames: { type: 'array' },
           targetHz: { type: 'number' },
-          rmsDbFrames: { type: 'array', items: { type: 'number' } },
-        },
-      },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            score: {
-              type: 'object',
-              additionalProperties: true,
-              properties: {
-                overall: { type: 'number' },
-              },
-            },
-          },
-        },
-        400: {
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-          },
-        },
-      },
-    },
+          rmsDbFrames: { type: 'array', items: { type: 'number' } }
+        }
+      }
+    }
   },
-  async (
-    request: FastifyRequest<{
-      Body: { frames: LivePitchFrame[]; targetHz: number; rmsDbFrames: number[] };
-    }>,
-    reply: FastifyReply
-  ) => {
+  async (request: FastifyRequest<{ Body: { frames: LivePitchFrame[]; targetHz: number; rmsDbFrames: number[] } }>, reply: FastifyReply) => {
     const { frames, targetHz, rmsDbFrames } = request.body;
     const checkResult = micCheck(frames, rmsDbFrames);
     if (!checkResult.ok) {
@@ -109,7 +67,7 @@ app.post(
 );
 
 // Placeholder route for transitioning session state with exercise-engine
-app.post(
+fastify.post(
   '/transition-state',
   {
     schema: {
@@ -117,29 +75,13 @@ app.post(
         type: 'object',
         required: ['currentState', 'event'],
         properties: {
-          currentState: { type: 'string' },
-          event: {
-            type: 'object',
-            properties: {
-              type: { type: 'string' },
-            },
-          },
-        },
-      },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            nextState: { type: 'string' },
-          },
-        },
-      },
-    },
+          currentState: { type: 'object' },
+          event: { type: 'string' }
+        }
+      }
+    }
   },
-  async (
-    request: FastifyRequest<{ Body: { currentState: SessionState; event: SessionEvent } }>,
-    _reply: FastifyReply
-  ) => {
+  async (request: FastifyRequest<{ Body: { currentState: SessionState; event: SessionEvent } }>, reply: FastifyReply) => {
     const { currentState, event } = request.body;
     const nextState = transition(currentState, event);
     return { nextState };
@@ -149,14 +91,12 @@ app.post(
 const start = async () => {
   try {
     const port = parseInt(process.env.PORT || '10000', 10);
-    await app.listen({ port, host: '0.0.0.0' });
-    app.log.info(`voice-api listening on PORT ${port}`);
+    await fastify.listen({ port, host: '0.0.0.0' });
+    fastify.log.info({ port }, 'voice-api listening');
   } catch (err) {
-    app.log.error(err);
+    fastify.log.error(err);
     process.exit(1);
   }
 };
 
-if (process.env.NODE_ENV !== 'test') {
-  start();
-}
+start();

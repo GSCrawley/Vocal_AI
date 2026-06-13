@@ -3,8 +3,6 @@ node_modules
 dist
 .env
 *.tsbuildinfo
-.DS_Store
-venv/
-test-env/
-__pycache__/
-*.pyc
+
+repomix-output.md
+repomix-output.*

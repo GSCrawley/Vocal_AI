@@ -1,1 +1,1 @@
-console.log('Mock script');
+console.log("Mock script");

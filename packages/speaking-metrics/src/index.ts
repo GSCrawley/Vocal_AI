@@ -16,25 +16,21 @@ import type {
  * These inform the pace scoring function.
  */
 export const WPM_TARGETS: Record<string, { min: number; target: number; max: number }> = {
-  presentation: { min: 120, target: 145, max: 165 },
-  conversational: { min: 130, target: 155, max: 180 },
-  short_form: { min: 140, target: 165, max: 195 },
-  technical: { min: 100, target: 125, max: 145 },
-  interview: { min: 120, target: 140, max: 160 },
-};
-
-type SpeakingScoreWeights = {
-  pace: number;
-  prosody: number;
-  projection: number;
-  fillerRate: number;
+  presentation:    { min: 120, target: 145, max: 165 },
+  conversational:  { min: 130, target: 155, max: 180 },
+  short_form:      { min: 140, target: 165, max: 195 },
+  technical:       { min: 100, target: 125, max: 145 },
+  interview:       { min: 120, target: 140, max: 160 },
 };
 
 /**
  * Score pace based on measured WPM vs target range.
  * Full score at target; degrades gracefully outside the range.
  */
-export function scorePace(wpm: number, context: keyof typeof WPM_TARGETS = 'presentation'): number {
+export function scorePace(
+  wpm: number,
+  context: keyof typeof WPM_TARGETS = 'presentation'
+): number {
   const target = WPM_TARGETS[context];
   if (!target) return 50;
 
@@ -46,7 +42,9 @@ export function scorePace(wpm: number, context: keyof typeof WPM_TARGETS = 'pres
   }
 
   // Outside range — score degrades
-  const distanceFromRange = wpm < target.min ? target.min - wpm : wpm - target.max;
+  const distanceFromRange = wpm < target.min
+    ? target.min - wpm
+    : wpm - target.max;
   return Math.max(0, Math.round(70 - distanceFromRange * 2));
 }
 
@@ -77,8 +75,7 @@ export function scoreProjection(meanRmsDb: number, rmsVarianceDb: number): numbe
   // Target: mean RMS around -18 to -12 dBFS for a close-mic speaking scenario
   // Too quiet (< -30dB) penalized; too loud (clipping) handled upstream
   let levelScore: number;
-  if (meanRmsDb > -10)
-    levelScore = 70; // Risk of clipping
+  if (meanRmsDb > -10) levelScore = 70; // Risk of clipping
   else if (meanRmsDb > -18) levelScore = 100;
   else if (meanRmsDb > -25) levelScore = 80;
   else if (meanRmsDb > -35) levelScore = 55;
@@ -104,42 +101,9 @@ export function scoreFillerRate(fillersPerMinute: number): number {
 }
 
 /**
- * Pure function to compute overall speaking score based on specific weights.
- */
-export function computeSpeakingScore(
-  pace: number,
-  prosody: number,
-  projection: number,
-  fillerRate: number,
-  weights: SpeakingScoreWeights
-): number {
-  if (
-    !Number.isFinite(weights.pace) ||
-    !Number.isFinite(weights.prosody) ||
-    !Number.isFinite(weights.projection) ||
-    !Number.isFinite(weights.fillerRate)
-  ) {
-    throw new Error('Scoring weights must be finite numbers');
-  }
-
-  const totalWeight = weights.pace + weights.prosody + weights.projection + weights.fillerRate;
-  if (Math.abs(totalWeight - 1.0) > 0.001) {
-    throw new Error('Scoring weights must sum to 1.0');
-  }
-
-  const overall =
-    pace * weights.pace +
-    prosody * weights.prosody +
-    projection * weights.projection +
-    fillerRate * weights.fillerRate;
-
-  return Math.round(overall);
-}
-
-/**
  * Compute overall speaking exercise score weighted by goal focus.
  */
-export function getSpeakingScoreBreakdown(
+export function computeSpeakingScore(
   analysis: SpeakingAnalysisResult,
   primaryGoal: SpeakingGoal,
   context: keyof typeof WPM_TARGETS = 'presentation'
@@ -150,19 +114,24 @@ export function getSpeakingScoreBreakdown(
   const fillerRate = scoreFillerRate(analysis.fillerRate);
 
   // Weight the overall score by primary goal
-  const weights: Record<SpeakingGoal, SpeakingScoreWeights> = {
-    pace: { pace: 0.6, prosody: 0.15, projection: 0.15, fillerRate: 0.1 },
-    prosody: { pace: 0.2, prosody: 0.6, projection: 0.1, fillerRate: 0.1 },
-    projection: { pace: 0.1, prosody: 0.2, projection: 0.6, fillerRate: 0.1 },
-    filler_reduction: { pace: 0.1, prosody: 0.1, projection: 0.1, fillerRate: 0.7 },
-    authority: { pace: 0.2, prosody: 0.5, projection: 0.2, fillerRate: 0.1 },
-    resonance: { pace: 0.1, prosody: 0.3, projection: 0.5, fillerRate: 0.1 },
-    articulation: { pace: 0.2, prosody: 0.2, projection: 0.4, fillerRate: 0.2 },
-    breath_support: { pace: 0.2, prosody: 0.2, projection: 0.5, fillerRate: 0.1 },
+  const weights: Record<SpeakingGoal, Record<string, number>> = {
+    pace:            { pace: 0.6, prosody: 0.15, projection: 0.15, fillerRate: 0.1 },
+    prosody:         { pace: 0.2, prosody: 0.6, projection: 0.1, fillerRate: 0.1 },
+    projection:      { pace: 0.1, prosody: 0.2, projection: 0.6, fillerRate: 0.1 },
+    filler_reduction:{ pace: 0.1, prosody: 0.1, projection: 0.1, fillerRate: 0.7 },
+    authority:       { pace: 0.2, prosody: 0.5, projection: 0.2, fillerRate: 0.1 },
+    resonance:       { pace: 0.1, prosody: 0.3, projection: 0.5, fillerRate: 0.1 },
+    articulation:    { pace: 0.2, prosody: 0.2, projection: 0.4, fillerRate: 0.2 },
+    breath_support:  { pace: 0.2, prosody: 0.2, projection: 0.5, fillerRate: 0.1 },
   };
 
   const w = weights[primaryGoal];
-  const overall = computeSpeakingScore(pace, prosody, projection, fillerRate, w);
+  const overall = Math.round(
+    pace * w.pace +
+    prosody * w.prosody +
+    projection * w.projection +
+    fillerRate * w.fillerRate
+  );
 
   return { pace, prosody, projection, fillerRate, overall };
 }
@@ -189,10 +158,8 @@ export function mapSpeakingScoreToCoaching(
       return 'Good pace — keep that rhythm going.';
     },
     prosody: () => {
-      if (analysis.uptalkRatio > 0.4)
-        return 'Your sentences are ending like questions. Bring the pitch down at the end of each statement.';
-      if (analysis.f0RangeHz < 20)
-        return 'Your voice stayed very flat — vary your pitch more to keep listeners engaged.';
+      if (analysis.uptalkRatio > 0.4) return 'Your sentences are ending like questions. Bring the pitch down at the end of each statement.';
+      if (analysis.f0RangeHz < 20) return 'Your voice stayed very flat — vary your pitch more to keep listeners engaged.';
       return 'Good expressiveness — your pitch was varied and engaging.';
     },
     projection: () => {
@@ -204,90 +171,38 @@ export function mapSpeakingScoreToCoaching(
       return 'Strong projection — it carried well.';
     },
     filler_reduction: () => {
-      if (analysis.fillerRate > 4)
-        return `You used about ${Math.round(analysis.fillerRate)} fillers per minute. Next try, replace every "um" with a silent pause.`;
-      if (analysis.fillerRate > 2)
-        return "A few fillers slipped in. You're improving — notice where they come and plan the thought before speaking.";
+      if (analysis.fillerRate > 4) return `You used about ${Math.round(analysis.fillerRate)} fillers per minute. Next try, replace every "um" with a silent pause.`;
+      if (analysis.fillerRate > 2) return 'A few fillers slipped in. You\'re improving — notice where they come and plan the thought before speaking.';
       return 'Almost filler-free — well done.';
     },
     authority: () => {
-      if (analysis.uptalkRatio > 0.5)
-        return 'Too much uptalk. Every statement that ends rising sounds like a question. Drop the final note on each sentence.';
+      if (analysis.uptalkRatio > 0.5) return 'Too much uptalk. Every statement that ends rising sounds like a question. Drop the final note on each sentence.';
       return 'Authority markers were good — confident, direct delivery.';
     },
-    resonance: () =>
-      'Focus on feeling the vibration in your chest as you speak. Think "low and forward," not "high and back."',
-    articulation: () =>
-      'Consonants were clear. Keep opening your mouth fully — clarity comes from space, not force.',
-    breath_support: () =>
-      "Keep the breath flowing through to the end of each sentence. Don't run out of air before the period.",
+    resonance: () => 'Focus on feeling the vibration in your chest as you speak. Think "low and forward," not "high and back."',
+    articulation: () => 'Consonants were clear. Keep opening your mouth fully — clarity comes from space, not force.',
+    breath_support: () => 'Keep the breath flowing through to the end of each sentence. Don\'t run out of air before the period.',
   };
 
   const actionTips: Record<SpeakingGoal, Record<SuccessBand, string>> = {
-    pace: {
-      excellent: 'One more at this pace.',
-      good: 'Focus on the pauses.',
-      developing: 'Try reading each sentence, then pausing 1 full second.',
-      retry: 'Read just one paragraph. Very slowly.',
-    },
-    prosody: {
-      excellent: 'One more with that expressiveness.',
-      good: 'Try emphasizing the key word in each sentence.',
-      developing: 'Record yourself and listen back — where does the pitch go flat?',
-      retry: 'Exaggerate the pitch on every important word — go over the top on purpose.',
-    },
-    projection: {
-      excellent: 'Sustain this energy through a longer passage.',
-      good: 'Add a little more energy on key phrases.',
-      developing: 'Project to an imaginary person at the back of the room.',
-      retry: 'Start louder than feels comfortable. You can always come down.',
-    },
-    filler_reduction: {
-      excellent: 'Clean run — keep it going.',
-      good: "You're close. Notice where the fillers cluster and plan those moments.",
-      developing: 'Replace "um" with silence. Just pause. It sounds better.',
-      retry: 'Speak for 30 seconds. Stop before every "um."',
-    },
-    authority: {
-      excellent: "That's authority. Take note of how it felt.",
-      good: 'Drop the pitch at the end of one more sentence.',
-      developing: 'Say one sentence, then drop your chin slightly on the last word.',
-      retry: 'Repeat: "This is my statement." Make it land with a full stop.',
-    },
-    resonance: {
-      excellent: 'That resonance is strong. Remember how that feels.',
-      good: 'Hum for 10 seconds before the next try to set the placement.',
-      developing: 'Speak from lower in your chest. Feel the vibration there.',
-      retry: 'Try a resonance hum first, then go straight into the exercise.',
-    },
-    articulation: {
-      excellent: 'Crystal clear.',
-      good: 'A little more mouth opening on vowels.',
-      developing: 'Exaggerate lip and tongue movement intentionally.',
-      retry: 'Read very slowly, hitting every consonant.',
-    },
-    breath_support: {
-      excellent: 'Solid breath support throughout.',
-      good: 'Breathe one beat earlier than you think you need to.',
-      developing: 'Mark the breath points before you start.',
-      retry: 'Read half as much text per breath.',
-    },
+    pace:            { excellent: 'One more at this pace.', good: 'Focus on the pauses.', developing: 'Try reading each sentence, then pausing 1 full second.', retry: 'Read just one paragraph. Very slowly.' },
+    prosody:         { excellent: 'One more with that expressiveness.', good: 'Try emphasizing the key word in each sentence.', developing: 'Record yourself and listen back — where does the pitch go flat?', retry: 'Exaggerate the pitch on every important word — go over the top on purpose.' },
+    projection:      { excellent: 'Sustain this energy through a longer passage.', good: 'Add a little more energy on key phrases.', developing: 'Project to an imaginary person at the back of the room.', retry: 'Start louder than feels comfortable. You can always come down.' },
+    filler_reduction:{ excellent: 'Clean run — keep it going.', good: 'You\'re close. Notice where the fillers cluster and plan those moments.', developing: 'Replace "um" with silence. Just pause. It sounds better.', retry: 'Speak for 30 seconds. Stop before every "um."' },
+    authority:       { excellent: 'That\'s authority. Take note of how it felt.', good: 'Drop the pitch at the end of one more sentence.', developing: 'Say one sentence, then drop your chin slightly on the last word.', retry: 'Repeat: "This is my statement." Make it land with a full stop.' },
+    resonance:       { excellent: 'That resonance is strong. Remember how that feels.', good: 'Hum for 10 seconds before the next try to set the placement.', developing: 'Speak from lower in your chest. Feel the vibration there.', retry: 'Try a resonance hum first, then go straight into the exercise.' },
+    articulation:    { excellent: 'Crystal clear.', good: 'A little more mouth opening on vowels.', developing: 'Exaggerate lip and tongue movement intentionally.', retry: 'Read very slowly, hitting every consonant.' },
+    breath_support:  { excellent: 'Solid breath support throughout.', good: 'Breathe one beat earlier than you think you need to.', developing: 'Mark the breath points before you start.', retry: 'Read half as much text per breath.' },
   };
 
   return {
-    praiseMessage:
-      band === 'excellent'
-        ? 'Really strong.'
-        : band === 'good'
-          ? 'Good work.'
-          : band === 'developing'
-            ? 'Getting there.'
-            : 'You got through it.',
-    correctionMessage: corrections[primaryGoal] ? corrections[primaryGoal]() : "Keep practicing and focusing on your goals.",
-    actionTip: actionTips[primaryGoal] ? actionTips[primaryGoal][band] : "Keep going.",
+    praiseMessage: band === 'excellent' ? 'Really strong.' : band === 'good' ? 'Good work.' : band === 'developing' ? 'Getting there.' : 'You got through it.',
+    correctionMessage: corrections[primaryGoal](),
+    actionTip: actionTips[primaryGoal][band],
     successBand: band,
   };
 }
+
 
 /**
  * Generate feedback based on the failure mode.
@@ -298,9 +213,7 @@ export interface SpeakingFeedback {
   text: string;
 }
 
-export function generateSpeakingFeedback(
-  failureMode: SpeakingFailureMode | null
-): SpeakingFeedback {
+export function generateSpeakingFeedback(failureMode: SpeakingFailureMode | null): SpeakingFeedback {
   if (!failureMode) {
     return { text: 'Great dynamic expression.' };
   }
@@ -311,12 +224,8 @@ export function generateSpeakingFeedback(
     case 'too_slow':
       return { text: 'You came in too slow. Aim for a more natural, conversational pace.' };
     case 'uptalk':
-      return {
-        text: 'Your sentences are ending like questions. Bring the pitch down at the end of each statement.',
-      };
+      return { text: 'Your sentences are ending like questions. Bring the pitch down at the end of each statement.' };
     case 'monotone':
-      return {
-        text: 'Your voice stayed very flat - vary your pitch more to keep listeners engaged.',
-      };
+      return { text: 'Your voice stayed very flat - vary your pitch more to keep listeners engaged.' };
   }
 }
