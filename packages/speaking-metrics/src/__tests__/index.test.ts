@@ -3,6 +3,7 @@ import {
   scorePace,
   computeSpeakingScore,
   scoreProjection,
+  scoreFillerRate,
 } from '../index';
 
 describe('generateSpeakingFeedback', () => {
@@ -258,5 +259,48 @@ describe('scoreProjection', () => {
 
     // Infinity variance -> bonus capped at 10. levelScore = 80 (-20 dB) + 10 = 90
     expect(scoreProjection(-20, Number.POSITIVE_INFINITY)).toBe(90);
+  });
+});
+
+describe('scoreFillerRate', () => {
+  it('returns 100 for <= 1 filler per minute', () => {
+    expect(scoreFillerRate(0)).toBe(100);
+    expect(scoreFillerRate(0.5)).toBe(100);
+    expect(scoreFillerRate(1)).toBe(100);
+  });
+
+  it('returns 100 for negative input as expected by logic', () => {
+    // Documenting existing behavior: a negative value is <= 1
+    expect(scoreFillerRate(-5)).toBe(100);
+  });
+
+  it('returns 90 for > 1 and <= 2 fillers per minute', () => {
+    expect(scoreFillerRate(1.1)).toBe(90);
+    expect(scoreFillerRate(1.5)).toBe(90);
+    expect(scoreFillerRate(2)).toBe(90);
+  });
+
+  it('returns 75 for > 2 and <= 4 fillers per minute', () => {
+    expect(scoreFillerRate(2.1)).toBe(75);
+    expect(scoreFillerRate(3)).toBe(75);
+    expect(scoreFillerRate(4)).toBe(75);
+  });
+
+  it('returns 55 for > 4 and <= 6 fillers per minute', () => {
+    expect(scoreFillerRate(4.1)).toBe(55);
+    expect(scoreFillerRate(5)).toBe(55);
+    expect(scoreFillerRate(6)).toBe(55);
+  });
+
+  it('returns 35 for > 6 and <= 10 fillers per minute', () => {
+    expect(scoreFillerRate(6.1)).toBe(35);
+    expect(scoreFillerRate(8)).toBe(35);
+    expect(scoreFillerRate(10)).toBe(35);
+  });
+
+  it('returns 15 for > 10 fillers per minute', () => {
+    expect(scoreFillerRate(10.1)).toBe(15);
+    expect(scoreFillerRate(15)).toBe(15);
+    expect(scoreFillerRate(100)).toBe(15);
   });
 });
