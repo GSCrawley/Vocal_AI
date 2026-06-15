@@ -34,7 +34,7 @@ tell Jules to abandon work without doing the archaeology first.
 non-blocking review comments (duplicate function invocation in tests, a
 misleading type cast, reliance on issues[0]). CI was already green.
 
-**Trigger flags:** Copilot leaves "Low"/non-blocking *comments* (not a
+**Trigger flags:** Copilot leaves "Low"/non-blocking _comments_ (not a
 "Request changes" block) on a Jules PR; CI green; suggestions are confined
 to the changed files and are safe, mechanical improvements.
 
