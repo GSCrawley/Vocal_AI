@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
-import { colors } from '@voice/ui-tokens';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/AppNavigator';
 import { mapSustainedNoteScoreToCoaching } from '@voice/coaching-rules';
+import { colors } from '@voice/ui-tokens';
+import { Button, StyleSheet, Text, View } from 'react-native';
+import { RootStackParamList } from '../navigation/AppNavigator';
 import { useSessionStore } from '../store/sessionStore';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Result'>;
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  btnWrapper: {
+    btnWrapper: {
     flex: 1,
     marginHorizontal: 8,
   },
