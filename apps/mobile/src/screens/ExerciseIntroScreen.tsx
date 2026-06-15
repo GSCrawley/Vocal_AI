@@ -11,11 +11,16 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'ExerciseInt
 
 export default function ExerciseIntroScreen() {
   const navigation = useNavigation<NavigationProp>();
-  const { initSessionPlan, dispatch } = useSessionStore();
+  const { initSessionPlan, dispatch, sessionState } = useSessionStore();
 
   useEffect(() => {
-    initSessionPlan();
-  }, [initSessionPlan]);
+    if (sessionState === 'IDLE') {
+      dispatch({ type: 'LOAD' });
+      dispatch({ type: 'LOADED' });
+      dispatch({ type: 'START_ATTEMPT' });
+      initSessionPlan();
+    }
+  }, [dispatch, initSessionPlan, sessionState]);
 
   const onReady = () => {
     dispatch({ type: 'START_ATTEMPT' });
