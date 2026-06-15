@@ -116,5 +116,5 @@ const styles = StyleSheet.create({
   btnWrapper: {
     flex: 1,
     marginHorizontal: 8,
-  }
+  },
 });

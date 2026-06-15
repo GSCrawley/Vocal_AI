@@ -42,31 +42,34 @@ export const useSessionStore = create<SessionStore>()(
 
       dispatch: (event) => {
         set((state) => ({
-          sessionState: transition(state.sessionState, event)
+          sessionState: transition(state.sessionState, event),
         }));
       },
 
       setFrames: (frames) => set({ frames }),
 
-      setLastScore: (score) => set((state) => ({
-        lastScore: score,
-        bestScore: Math.max(state.bestScore, score)
-      })),
+      setLastScore: (score) =>
+        set((state) => ({
+          lastScore: score,
+          bestScore: Math.max(state.bestScore, score),
+        })),
 
       setXpEarned: (xp) => set((state) => ({ xpEarned: state.xpEarned + xp })),
 
-      setReflectionAnswer: (prompt, answer) => set((state) => ({
-        reflectionAnswers: { ...state.reflectionAnswers, [prompt]: answer }
-      })),
+      setReflectionAnswer: (prompt, answer) =>
+        set((state) => ({
+          reflectionAnswers: { ...state.reflectionAnswers, [prompt]: answer },
+        })),
 
-      resetSession: () => set((state) => ({
-        sessionState: initialSessionState,
-        sessionPlan: null,
-        lastScore: 0,
-        xpEarned: 0,
-        reflectionAnswers: {},
-        frames: [],
-      })),
+      resetSession: () =>
+        set((state) => ({
+          sessionState: initialSessionState,
+          sessionPlan: null,
+          lastScore: 0,
+          xpEarned: 0,
+          reflectionAnswers: {},
+          frames: [],
+        })),
 
       initSessionPlan: () => {
         const plan = buildSessionPlan({
@@ -75,7 +78,7 @@ export const useSessionStore = create<SessionStore>()(
           exercises: [BUILD_01_EXERCISE],
         });
         set({ sessionPlan: plan });
-      }
+      },
     }),
     {
       name: 'best_score_sustained_note_001',

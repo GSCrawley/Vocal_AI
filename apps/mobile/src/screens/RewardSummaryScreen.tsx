@@ -100,5 +100,5 @@ const styles = StyleSheet.create({
   btnContainer: {
     width: '100%',
     marginTop: 20,
-  }
+  },
 });
