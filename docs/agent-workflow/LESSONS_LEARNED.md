@@ -28,4 +28,25 @@ tell Jules to abandon work without doing the archaeology first.
 
 ---
 
+## Lesson 2 - Non-blocking Copilot review nits: apply them, don't ask
+
+**Context:** On a Jules test PR (#153), Copilot left three Low-severity,
+non-blocking review comments (duplicate function invocation in tests, a
+misleading type cast, reliance on issues[0]). CI was already green.
+
+**Trigger flags:** Copilot leaves "Low"/non-blocking *comments* (not a
+"Request changes" block) on a Jules PR; CI green; suggestions are confined
+to the changed files and are safe, mechanical improvements.
+
+**Rule:** Default to having JULES apply the suggestions (not writing the
+code yourself - Rule 2), re-confirm CI green, then hand the PR to the user
+merge-ready. Do not ask the user whether to apply low-risk, non-blocking
+Copilot nits - just apply them. Only escalate if a suggestion is risky,
+ambiguous, or changes behavior. (User confirmed this is how they would
+handle it themselves.)
+
+**Status:** Standing default for the Jules oversight workflow.
+
+---
+
 <!-- Append Lesson 2, 3, ... as new incidents arise. -->
