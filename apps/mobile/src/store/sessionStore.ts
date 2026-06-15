@@ -1,14 +1,19 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   SessionState,
   initialSessionState,
   SessionEvent,
   LivePitchFrame,
+  SuccessBand,
 } from '@voice/shared-types';
+import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 // Import SessionPlan and transition from @voice/exercise-engine (NOT @voice/curriculum due to name conflicts)
-import { SessionPlan, transition, buildSessionPlan } from '@voice/exercise-engine';
+import {
+  SessionPlan,
+  transition,
+  buildSessionPlan,
+} from '@voice/exercise-engine';
 import { BUILD_01_EXERCISE } from '../constants/exercise';
 
 interface SessionStore {
@@ -53,7 +58,8 @@ export const useSessionStore = create<SessionStore>()(
           bestScore: Math.max(state.bestScore, score),
         })),
 
-      setXpEarned: (xp) => set((state) => ({ xpEarned: state.xpEarned + xp })),
+      setXpEarned: (xp) =>
+        set((state) => ({ xpEarned: state.xpEarned + xp })),
 
       setReflectionAnswer: (prompt, answer) =>
         set((state) => ({
@@ -61,7 +67,7 @@ export const useSessionStore = create<SessionStore>()(
         })),
 
       resetSession: () =>
-        set((state) => ({
+        set(() => ({
           sessionState: initialSessionState,
           sessionPlan: null,
           lastScore: 0,
@@ -83,6 +89,6 @@ export const useSessionStore = create<SessionStore>()(
       name: 'best_score_sustained_note_001',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({ bestScore: state.bestScore }),
-    },
-  ),
+    }
+  )
 );
