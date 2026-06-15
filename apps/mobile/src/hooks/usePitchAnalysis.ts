@@ -29,12 +29,10 @@ export function usePitchAnalysis() {
     const targetHz = (exercise.targetPatternPayload as any).targetHz as number;
     const tolerance = exercise.evaluationConfig.toleranceCents as number;
 
-    const scoreBreakdown = scoreSustainedNote(
-      frames,
-      targetHz,
-      tolerance,
-      { pitch: exercise.scoringWeights.pitch || 0.5, stability: exercise.scoringWeights.stability || 0.5 }
-    );
+    const scoreBreakdown = scoreSustainedNote(frames, targetHz, tolerance, {
+      pitch: exercise.scoringWeights.pitch || 0.5,
+      stability: exercise.scoringWeights.stability || 0.5,
+    });
 
     return {
       ok: true,
