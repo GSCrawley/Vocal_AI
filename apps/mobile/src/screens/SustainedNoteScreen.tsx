@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { colors } from '@voice/ui-tokens';
 import { useNavigation } from '@react-navigation/native';
@@ -20,6 +20,15 @@ export default function SustainedNoteScreen() {
   const [countdown, setCountdown] = useState(5);
   const [phase, setPhase] = useState<'countdown' | 'recording' | 'analyzing'>('countdown');
   const [meterValue] = useState(new Animated.Value(0));
+  const recordingStopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (recordingStopTimeoutRef.current) {
+        clearTimeout(recordingStopTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (phase === 'countdown') {
@@ -50,7 +59,7 @@ export default function SustainedNoteScreen() {
     dispatch({ type: 'SIGNAL_DETECTED' }); // Transition to LISTENING state internally
     await startRecording();
 
-    setTimeout(async () => {
+    recordingStopTimeoutRef.current = setTimeout(async () => {
       dispatch({ type: 'LISTENING_DONE' });
       setPhase('analyzing');
       const { uri, frames } = await stopRecording();
@@ -72,14 +81,12 @@ export default function SustainedNoteScreen() {
 
   const meterHeight = meterValue.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0%', '100%']
+    outputRange: ['0%', '100%'],
   });
 
   return (
     <View style={styles.container}>
-      {phase === 'countdown' && (
-        <Text style={styles.countdownText}>{countdown}</Text>
-      )}
+      {phase === 'countdown' && <Text style={styles.countdownText}>{countdown}</Text>}
 
       {phase === 'recording' && (
         <>
@@ -90,9 +97,7 @@ export default function SustainedNoteScreen() {
         </>
       )}
 
-      {phase === 'analyzing' && (
-        <Text style={styles.statusText}>Analyzing...</Text>
-      )}
+      {phase === 'analyzing' && <Text style={styles.statusText}>Analyzing...</Text>}
     </View>
   );
 }
@@ -125,5 +130,5 @@ const styles = StyleSheet.create({
   meterFill: {
     width: '100%',
     backgroundColor: colors.success,
-  }
+  },
 });
