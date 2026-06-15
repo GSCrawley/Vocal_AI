@@ -3,7 +3,7 @@ import { micCheck, scoreSustainedNote } from '@voice/audio-metrics';
 
 export function usePitchAnalysis() {
   const analyzeRecording = async (
-    uri: string | null,
+    _uri: string | null,
     rmsDbFrames: number[],
     exercise: ExerciseDefinition
   ) => {
