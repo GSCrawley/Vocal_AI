@@ -24,7 +24,7 @@ export default function SustainedNoteScreen() {
   useEffect(() => {
     if (phase === 'countdown') {
       if (countdown > 0) {
-        const timer = setTimeout(() => setCountdown(c => c - 1), 1000);
+        const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
         return () => clearTimeout(timer);
       } else {
         startExercise();
