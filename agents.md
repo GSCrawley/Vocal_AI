@@ -1,3 +1,8 @@
+> **READ FIRST: [`PROJECT_COMPASS.md`](./PROJECT_COMPASS.md).** Before approving, advising,
+> or acting on ANY task, read the compass and reconcile the task against it (goal, current
+> phase, what's real vs stubbed, build order, and the stale/lost/future triage). `agents.md`
+> below remains the full Source of Truth.
+
 # VOICE Agent Build Plan
 
 This file is the agent orchestration guide for building VOICE with Jules or another automated agentic platform. It is based on a review of the full scaffold, including product docs, architecture docs, QA docs, the knowledge graph, package and service stubs, TypeScript configs, infrastructure placeholders, `render.yaml`, and `VocalAI Coaching Philosophy and Behavior Design Specification.pdf`.

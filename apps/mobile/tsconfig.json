@@ -23,5 +23,6 @@
     },
     "types": []
   },
-  "include": ["**/*.ts", "**/*.tsx"]
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["__mocks__/**", "**/*.test.ts", "**/*.test.tsx"]
 }

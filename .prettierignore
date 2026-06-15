@@ -8,3 +8,6 @@ services/audio-processor/**
 *.pdf
 .DS_Store
 *.d.ts
+
+# Authored orientation doc — kept hand-formatted, not prettier-managed
+PROJECT_COMPASS.md
