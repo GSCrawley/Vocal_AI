@@ -13,9 +13,11 @@ export class MockRecording {
 }
 
 export const Recording = {
-  createAsync: jest.fn(async (_options?: unknown, _onStatusUpdate?: unknown, _interval?: number) => ({
-    recording: new MockRecording(),
-  })),
+  createAsync: jest.fn(
+    async (_options?: unknown, _onStatusUpdate?: unknown, _interval?: number) => ({
+      recording: new MockRecording(),
+    })
+  ),
 };
 
 export const Audio = {
