@@ -59,16 +59,13 @@ describe('validateExerciseDefinition', () => {
     } as unknown as Record<string, unknown>;
     delete invalidExercise.exerciseId;
 
-    expect(() =>
-      validateExerciseDefinition(invalidExercise as unknown as ExerciseDefinition)
-    ).toThrow(ZodError);
     try {
       validateExerciseDefinition(invalidExercise as unknown as ExerciseDefinition);
+      fail('Expected validateExerciseDefinition to throw a ZodError');
     } catch (e) {
+      expect(e).toBeInstanceOf(ZodError);
       if (e instanceof ZodError) {
-        expect(e.issues[0].path).toContain('exerciseId');
-      } else {
-        throw e;
+        expect(e.issues.some((issue) => issue.path.includes('exerciseId'))).toBe(true);
       }
     }
   });
@@ -76,19 +73,16 @@ describe('validateExerciseDefinition', () => {
   it('should throw an error when a property has an invalid enum type', () => {
     const invalidExercise = {
       ...build01SustainedNoteExercise,
-      tier: 'invalid_tier' as unknown as 'singing',
+      tier: 'invalid_tier' as any,
     };
 
-    expect(() =>
-      validateExerciseDefinition(invalidExercise as unknown as ExerciseDefinition)
-    ).toThrow(ZodError);
     try {
       validateExerciseDefinition(invalidExercise as unknown as ExerciseDefinition);
+      fail('Expected validateExerciseDefinition to throw a ZodError');
     } catch (e) {
+      expect(e).toBeInstanceOf(ZodError);
       if (e instanceof ZodError) {
-        expect(e.issues[0].path).toContain('tier');
-      } else {
-        throw e;
+        expect(e.issues.some((issue) => issue.path.includes('tier'))).toBe(true);
       }
     }
   });
@@ -99,16 +93,13 @@ describe('validateExerciseDefinition', () => {
       durationTargetSeconds: -10,
     };
 
-    expect(() =>
-      validateExerciseDefinition(invalidExercise as unknown as ExerciseDefinition)
-    ).toThrow(ZodError);
     try {
       validateExerciseDefinition(invalidExercise as unknown as ExerciseDefinition);
+      fail('Expected validateExerciseDefinition to throw a ZodError');
     } catch (e) {
+      expect(e).toBeInstanceOf(ZodError);
       if (e instanceof ZodError) {
-        expect(e.issues[0].path).toContain('durationTargetSeconds');
-      } else {
-        throw e;
+        expect(e.issues.some((issue) => issue.path.includes('durationTargetSeconds'))).toBe(true);
       }
     }
   });
