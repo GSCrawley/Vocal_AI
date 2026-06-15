@@ -50,26 +50,42 @@ export default function ReflectionScreen() {
 
       <View style={styles.section}>
         <Text style={styles.prompt}>{PROMPT_1}</Text>
-        {OPTIONS_1.map(opt => (
+        {OPTIONS_1.map((opt) => (
           <TouchableOpacity
             key={opt}
-            style={[styles.optionBtn, ans1 === opt && { borderColor: colors.accent, backgroundColor: hexToRgba(colors.accent, 0.1) }]}
+            style={[
+              styles.optionBtn,
+              ans1 === opt && {
+                borderColor: colors.accent,
+                backgroundColor: hexToRgba(colors.accent, 0.1),
+              },
+            ]}
             onPress={() => setAns1(opt)}
           >
-            <Text style={[styles.optionText, ans1 === opt && styles.optionTextSelected]}>{opt}</Text>
+            <Text style={[styles.optionText, ans1 === opt && styles.optionTextSelected]}>
+              {opt}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
 
       <View style={styles.section}>
         <Text style={styles.prompt}>{PROMPT_2}</Text>
-        {OPTIONS_2.map(opt => (
+        {OPTIONS_2.map((opt) => (
           <TouchableOpacity
             key={opt}
-            style={[styles.optionBtn, ans2 === opt && { borderColor: colors.accent, backgroundColor: hexToRgba(colors.accent, 0.1) }]}
+            style={[
+              styles.optionBtn,
+              ans2 === opt && {
+                borderColor: colors.accent,
+                backgroundColor: hexToRgba(colors.accent, 0.1),
+              },
+            ]}
             onPress={() => setAns2(opt)}
           >
-            <Text style={[styles.optionText, ans2 === opt && styles.optionTextSelected]}>{opt}</Text>
+            <Text style={[styles.optionText, ans2 === opt && styles.optionTextSelected]}>
+              {opt}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -129,5 +145,5 @@ const styles = StyleSheet.create({
   },
   btnContainer: {
     marginTop: 16,
-  }
+  },
 });

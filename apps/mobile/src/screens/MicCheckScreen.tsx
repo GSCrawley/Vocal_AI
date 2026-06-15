@@ -42,7 +42,7 @@ export default function MicCheckScreen() {
 
       <Button
         color={colors.accent}
-        title={isRecording ? "Listening..." : "Start Mic Check"}
+        title={isRecording ? 'Listening...' : 'Start Mic Check'}
         onPress={runCheck}
         disabled={isRecording}
       />

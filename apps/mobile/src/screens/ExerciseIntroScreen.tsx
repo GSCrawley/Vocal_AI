@@ -69,5 +69,5 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 24,
-  }
+  },
 });

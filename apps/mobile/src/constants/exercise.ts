@@ -13,15 +13,15 @@ export const BUILD_01_EXERCISE: ExerciseDefinition = {
   repetitionsDefault: 1,
   targetPatternType: 'sustained_hold',
   targetPatternPayload: {
-    targetHz: 440 // A4
+    targetHz: 440, // A4
   },
   evaluationConfig: {
-    toleranceCents: 50
+    toleranceCents: 50,
   },
   scoringWeights: {
     pitch: 0.6,
-    stability: 0.4
+    stability: 0.4,
   },
   feedbackRuleSetId: 'sustained-note-rules-001',
-  activeFlag: true
+  activeFlag: true,
 };

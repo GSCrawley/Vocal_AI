@@ -22,19 +22,17 @@ export default function MicPermissionScreen() {
 
   useEffect(() => {
     Audio.getPermissionsAsync().then((response) => {
-        setStatus(response.status);
-        if (response.status === 'granted') {
-            navigation.navigate('MicCheck');
-        }
-    })
+      setStatus(response.status);
+      if (response.status === 'granted') {
+        navigation.navigate('MicCheck');
+      }
+    });
   }, [navigation]);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Microphone Access</Text>
-      <Text style={styles.body}>
-        We need microphone access to hear you and provide feedback.
-      </Text>
+      <Text style={styles.body}>We need microphone access to hear you and provide feedback.</Text>
       {status === 'denied' && (
         <Text style={styles.error}>
           Permission denied. Please enable in your device settings to continue.
