@@ -1,5 +1,3 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   SessionState,
@@ -8,6 +6,8 @@ import {
   LivePitchFrame,
   SuccessBand,
 } from '@voice/shared-types';
+import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 // Import SessionPlan and transition from @voice/exercise-engine (NOT @voice/curriculum due to name conflicts)
 import { SessionPlan, transition, buildSessionPlan } from '@voice/exercise-engine';
 import { BUILD_01_EXERCISE } from '../constants/exercise';
