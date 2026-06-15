@@ -4,7 +4,7 @@ import '../instrument.js';
 import { createServer, IncomingMessage, ServerResponse } from 'node:http';
 import { logger } from '@voice/logger';
 
-const server = createServer((req: IncomingMessage, res: ServerResponse) => {
+const server = createServer((_req: IncomingMessage, _res: ServerResponse) => {
   // server code
 });
 
