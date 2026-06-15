@@ -57,8 +57,8 @@ A Jules PR may be merged (and its branch deleted) only when ALL hold:
 - Any Copilot suggestions/fixes have been vetted AND either
   (i) completed and merged, or (ii) deliberately deferred to a new branch -
   never silently ignored.
-- All merge conflicts are resolved and merged.
-- All tests pass green, **especially CI build-and-test**.
+- The branch is up to date and any merge conflicts are resolved.
+- All tests are green, **especially CI build-and-test**.
 
 When all criteria are met, the overseer may merge and delete the branch
 independently. If anything is ambiguous, pause and flag it.
