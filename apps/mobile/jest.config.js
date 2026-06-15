@@ -3,7 +3,7 @@
 // ts-jest + node environment, with workspace deps mapped to source and native
 // modules (expo-av) mapped to manual mocks. Uses only root-hoisted devDeps
 // (jest, ts-jest, @types/jest) so no new lockfile entries are required.
-export default {
+module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   moduleNameMapper: {
