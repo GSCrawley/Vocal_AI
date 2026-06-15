@@ -16,6 +16,19 @@ Agents must treat these files as authoritative, in this order:
 
 If documents conflict, agents must log the conflict and resolve it explicitly before implementation. The current major conflict is Build 0.1 scope: `README.md` describes a Speaking Tier pace loop, while `docs/product/build-0.1.md`, `docs/qa/build-0.1-test-matrix.md`, `apps/mobile/src/index.ts`, `packages/content-schema/src/index.ts`, and the PDF describe a Singing Tier sustained-note/pitch loop. The established strategy is "singing-first". The recommended first build targets are the Singing Tier features, with the Speaking Tier parked for Phase 2.
 
+## Agent Oversight Rules (read before advising Jules or merging)
+
+Any agent or human overseeing Jules sessions must read
+`docs/agent-workflow/JULES_OVERSIGHT_RULES.md` before advising Jules,
+approving a plan, or merging a Jules PR, and must consult
+`docs/agent-workflow/LESSONS_LEARNED.md` for accumulated rules.
+
+**Highest-priority rule:** If Jules proposes tests/optimizations for code
+that isn't in the current codebase, or reports that "code doesn't match the
+prompt," do NOT conclude it doesn't exist. Check git history and open/closed
+PRs first, then classify as stale premise / lost code (restore surgically) /
+future groundwork (ensure it gets built). See Rule 1 in the oversight doc.
+
 ## Product Contract
 
 VOICE is a coached vocal training app, not a metrics dashboard. Every agent must preserve these invariants:
