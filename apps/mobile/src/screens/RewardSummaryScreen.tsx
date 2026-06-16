@@ -43,12 +43,7 @@ export default function RewardSummaryScreen() {
       <Text style={styles.bandText}>Performance: {band.toUpperCase()}</Text>
 
       {isPersonalBest && (
-        <View
-          style={[
-            styles.badgeContainer,
-            { backgroundColor: hexToRgba(colors.warning, 0.2) },
-          ]}
-        >
+        <View style={[styles.badgeContainer, { backgroundColor: hexToRgba(colors.warning, 0.2) }]}>
           <Text style={styles.badgeText}>🏆 Personal Best Achieved!</Text>
         </View>
       )}

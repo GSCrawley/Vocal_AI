@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-    btnWrapper: {
+  btnWrapper: {
     flex: 1,
     marginHorizontal: 8,
   },
