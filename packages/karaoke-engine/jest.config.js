@@ -5,6 +5,6 @@ export default {
     '^@voice/shared-types$': '<rootDir>/../shared-types/src/index.ts',
   },
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', { tsconfig: './tsconfig.test.json' }]
-  }
+    '^.+\\.tsx?$': ['ts-jest', { tsconfig: './tsconfig.test.json' }],
+  },
 };

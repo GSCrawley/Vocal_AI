@@ -80,11 +80,7 @@ describe('computeContourMatch', () => {
     ];
 
     // Voiced only (equivalent contour to above when unvoiced are removed)
-    const refFrames = [
-      createFrame(100),
-      createFrame(110),
-      createFrame(120),
-    ];
+    const refFrames = [createFrame(100), createFrame(110), createFrame(120)];
 
     // Both should yield an upward contour of identical length after filtering
     expect(computeContourMatch(userFrames, refFrames)).toBe(100);
