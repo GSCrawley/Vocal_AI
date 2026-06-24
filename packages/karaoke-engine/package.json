@@ -12,6 +12,7 @@
     "@voice/shared-types": "workspace:*"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.12",
     "jest": "^29.7.0"
   }
 }
