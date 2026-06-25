@@ -12,7 +12,7 @@ CREATE TABLE user_baseline_snapshot (
   highest_note_midi INT,
   comfortable_low_midi INT,
   comfortable_high_midi INT,
-  recommended_key_midi INT,
+  recommended_key_midi SMALLINT,
   quality_flag TEXT,
   completed_at TIMESTAMPTZ,
   audio_deleted_at TIMESTAMPTZ
