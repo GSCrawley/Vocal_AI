@@ -68,7 +68,7 @@ export default async function assessmentsRoutes(app: FastifyInstance) {
 
       const { data, error } = await supabase
         .from('user_baseline_snapshot')
-        .select('*')
+        .select('snapshot_id,status,completed_at,voice_type,recommended_key_midi,quality_flag,result_json')
         .eq('snapshot_id', jobId)
         .eq('user_id', userId)
         .single();
