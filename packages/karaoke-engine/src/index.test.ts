@@ -61,12 +61,12 @@ describe('computeContourMatch', () => {
       ...Array.from({ length: 8 }, (_, i) => createFrame(180 + i * 10)), // UP
     ];
 
-    // Out of segments, half should match (the first half which is UP)
-    // The second half will mismatch (FLAT vs UP)
-    // So the score should be around 50
+    // Expected contour segments:
+    // user: [up, up, up, up, flat, flat, flat]
+    // ref:  [up, up, up, up, up,   up,   up  ]
+    // => 4/7 matches => 57
     const match = computeContourMatch(userFrames, refFrames);
-    expect(match).toBeGreaterThan(0);
-    expect(match).toBeLessThan(100);
+    expect(match).toBe(57);
   });
 
   it('should handle unvoiced frames gracefully by filtering them out', () => {
