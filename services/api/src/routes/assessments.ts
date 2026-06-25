@@ -14,10 +14,7 @@ interface BaselineAssessmentParams {
 export default async function assessmentsRoutes(app: FastifyInstance) {
   app.post(
     '/baseline',
-    async (
-      request: FastifyRequest<{ Body: BaselineAssessmentBody }>,
-      reply: FastifyReply
-    ) => {
+    async (request: FastifyRequest<{ Body: BaselineAssessmentBody }>, reply: FastifyReply) => {
       // In a real app, auth.uid would come from the JWT via request.user
       const userId = (request.user as { sub?: string })?.sub;
       if (!userId) {
@@ -58,10 +55,7 @@ export default async function assessmentsRoutes(app: FastifyInstance) {
 
   app.get(
     '/baseline/:jobId',
-    async (
-      request: FastifyRequest<{ Params: BaselineAssessmentParams }>,
-      reply: FastifyReply
-    ) => {
+    async (request: FastifyRequest<{ Params: BaselineAssessmentParams }>, reply: FastifyReply) => {
       const userId = (request.user as { sub?: string })?.sub;
       if (!userId) {
         return reply.code(401).send({ error: 'Unauthorized' });

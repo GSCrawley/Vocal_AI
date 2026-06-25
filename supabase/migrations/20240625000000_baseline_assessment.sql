@@ -15,8 +15,7 @@ CREATE TABLE user_baseline_snapshot (
   recommended_key_midi INT,
   quality_flag TEXT,
   completed_at TIMESTAMPTZ,
-  audio_deleted_at TIMESTAMPTZ,
-  CONSTRAINT user_baseline_snapshot_unique_user_tier UNIQUE (user_id, tier)
+  audio_deleted_at TIMESTAMPTZ
 );
 
 CREATE INDEX user_baseline_snapshot_user_tier

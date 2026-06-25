@@ -8,7 +8,7 @@ jest.unstable_mockModule('../lib/supabase.js', () => ({
 }));
 
 const { app } = await import('../index.js');
-const {  } = await import('../lib/supabase.js');
+const {} = await import('../lib/supabase.js');
 
 describe('Assessments Routes', () => {
   let token = '';
