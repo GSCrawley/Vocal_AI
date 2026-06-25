@@ -1,7 +1,7 @@
 CREATE TABLE user_baseline_snapshot (
   snapshot_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL,
-  audio_processor_job_id UUID,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  audio_processor_job_id TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'pending',
   tier TEXT NOT NULL DEFAULT 'singing',
   result_json JSONB,
