@@ -33,10 +33,18 @@ CREATE POLICY user_baseline_snapshot_update
   ON user_baseline_snapshot FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
 CREATE OR REPLACE VIEW baseline_context_view AS
-SELECT *
+SELECT
+  s.user_id,
+  s.snapshot_id,
+  s.tier,
+  s.voice_type,
+  s.recommended_key_midi,
+  s.comfortable_low_midi,
+  s.comfortable_high_midi,
+  s.captured_at,
+  s.completed_at
 FROM user_baseline_snapshot s
-WHERE s.status = 'complete' AND s.tier = 'singing'
-ORDER BY s.completed_at DESC;
+WHERE s.status = 'complete';
 
 -- We don't have user_profiles yet, let's see if we should create it or alter it
 
