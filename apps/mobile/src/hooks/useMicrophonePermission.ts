@@ -3,16 +3,23 @@ import { Audio } from 'expo-av';
 
 export function useMicrophonePermission() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [status, setStatus] = useState<Audio.PermissionStatus | null>(null);
 
   useEffect(() => {
     let isMounted = true;
 
     (async () => {
       try {
-        const { status } = await Audio.getPermissionsAsync();
-        if (isMounted) setHasPermission(status === 'granted');
+        const response = await Audio.getPermissionsAsync();
+        if (isMounted) {
+          setStatus(response.status);
+          setHasPermission(response.status === 'granted');
+        }
       } catch {
-        if (isMounted) setHasPermission(false);
+        if (isMounted) {
+          setStatus(null);
+          setHasPermission(false);
+        }
       }
     })();
 
@@ -23,14 +30,16 @@ export function useMicrophonePermission() {
 
   const requestPermission = async () => {
     try {
-      const { status } = await Audio.requestPermissionsAsync();
-      setHasPermission(status === 'granted');
-      return status === 'granted';
+      const response = await Audio.requestPermissionsAsync();
+      setStatus(response.status);
+      setHasPermission(response.status === 'granted');
+      return response.status === 'granted';
     } catch {
+      setStatus(null);
       setHasPermission(false);
       return false;
     }
   };
 
-  return { hasPermission, requestPermission };
+  return { hasPermission, status, requestPermission };
 }
