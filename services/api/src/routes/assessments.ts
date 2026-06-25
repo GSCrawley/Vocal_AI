@@ -38,9 +38,6 @@ export default async function assessmentsRoutes(app: FastifyInstance) {
         .single();
 
       if (error) {
-        if ((error as { code?: string })?.code === '23505') {
-          return reply.code(409).send({ error: 'Baseline assessment already exists' });
-        }
         app.log.error(error, 'Failed to insert baseline snapshot');
         return reply.code(500).send({ error: 'Failed to create baseline assessment job' });
       }
@@ -68,7 +65,7 @@ export default async function assessmentsRoutes(app: FastifyInstance) {
 
       const { data, error } = await supabase
         .from('user_baseline_snapshot')
-        .select('snapshot_id,status,completed_at,voice_type,recommended_key_midi,quality_flag,result_json')
+        .select('*')
         .eq('snapshot_id', jobId)
         .eq('user_id', userId)
         .single();

@@ -1,7 +1,7 @@
 CREATE TABLE user_baseline_snapshot (
   snapshot_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  audio_processor_job_id TEXT NOT NULL,
+  user_id UUID NOT NULL,
+  audio_processor_job_id UUID,
   status TEXT NOT NULL DEFAULT 'pending',
   tier TEXT NOT NULL DEFAULT 'singing',
   result_json JSONB,
@@ -12,7 +12,7 @@ CREATE TABLE user_baseline_snapshot (
   highest_note_midi INT,
   comfortable_low_midi INT,
   comfortable_high_midi INT,
-  recommended_key_midi SMALLINT,
+  recommended_key_midi INT,
   quality_flag TEXT,
   completed_at TIMESTAMPTZ,
   audio_deleted_at TIMESTAMPTZ
@@ -33,18 +33,10 @@ CREATE POLICY user_baseline_snapshot_update
   ON user_baseline_snapshot FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
 CREATE OR REPLACE VIEW baseline_context_view AS
-SELECT
-  s.user_id,
-  s.snapshot_id,
-  s.tier,
-  s.voice_type,
-  s.recommended_key_midi,
-  s.comfortable_low_midi,
-  s.comfortable_high_midi,
-  s.captured_at,
-  s.completed_at
+SELECT *
 FROM user_baseline_snapshot s
-WHERE s.status = 'complete';
+WHERE s.status = 'complete' AND s.tier = 'singing'
+ORDER BY s.completed_at DESC;
 
 -- We don't have user_profiles yet, let's see if we should create it or alter it
 
