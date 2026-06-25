@@ -31,6 +31,7 @@ type SpeakingScoreWeights = {
 };
 
 /**
+ * @alpha PARKED FOR PHASE 2 - This function is currently unused as Phase 1 focuses exclusively on the singing tier.
  * Score pace based on measured WPM vs target range.
  * Full score at target; degrades gracefully outside the range.
  */
@@ -51,6 +52,7 @@ export function scorePace(wpm: number, context: keyof typeof WPM_TARGETS = 'pres
 }
 
 /**
+ * @alpha PARKED FOR PHASE 2 - This function is currently unused as Phase 1 focuses exclusively on the singing tier.
  * Score prosody/pitch variability.
  * Monotone (low F0 range) is penalized; healthy expressiveness is rewarded.
  * Uptalk (rising sentence-final F0) is penalized.
@@ -71,6 +73,7 @@ export function scoreProsody(f0RangeHz: number, uptalkRatio: number): number {
 }
 
 /**
+ * @alpha PARKED FOR PHASE 2 - This function is currently unused as Phase 1 focuses exclusively on the singing tier.
  * Score projection based on RMS level and consistency.
  */
 export function scoreProjection(meanRmsDb: number, rmsVarianceDb: number): number {
@@ -91,6 +94,7 @@ export function scoreProjection(meanRmsDb: number, rmsVarianceDb: number): numbe
 }
 
 /**
+ * @alpha PARKED FOR PHASE 2 - This function is currently unused as Phase 1 focuses exclusively on the singing tier.
  * Score filler word rate.
  * Target: < 2 fillers per minute for excellent; > 6 = retry band.
  */
@@ -104,6 +108,7 @@ export function scoreFillerRate(fillersPerMinute: number): number {
 }
 
 /**
+ * @alpha PARKED FOR PHASE 2 - This function is currently unused as Phase 1 focuses exclusively on the singing tier.
  * Pure function to compute overall speaking score based on specific weights.
  */
 export function computeSpeakingScore(
@@ -137,6 +142,7 @@ export function computeSpeakingScore(
 }
 
 /**
+ * @alpha PARKED FOR PHASE 2 - This function is currently unused as Phase 1 focuses exclusively on the singing tier.
  * Compute overall speaking exercise score weighted by goal focus.
  */
 export function getSpeakingScoreBreakdown(
@@ -168,6 +174,7 @@ export function getSpeakingScoreBreakdown(
 }
 
 /**
+ * @alpha PARKED FOR PHASE 2 - This function is currently unused as Phase 1 focuses exclusively on the singing tier.
  * Map a speaking score to a coaching payload.
  * Each goal has a different dominant failure message.
  */
@@ -298,6 +305,9 @@ export interface SpeakingFeedback {
   text: string;
 }
 
+/**
+ * @alpha PARKED FOR PHASE 2 - This function is currently unused as Phase 1 focuses exclusively on the singing tier.
+ */
 export function generateSpeakingFeedback(
   failureMode: SpeakingFailureMode | null
 ): SpeakingFeedback {
