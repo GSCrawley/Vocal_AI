@@ -4,6 +4,7 @@ import fastifyJwt from '@fastify/jwt';
 import { LivePitchFrame, SessionState, SessionEvent } from '@voice/shared-types';
 import { micCheck, scoreSustainedNote } from '@voice/audio-metrics';
 import { transition } from '@voice/exercise-engine';
+import assessmentsRoutes from './routes/assessments.js';
 
 export const apiService = {
   service: 'api',
@@ -55,6 +56,8 @@ app.get('/healthz', async (_request: FastifyRequest, _reply: FastifyReply) => {
 app.get('/', async (_request: FastifyRequest, _reply: FastifyReply) => {
   return { service: 'api', status: 'stub' };
 });
+
+app.register(assessmentsRoutes, { prefix: '/v1/assessments' });
 
 // Placeholder route for processing audio with audio-metrics
 app.post(
