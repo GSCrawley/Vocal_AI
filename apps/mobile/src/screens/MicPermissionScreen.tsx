@@ -13,10 +13,7 @@ export default function MicPermissionScreen() {
   const navigation = useNavigation<NavigationProp>();
 
   const handleRequestPermission = async () => {
-    const granted = await requestPermission();
-    if (granted) {
-      navigation.navigate('MicCheck');
-    }
+    await requestPermission();
   };
 
   useEffect(() => {
