@@ -1,33 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
-import { Audio } from 'expo-av';
 import { colors } from '@voice/ui-tokens';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { useMicrophonePermission } from '../hooks/useMicrophonePermission';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'MicPermission'>;
 
 export default function MicPermissionScreen() {
-  const [status, setStatus] = useState<Audio.PermissionStatus | null>(null);
+  const { status, requestPermission } = useMicrophonePermission();
   const navigation = useNavigation<NavigationProp>();
 
-  const requestPermission = async () => {
-    const response = await Audio.requestPermissionsAsync();
-    setStatus(response.status);
-    if (response.status === 'granted') {
+  const handleRequestPermission = async () => {
+    const granted = await requestPermission();
+    if (granted) {
       navigation.navigate('MicCheck');
     }
   };
 
   useEffect(() => {
-    Audio.getPermissionsAsync().then((response) => {
-      setStatus(response.status);
-      if (response.status === 'granted') {
-        navigation.navigate('MicCheck');
-      }
-    });
-  }, [navigation]);
+    if (status === 'granted') {
+      navigation.navigate('MicCheck');
+    }
+  }, [status, navigation]);
 
   return (
     <View style={styles.container}>
@@ -38,7 +34,7 @@ export default function MicPermissionScreen() {
           Permission denied. Please enable in your device settings to continue.
         </Text>
       )}
-      <Button color={colors.accent} title="Grant Permission" onPress={requestPermission} />
+      <Button color={colors.accent} title="Grant Permission" onPress={handleRequestPermission} />
     </View>
   );
 }
