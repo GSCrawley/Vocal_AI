@@ -18,6 +18,7 @@
     "@sentry/profiling-node": "^8.55.2",
     "@sentry/tracing": "^7.120.4",
     "@sentry/types": "^8.55.2",
+    "@supabase/supabase-js": "^2.108.2",
     "@types/node": "22.0.0",
     "@voice/audio-metrics": "workspace:*",
     "@voice/coaching-rules": "workspace:^",
