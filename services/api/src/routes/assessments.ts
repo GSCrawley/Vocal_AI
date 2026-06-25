@@ -38,6 +38,9 @@ export default async function assessmentsRoutes(app: FastifyInstance) {
         .single();
 
       if (error) {
+        if ((error as { code?: string })?.code === '23505') {
+          return reply.code(409).send({ error: 'Baseline assessment already exists' });
+        }
         app.log.error(error, 'Failed to insert baseline snapshot');
         return reply.code(500).send({ error: 'Failed to create baseline assessment job' });
       }
