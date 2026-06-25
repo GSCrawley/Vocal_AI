@@ -1,4 +1,4 @@
-import { centsToHz, scoreSustainedNote, micCheck, scoreStability } from '../index';
+import { hzToCents, centsToHz, scoreSustainedNote, micCheck, scoreStability } from '../index';
 import { LivePitchFrame } from '@voice/shared-types';
 
 describe('audio-metrics', () => {
@@ -14,6 +14,85 @@ describe('audio-metrics', () => {
       ...options,
     };
   }
+
+  describe('hzToCents / centsToHz', () => {
+    describe('exact conversions (toBe)', () => {
+      it('converts to expected cents', () => {
+        expect(hzToCents(880, 440)).toBe(1200);
+        expect(hzToCents(220, 440)).toBe(-1200);
+        expect(hzToCents(440, 440)).toBe(0);
+      });
+
+      it('converts to expected Hz', () => {
+        expect(centsToHz(1200, 440)).toBe(880);
+        expect(centsToHz(-1200, 440)).toBe(220);
+        expect(centsToHz(0, 440)).toBe(440);
+      });
+    });
+
+    describe('approximate conversions (toBeCloseTo)', () => {
+      it('handles a semitone of ~100 cents', () => {
+        // 440 * 2^(100/1200) ≈ 466.16
+        expect(centsToHz(100, 440)).toBeCloseTo(466.16, 2);
+        expect(hzToCents(466.16, 440)).toBeCloseTo(100, 0);
+      });
+    });
+
+    describe('round-trip inverse operations', () => {
+      it('returns original frequency when converted to cents and back', () => {
+        const frequencies = [220, 440, 660, 880];
+        for (const f of frequencies) {
+          const cents = hzToCents(f, 440);
+          expect(centsToHz(cents, 440)).toBeCloseTo(f);
+        }
+      });
+
+      it('returns original cents when converted to hz and back', () => {
+        const centsList = [-600, -100, 0, 100, 600, 1200];
+        for (const c of centsList) {
+          const hz = centsToHz(c, 440);
+          expect(hzToCents(hz, 440)).toBeCloseTo(c);
+        }
+      });
+    });
+
+    describe('guard / boundary cases', () => {
+      it('hzToCents returns 0 for invalid inputs', () => {
+        expect(hzToCents(0, 440)).toBe(0);
+        expect(hzToCents(-100, 440)).toBe(0);
+        expect(hzToCents(440, 0)).toBe(0);
+        expect(hzToCents(440, -100)).toBe(0);
+      });
+
+      it('centsToHz returns 0 for invalid inputs', () => {
+        expect(centsToHz(100, 0)).toBe(0);
+        expect(centsToHz(100, -50)).toBe(0);
+      });
+
+      it('centsToHz handles negative cents normally without guarding', () => {
+        // Just verifying it doesn't return 0
+        expect(centsToHz(-600, 440)).not.toBe(0);
+      });
+    });
+
+    describe('non-440 reference frequency', () => {
+      const C4 = 261.63;
+
+      it('converts correctly using C4 reference', () => {
+        // 1 octave above C4
+        expect(hzToCents(C4 * 2, C4)).toBe(1200);
+        expect(centsToHz(1200, C4)).toBeCloseTo(C4 * 2);
+      });
+
+      it('round-trips correctly using C4 reference', () => {
+        const testFreqs = [C4 / 2, C4, C4 * 1.5, C4 * 2];
+        for (const f of testFreqs) {
+          const cents = hzToCents(f, C4);
+          expect(centsToHz(cents, C4)).toBeCloseTo(f);
+        }
+      });
+    });
+  });
 
   describe('micCheck', () => {
     it('returns low_confidence if all frames are unvoiced or low confidence', () => {
