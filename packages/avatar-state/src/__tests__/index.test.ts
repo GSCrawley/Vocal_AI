@@ -5,6 +5,7 @@ import {
   buildIntroDialogue,
   buildCoachingDialogue,
   buildCelebrationDialogue,
+  buildListeningPrompt
 } from '../index';
 import type { CoachingPayload } from '@voice/shared-types';
 
@@ -29,6 +30,44 @@ describe('Avatar State', () => {
     expect(AVATAR_ANIMATION_ASSETS['CELEBRATING']).toBe('avatar_celebrating.json');
   });
 
+   describe('buildListeningPrompt', () => {
+    it('returns correct prompt for speaking tier when isRetry is true', () => {
+      const result = buildListeningPrompt('speaking', true);
+      expect(result).toEqual({
+        text: "Go ahead when you're ready.",
+        state: 'LISTENING',
+        durationMs: 1500,
+      });
+    });
+
+    it('returns correct prompt for singing tier when isRetry is true', () => {
+      const result = buildListeningPrompt('singing', true);
+      expect(result).toEqual({
+        text: 'Try again — take a breath first.',
+        state: 'LISTENING',
+        durationMs: 1500,
+      });
+    });
+
+    it('returns correct prompt for speaking tier when isRetry is false', () => {
+      const result = buildListeningPrompt('speaking', false);
+      expect(result).toEqual({
+        text: "I'm listening.",
+        state: 'LISTENING',
+        durationMs: 1500,
+      });
+    });
+
+    it('returns correct prompt for singing tier when isRetry is false', () => {
+      const result = buildListeningPrompt('singing', false);
+      expect(result).toEqual({
+        text: "Whenever you're ready.",
+        state: 'LISTENING',
+        durationMs: 1500,
+      });
+    });
+  });
+  
   describe('buildIntroDialogue', () => {
     it('returns first session greeting for speaking tier', () => {
       const lines = buildIntroDialogue({ tier: 'speaking', sessionCount: 0 });
