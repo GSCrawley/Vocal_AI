@@ -20,9 +20,14 @@ export const Recording = {
   ),
 };
 
+export const getPermissionsAsync = jest.fn();
+export const requestPermissionsAsync = jest.fn();
+
 export const Audio = {
   Recording,
   RecordingOptionsPresets,
+  getPermissionsAsync,
+  requestPermissionsAsync,
 };
 
 export default { Audio };
