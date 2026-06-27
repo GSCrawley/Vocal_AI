@@ -1,44 +1,48 @@
 import { useState, useEffect } from 'react';
 import { Audio } from 'expo-av';
 
+export async function checkMicrophonePermission() {
+  try {
+    const { status } = await Audio.getPermissionsAsync();
+    return { hasPermission: status === 'granted', status };
+  } catch {
+    return { hasPermission: false, status: null };
+  }
+}
+
+export async function requestMicrophonePermission() {
+  try {
+    const { status } = await Audio.requestPermissionsAsync();
+    return { hasPermission: status === 'granted', status };
+  } catch {
+    return { hasPermission: false, status: null };
+  }
+}
+
 export function useMicrophonePermission() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [status, setStatus] = useState<Audio.PermissionStatus | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
 
     (async () => {
-      try {
-        const response = await Audio.getPermissionsAsync();
+      const result = await checkMicrophonePermission();
         if (isMounted) {
-          setStatus(response.status);
-          setHasPermission(response.status === 'granted');
-        }
-      } catch {
-        if (isMounted) {
-          setStatus(null);
-          setHasPermission(false);
-        }
-      }
-    })();
-
-    return () => {
-      isMounted = false;
-    };
+          setHasPermission(result.hasPermission);
+          setStatus(result.status);
+      })();
+  
+      return () => {
+        isMounted = false;
+      };
   }, []);
 
   const requestPermission = async () => {
-    try {
-      const response = await Audio.requestPermissionsAsync();
-      setStatus(response.status);
-      setHasPermission(response.status === 'granted');
-      return response.status === 'granted';
-    } catch {
-      setStatus(null);
-      setHasPermission(false);
-      return false;
-    }
+    const result = await requestMicrophonePermission();
+      setHasPermission(result.hasPermission);
+      setStatus(result.status);
+    return result.hasPermission;
   };
 
   return { hasPermission, status, requestPermission };
