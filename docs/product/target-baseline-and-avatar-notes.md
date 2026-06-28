@@ -7,6 +7,7 @@
 ## 1. Context
 
 The singing tier uses a **dual-baseline** learning model:
+
 - **Current-skill baseline** (built): guided range walk + sustained holds →
   range, pitch accuracy, stability, breath, tone (HNR/CPP/jitter/shimmer),
   recommended key → baseline snapshot.
@@ -23,13 +24,15 @@ is a **simulated best realistic version of the user's own voice**, generated
 from configuration-stage probe exercises.
 
 Rationale:
+
 - Avoids the demoralization and unhealthy-imitation risk of targeting a pro.
 - Sidesteps third-party copyright entirely.
-- High motivational payoff ("that's *me*?").
+- High motivational payoff ("that's _me_?").
 - Reuses data we already capture (the current-baseline pipeline IS the
   configuration sample) — additive, not a rewrite.
 
 Hard constraints (must hold or the feature is harmful):
+
 - The synthesized target is a **motivational preview, NOT a scientific
   forecast or guaranteed ceiling.** Frame it explicitly as a simulation.
 - Any predicted ceiling must reflect the **realistic, bounded, slow** envelope
@@ -37,6 +40,7 @@ Hard constraints (must hold or the feature is harmful):
 - Vocal health and truthfulness override motivation, always.
 
 ### Configuration flow (intent)
+
 A short (~5–8 min) set of probe exercises that reveal latent capacity beyond
 current performance: extended range probe, passaggio probe, breath-capacity
 probe, tone-quality probe — building on the existing range-walk + sustained-hold
@@ -67,11 +71,13 @@ character.
   performer) without gimmickry.
 
 ## 5. Open questions (defer to user testing)
+
 - Does a synthesized "future voice" motivate or discourage when the gap is large?
 - Synthesis quality threshold that motivates vs. reads as fake.
-- Whether the coach should ever *demonstrate* by singing (ties to synthesis).
+- Whether the coach should ever _demonstrate_ by singing (ties to synthesis).
 
 ## 6. Build impact
+
 Additive. No teardown of the current baseline pipeline. New work: target-ceiling
 estimation, optional synthesis layer, target profile storage, gap engine,
 roadmap generation, gamification policy engine, avatar audio/haptic runtime.
