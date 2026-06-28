@@ -28,20 +28,21 @@ export function useMicrophonePermission() {
 
     (async () => {
       const result = await checkMicrophonePermission();
-        if (isMounted) {
-          setHasPermission(result.hasPermission);
-          setStatus(result.status);
-      })();
-  
-      return () => {
-        isMounted = false;
-      };
+      if (isMounted) {
+        setHasPermission(result.hasPermission);
+        setStatus(result.status);
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const requestPermission = async () => {
     const result = await requestMicrophonePermission();
-      setHasPermission(result.hasPermission);
-      setStatus(result.status);
+    setHasPermission(result.hasPermission);
+    setStatus(result.status);
     return result.hasPermission;
   };
 
