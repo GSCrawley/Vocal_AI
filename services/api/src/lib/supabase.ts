@@ -13,13 +13,9 @@ if (!supabaseServiceKey) {
 
 // We use the service role key on the API side to bypass RLS when performing background operations
 // For user-initiated operations, we can still use this client but we should pass the JWT to establish the user context
-export const supabase = createClient(
-  supabaseUrl,
-  supabaseServiceKey,
-  {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  }
-);
+export const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+  },
+});
