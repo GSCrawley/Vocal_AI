@@ -31,6 +31,7 @@ export function useMicrophonePermission() {
         if (isMounted) {
           setHasPermission(result.hasPermission);
           setStatus(result.status);
+        }
       })();
   
       return () => {
