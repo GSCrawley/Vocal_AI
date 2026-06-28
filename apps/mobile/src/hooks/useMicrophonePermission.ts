@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Audio } from 'expo-av';
 
 export async function checkMicrophonePermission() {
@@ -22,27 +22,30 @@ export async function requestMicrophonePermission() {
 export function useMicrophonePermission() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
-    let isMounted = true;
+    isMountedRef.current = true;
 
     (async () => {
       const result = await checkMicrophonePermission();
-      if (isMounted) {
+      if (isMountedRef.current) {
         setHasPermission(result.hasPermission);
         setStatus(result.status);
       }
     })();
 
     return () => {
-      isMounted = false;
+      isMountedRef.current = false;
     };
   }, []);
 
   const requestPermission = async () => {
     const result = await requestMicrophonePermission();
-    setHasPermission(result.hasPermission);
-    setStatus(result.status);
+    if (isMountedRef.current) {
+      setHasPermission(result.hasPermission);
+      setStatus(result.status);
+    }
     return result.hasPermission;
   };
 
