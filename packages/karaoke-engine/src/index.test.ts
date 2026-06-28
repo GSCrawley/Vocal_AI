@@ -1,4 +1,4 @@
-import { computeContourMatch, computePitchSimilarity } from './index';
+import { computeContourMatch, computePitchSimilarity, computeTimingAccuracy } from './index';
 import type { LivePitchFrame } from '@voice/shared-types';
 
 describe('computeContourMatch', () => {
@@ -168,4 +168,65 @@ describe('computeContourMatch', () => {
     expect(computePitchSimilarity(userFrames, refFrames)).toBe(83);
   });
 });
+});
+
+describe('computeTimingAccuracy', () => {
+  // durationScore = 100 (<= 15%), onsetScore = 100 (<= 200) -> (100 + 100) / 2 = 100
+  it('should return 100 for a perfect match', () => {
+    expect(computeTimingAccuracy(1000, 1000, 0)).toBe(100);
+  });
+
+  // durationScore = 50 (> 30%), onsetScore = 50 (> 500) -> (50 + 50) / 2 = 50
+  it('should return 50 for the worst match', () => {
+    expect(computeTimingAccuracy(2000, 1000, 600)).toBe(50);
+  });
+
+  describe('duration matching', () => {
+    // onsetScore is always 100 here (onset = 0)
+
+    it('should give full score (100) when duration is within 15%', () => {
+      // 1000 * 1.15 = 1150
+      expect(computeTimingAccuracy(1150, 1000, 0)).toBe(100);
+      // 1000 * 0.85 = 850
+      expect(computeTimingAccuracy(850, 1000, 0)).toBe(100);
+    });
+
+    it('should give partial score (75) when duration is between 15% and 30%', () => {
+      // 1000 * 1.30 = 1300 -> (75 + 100) / 2 = 88 (Math.round(87.5))
+      expect(computeTimingAccuracy(1300, 1000, 0)).toBe(88);
+      // 1000 * 0.70 = 700 -> (75 + 100) / 2 = 88
+      expect(computeTimingAccuracy(700, 1000, 0)).toBe(88);
+      // 1000 * 1.16 = 1160 -> (75 + 100) / 2 = 88
+      expect(computeTimingAccuracy(1160, 1000, 0)).toBe(88);
+    });
+
+    it('should give low score (50) when duration is off by more than 30%', () => {
+      // 1000 * 1.31 = 1310 -> (50 + 100) / 2 = 75
+      expect(computeTimingAccuracy(1310, 1000, 0)).toBe(75);
+      // 1000 * 0.69 = 690 -> (50 + 100) / 2 = 75
+      expect(computeTimingAccuracy(690, 1000, 0)).toBe(75);
+    });
+  });
+
+  describe('onset matching', () => {
+    // durationScore is always 100 here (duration matches exactly)
+
+    it('should give full score (100) when onset is within 200ms', () => {
+      expect(computeTimingAccuracy(1000, 1000, 200)).toBe(100);
+      expect(computeTimingAccuracy(1000, 1000, -200)).toBe(100);
+    });
+
+    it('should give partial score (75) when onset is between 200ms and 500ms', () => {
+      // (100 + 75) / 2 = 88
+      expect(computeTimingAccuracy(1000, 1000, 201)).toBe(88);
+      expect(computeTimingAccuracy(1000, 1000, 500)).toBe(88);
+      expect(computeTimingAccuracy(1000, 1000, -500)).toBe(88);
+    });
+
+    it('should give low score (50) when onset is off by more than 500ms', () => {
+      // (100 + 50) / 2 = 75
+      expect(computeTimingAccuracy(1000, 1000, 501)).toBe(75);
+      expect(computeTimingAccuracy(1000, 1000, -501)).toBe(75);
+    });
+  });
 });
