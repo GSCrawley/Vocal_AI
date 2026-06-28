@@ -173,14 +173,7 @@ export const BADGE_CHECKS: BadgeCheck[] = [
   { badgeId: 'no_filler', earned: (i) => (i.fillerRateMinimum ?? 99) < 1 },
   {
     badgeId: 'pause_master',
-    earned: (i) => {
-      let count = 0;
-      for (const e of i.exercisesCompleted) {
-        if (e.includes('pause')) count++;
-        if (count >= 10) return true;
-      }
-      return false;
-    },
+    earned: (i) => i.exercisesCompleted.filter((e) => e.includes('pause')).length >= 10,
   },
   { badgeId: 'authority_voice', earned: (i) => (i.downturnRatioMax ?? 0) >= 0.9 },
   { badgeId: 'the_hook', earned: (i) => (i.topScoreByExercise['hook'] ?? 0) >= 85 },
