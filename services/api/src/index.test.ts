@@ -1,4 +1,10 @@
-import { app, apiService } from './index.js';
+import { jest } from '@jest/globals';
+
+jest.unstable_mockModule('./lib/supabase.js', () => ({
+  supabase: {},
+}));
+
+const { app, apiService } = await import('./index.js');
 
 describe('API Service', () => {
   let token = '';
