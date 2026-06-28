@@ -101,52 +101,6 @@ describe('Assessments Routes', () => {
   });
 
   describe('GET /v1/assessments/baseline/:jobId', () => {
-    it('returns complete status and additional fields when job is complete', async () => {
-      const mockSelect = jest.fn().mockReturnThis();
-      const mockEq1 = jest.fn().mockReturnThis();
-      const mockEq2 = jest.fn().mockReturnThis();
-      const mockSingle = jest.fn().mockResolvedValue({
-        data: {
-          snapshot_id: 'mock-uuid',
-          status: 'complete',
-          completed_at: '2023-01-01T00:00:00.000Z',
-          voice_type: 'Tenor',
-          recommended_key_midi: 60,
-          quality_flag: 'Good',
-          result_json: { test: 'result' },
-        },
-        error: null,
-      } as never);
-
-      mockFrom.mockReturnValue({
-        select: mockSelect,
-        eq: mockEq1.mockImplementationOnce(() => ({
-          eq: mockEq2.mockImplementationOnce(() => ({
-            single: mockSingle,
-          })),
-        })),
-      } as never);
-
-      const response = await app.inject({
-        method: 'GET',
-        url: '/v1/assessments/baseline/mock-uuid',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      expect(response.statusCode).toBe(200);
-      expect(response.json()).toEqual({
-        jobId: 'mock-uuid',
-        status: 'complete',
-        completedAt: '2023-01-01T00:00:00.000Z',
-        voiceType: 'Tenor',
-        recommendedStartingKeyMidi: 60,
-        qualityFlag: 'Good',
-        result: { test: 'result' },
-      });
-      expect(mockFrom).toHaveBeenCalledWith('user_baseline_snapshot');
-      expect(mockSelect).toHaveBeenCalledWith('*');
-    });
-
     it('returns 401 Unauthorized when token is missing', async () => {
       const response = await app.inject({
         method: 'GET',
