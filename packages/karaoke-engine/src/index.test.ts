@@ -168,4 +168,25 @@ describe('computeContourMatch', () => {
       expect(computePitchSimilarity(userFrames, refFrames)).toBe(83);
     });
   });
+
+  describe('computeTimingAccuracy', () => {
+    it('should return 100 for a perfect timing match', () => {
+      expect(computeTimingAccuracy(1000, 1000, 0)).toBe(100);
+    });
+
+    it('should return 100 at the full-score duration and onset boundaries', () => {
+      expect(computeTimingAccuracy(1150, 1000, 200)).toBe(100);
+      expect(computeTimingAccuracy(850, 1000, -200)).toBe(100);
+    });
+
+    it('should return 75 at the mid-score duration and onset boundaries', () => {
+      expect(computeTimingAccuracy(1300, 1000, 500)).toBe(75);
+      expect(computeTimingAccuracy(700, 1000, -500)).toBe(75);
+    });
+
+    it('should return 50 for the worst timing mismatch', () => {
+      expect(computeTimingAccuracy(1310, 1000, 501)).toBe(50);
+      expect(computeTimingAccuracy(680, 1000, -501)).toBe(50);
+    });
+  });
 });
