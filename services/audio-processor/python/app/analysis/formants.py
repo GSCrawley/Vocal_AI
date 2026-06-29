@@ -1,7 +1,6 @@
 import parselmouth
 import numpy as np
-import io
-import soundfile as sf
+import io, soundfile as sf
 
 def extract_formants(y: np.ndarray, sr: int, max_formant: float = 5500.0) -> dict:
     """
