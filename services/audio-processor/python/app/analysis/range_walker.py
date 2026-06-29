@@ -101,9 +101,14 @@ def detect_vocal_range(
 
 def _estimate_voice_type(low_midi: int, high_midi: int) -> str:
     mid = (low_midi + high_midi) / 2
-    if mid >= 62:    return "soprano"    # above D4
-    if mid >= 57:    return "mezzo"      # A3–D4
-    if mid >= 53:    return "alto"       # F3–A3
-    if mid >= 48:    return "tenor"      # C3–F3
-    if mid >= 43:    return "baritone"   # G2–C3
-    return "bass"                        # below G2
+    if mid >= 62:
+        return "soprano"    # above D4
+    if mid >= 57:
+        return "mezzo"      # A3–D4
+    if mid >= 53:
+        return "alto"       # F3–A3
+    if mid >= 48:
+        return "tenor"      # C3–F3
+    if mid >= 43:
+        return "baritone"   # G2–C3
+    return "bass"           # below G2

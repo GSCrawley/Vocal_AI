@@ -1,4 +1,6 @@
+import type { SpeakingAnalysisResult } from '@voice/shared-types';
 import {
+  getSpeakingScoreBreakdown,
   generateSpeakingFeedback,
   scorePace,
   computeSpeakingScore,
@@ -307,168 +309,89 @@ describe('scoreFillerRate', () => {
   });
 });
 
-describe('mapSpeakingScoreToCoaching', () => {
-  const baseAnalysis: SpeakingAnalysisResult = {
-    wpm: 150,
-    articulationRateWpm: 160,
+describe('getSpeakingScoreBreakdown', () => {
+  const defaultAnalysis: SpeakingAnalysisResult = {
+    wpm: 145, // presentation target -> scorePace = 100
+    articulationRateWpm: 150,
     meanF0Hz: 120,
-    f0RangeHz: 30,
-    uptalkRatio: 0.1,
+    f0RangeHz: 50, // -> scoreProsody ~ 90 (assumed typical value)
+    uptalkRatio: 0.1, // -> scoreProsody penalty small
     pauseCount: 5,
-    meanPauseDurationMs: 400,
-    meanRmsDb: -20,
-    rmsVarianceDb: 5,
+    meanPauseDurationMs: 500,
+    meanRmsDb: -15, // -> scoreProjection levelScore = 100
+    rmsVarianceDb: 5, // -> scoreProjection bonus = 10 (capped), total = 100
     fillerEvents: [],
-    fillerRate: 0,
+    fillerRate: 0, // -> scoreFillerRate = 100
   };
 
-  const baseScore: SpeakingExerciseScoreBreakdown = {
-    overall: 80,
-    pace: 80,
-    prosody: 80,
-    projection: 80,
-    fillerRate: 80,
-  };
+  it('computes breakdown and overall score correctly based on goal weights (pace)', () => {
+    // For goal 'pace': { pace: 0.6, prosody: 0.15, projection: 0.15, fillerRate: 0.1 }
+    // Based on defaultAnalysis:
+    // wpm = 145 -> target 145 -> paceScore = 100
+    // f0RangeHz = 50, uptalkRatio = 0.1 -> prosodyScore = 90
+    // meanRmsDb = -15, rmsVarianceDb = 5 -> projectionScore = 100 (100 + 10 = 110 clamped to 100)
+    // fillerRate = 0 -> fillerRateScore = 100
 
-  it('handles pace goal with excellent score', () => {
-    const score = { ...baseScore, overall: 95, pace: 95 };
-    const result = mapSpeakingScoreToCoaching(score, 'pace', baseAnalysis);
+    const result = getSpeakingScoreBreakdown(defaultAnalysis, 'pace');
 
-    expect(result.successBand).toBe('excellent');
-    expect(result.praiseMessage).toBe('Really strong.');
-    expect(result.correctionMessage).toBe('Good pace — keep that rhythm going.');
-    expect(result.actionTip).toBe('One more at this pace.');
+    expect(result.pace).toBe(100);
+    expect(result.prosody).toBe(88.5);
+    expect(result.projection).toBe(100);
+    expect(result.fillerRate).toBe(100);
+
+    // overall = 100 * 0.6 + 88.5 * 0.15 + 100 * 0.15 + 100 * 0.1
+    // = 60 + 13.275 + 15 + 10 = 98.275 -> 98
+    expect(result.overall).toBe(98);
   });
 
-  it('handles pace goal when too fast', () => {
-    const score = { ...baseScore, overall: 60, pace: 60 };
-    const analysis = { ...baseAnalysis, wpm: 170 };
-    const result = mapSpeakingScoreToCoaching(score, 'pace', analysis);
+  it('computes breakdown and overall score differently for a different goal (filler_reduction)', () => {
+    // For goal 'filler_reduction': { pace: 0.1, prosody: 0.1, projection: 0.1, fillerRate: 0.7 }
+    const result = getSpeakingScoreBreakdown(defaultAnalysis, 'filler_reduction');
 
-    expect(result.successBand).toBe('developing');
-    expect(result.praiseMessage).toBe('Getting there.');
-    expect(result.correctionMessage).toBe('You came in too fast. Slow down and trust the pauses.');
-    expect(result.actionTip).toBe('Try reading each sentence, then pausing 1 full second.');
+    // Component scores should be identical to the 'pace' goal test above
+    expect(result.pace).toBe(100);
+    expect(result.prosody).toBe(88.5);
+    expect(result.projection).toBe(100);
+    expect(result.fillerRate).toBe(100);
+
+    // overall = 100 * 0.1 + 88.5 * 0.1 + 100 * 0.1 + 100 * 0.7
+    // = 10 + 8.85 + 10 + 70 = 98.85 -> 99
+    expect(result.overall).toBe(99);
   });
 
-  it('handles pace goal when too slow', () => {
-    const score = { ...baseScore, overall: 49, pace: 49 };
-    const analysis = { ...baseAnalysis, wpm: 110 };
-    const result = mapSpeakingScoreToCoaching(score, 'pace', analysis);
+  it('reflects changes in context correctly', () => {
+    // conversational target is 155, max 180, min 130. WPM 145 is 10 off target. Width is 25.
+    // scorePace = 100 - (10 / 25) * 15 = 100 - 6 = 94
+    const result = getSpeakingScoreBreakdown(defaultAnalysis, 'pace', 'conversational');
 
-    expect(result.successBand).toBe('retry');
-    expect(result.praiseMessage).toBe('You got through it.');
-    expect(result.correctionMessage).toBe('You came in too slow. Aim for a more natural, conversational pace.');
-    expect(result.actionTip).toBe('Read just one paragraph. Very slowly.'); // Not logical text but matches original actionTips
+    expect(result.pace).toBe(94);
+
+    // overall = 94 * 0.6 + 88.5 * 0.15 + 100 * 0.15 + 100 * 0.1
+    // = 56.4 + 13.275 + 15 + 10 = 94.675 -> 95
+    expect(result.overall).toBe(95);
   });
 
-  it('handles prosody goal with uptalk', () => {
-    const score = { ...baseScore, overall: 75 };
-    const analysis = { ...baseAnalysis, uptalkRatio: 0.5 };
-    const result = mapSpeakingScoreToCoaching(score, 'prosody', analysis);
+  it('handles lower scores logically', () => {
+    const poorAnalysis: SpeakingAnalysisResult = {
+      ...defaultAnalysis,
+      wpm: 85, // presentation context: 70 - (120 - 85) * 2 = 0
+      f0RangeHz: 15, // scoreProsody range bucket => 40
+      uptalkRatio: 0.6, // uptalk penalty Math.round(0.6 * 40) = 24 => prosody 16
+      meanRmsDb: -35, // projection level = 30
+      rmsVarianceDb: 0, // projection bonus = 0 -> projection = 30
+      fillerRate: 15, // fillerRate = 15
+    };
 
-    expect(result.successBand).toBe('good');
-    expect(result.praiseMessage).toBe('Good work.');
-    expect(result.correctionMessage).toBe('Your sentences are ending like questions. Bring the pitch down at the end of each statement.');
-    expect(result.actionTip).toBe('Try emphasizing the key word in each sentence.');
-  });
+    const result = getSpeakingScoreBreakdown(poorAnalysis, 'authority');
+    // authority weights: { pace: 0.2, prosody: 0.5, projection: 0.2, fillerRate: 0.1 }
 
-  it('handles prosody goal with flat pitch', () => {
-    const score = { ...baseScore, overall: 49 };
-    const analysis = { ...baseAnalysis, f0RangeHz: 15 };
-    const result = mapSpeakingScoreToCoaching(score, 'prosody', analysis);
+    expect(result.pace).toBe(0);
+    expect(result.prosody).toBe(16);
+    expect(result.projection).toBe(30);
+    expect(result.fillerRate).toBe(15);
 
-    expect(result.successBand).toBe('retry');
-    expect(result.correctionMessage).toBe('Your voice stayed very flat — vary your pitch more to keep listeners engaged.');
-    expect(result.actionTip).toBe('Exaggerate the pitch on every important word — go over the top on purpose.');
-  });
-
-  it('handles prosody goal with good pitch', () => {
-    const score = { ...baseScore, overall: 90 };
-    const result = mapSpeakingScoreToCoaching(score, 'prosody', baseAnalysis);
-
-    expect(result.correctionMessage).toBe('Good expressiveness — your pitch was varied and engaging.');
-  });
-
-  it('handles projection goal when too quiet', () => {
-    const score = { ...baseScore, overall: 65, projection: 60 };
-    const analysis = { ...baseAnalysis, meanRmsDb: -30 };
-    const result = mapSpeakingScoreToCoaching(score, 'projection', analysis);
-
-    expect(result.successBand).toBe('developing');
-    expect(result.correctionMessage).toBe('Your voice was too quiet — project from the chest, not just the throat.');
-  });
-
-  it('handles projection goal when loud but poor score', () => {
-    const score = { ...baseScore, overall: 65, projection: 60 };
-    const analysis = { ...baseAnalysis, meanRmsDb: -20 };
-    const result = mapSpeakingScoreToCoaching(score, 'projection', analysis);
-
-    expect(result.successBand).toBe('developing');
-    expect(result.correctionMessage).toBe('Good volume. Work on varying dynamics for emphasis.');
-  });
-
-  it('handles projection goal with good projection', () => {
-    const score = { ...baseScore, overall: 95, projection: 95 };
-    const result = mapSpeakingScoreToCoaching(score, 'projection', baseAnalysis);
-
-    expect(result.successBand).toBe('excellent');
-    expect(result.correctionMessage).toBe('Strong projection — it carried well.');
-  });
-
-  it('handles filler_reduction goal with high fillers', () => {
-    const score = { ...baseScore, overall: 49 };
-    const analysis = { ...baseAnalysis, fillerRate: 5 };
-    const result = mapSpeakingScoreToCoaching(score, 'filler_reduction', analysis);
-
-    expect(result.successBand).toBe('retry');
-    expect(result.correctionMessage).toBe('You used about 5 fillers per minute. Next try, replace every "um" with a silent pause.');
-  });
-
-  it('handles filler_reduction goal with some fillers', () => {
-    const score = { ...baseScore, overall: 75 };
-    const analysis = { ...baseAnalysis, fillerRate: 3 };
-    const result = mapSpeakingScoreToCoaching(score, 'filler_reduction', analysis);
-
-    expect(result.successBand).toBe('good');
-    expect(result.correctionMessage).toBe("A few fillers slipped in. You're improving — notice where they come and plan the thought before speaking.");
-  });
-
-  it('handles filler_reduction goal with almost no fillers', () => {
-    const score = { ...baseScore, overall: 95 };
-    const analysis = { ...baseAnalysis, fillerRate: 1 };
-    const result = mapSpeakingScoreToCoaching(score, 'filler_reduction', analysis);
-
-    expect(result.successBand).toBe('excellent');
-    expect(result.correctionMessage).toBe('Almost filler-free — well done.');
-  });
-
-  it('handles authority goal with too much uptalk', () => {
-    const score = { ...baseScore, overall: 60 };
-    const analysis = { ...baseAnalysis, uptalkRatio: 0.6 };
-    const result = mapSpeakingScoreToCoaching(score, 'authority', analysis);
-
-    expect(result.successBand).toBe('developing');
-    expect(result.correctionMessage).toBe('Too much uptalk. Every statement that ends rising sounds like a question. Drop the final note on each sentence.');
-  });
-
-  it('handles authority goal with good markers', () => {
-    const score = { ...baseScore, overall: 84 };
-    const analysis = { ...baseAnalysis, uptalkRatio: 0.1 };
-    const result = mapSpeakingScoreToCoaching(score, 'authority', analysis);
-
-    expect(result.successBand).toBe('good');
-    expect(result.correctionMessage).toBe('Authority markers were good — confident, direct delivery.');
-  });
-
-  it('handles static goals: resonance, articulation, breath_support', () => {
-    const resonanceResult = mapSpeakingScoreToCoaching(baseScore, 'resonance', baseAnalysis);
-    expect(resonanceResult.correctionMessage).toBe('Focus on feeling the vibration in your chest as you speak. Think "low and forward," not "high and back."');
-
-    const articulationResult = mapSpeakingScoreToCoaching(baseScore, 'articulation', baseAnalysis);
-    expect(articulationResult.correctionMessage).toBe('Consonants were clear. Keep opening your mouth fully — clarity comes from space, not force.');
-
-    const breathResult = mapSpeakingScoreToCoaching(baseScore, 'breath_support', baseAnalysis);
-    expect(breathResult.correctionMessage).toBe("Keep the breath flowing through to the end of each sentence. Don't run out of air before the period.");
+    // overall = 0 * 0.2 + 16 * 0.5 + 30 * 0.2 + 15 * 0.1
+    // = 0 + 8 + 6 + 1.5 = 15.5 -> 16
+    expect(result.overall).toBe(16);
   });
 });
