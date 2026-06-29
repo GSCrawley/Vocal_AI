@@ -803,6 +803,29 @@ Do not implement these until their phase gate opens:
 - Does this add or update tests for changed behavior?
 - Does this update docs when behavior changes?
 - Does this keep Build 0.1 smaller than MVP?
+- Does every "task complete" claim correspond to a real branch AND a real PR the
+  reviewer can open? If no PR was created, the task does NOT get reported as done. A no-op with no PR can be a valid outcome; however a fabricated diff or a phantom
+  "submitted the PR" message can not.
+
+### Honest no-op handling
+
+Before implementing anything, determine whether the target already satisfies the
+task (e.g. the function is already fully tested, the import is already correct).
+
+If the task is already complete and requires no functional change:
+- DO NOT fabricate a patch, fix unrelated lint warnings, or make cosmetic edits
+  solely to produce a diff for the review tool.
+- DO NOT request code review, open a PR, or push a branch.
+- DO NOT claim a PR, commit, or branch exists when it does not.
+- Close out with a short report instead:
+
+      STATUS: NO CHANGE NEEDED
+      Reason: <one or two sentences>
+      Evidence: <e.g. "lines 39–72 already 100% covered by existing tests:
+                <list the relevant test names>">
+
+Concluding that no work is needed is a SUCCESS, not a failure. An accurate report
+of "nothing to do" is always better than a false report of something done.
 
 ## Postmortem: Render Build Failures (2026-05-09)
 
