@@ -1,4 +1,10 @@
-import { computeContourMatch, computePitchSimilarity, computeTimingAccuracy } from './index';
+import {
+  computeContourMatch,
+  computePitchSimilarity,
+  computeTimingAccuracy,
+  computeSnippetUnlocks,
+} from './index';
+import type { KaraokeSnippet, KaraokeSnippetStatus } from '@voice/shared-types';
 import type { LivePitchFrame } from '@voice/shared-types';
 
 describe('computeContourMatch', () => {
@@ -188,5 +194,92 @@ describe('computeContourMatch', () => {
       expect(computeTimingAccuracy(1310, 1000, 501)).toBe(50);
       expect(computeTimingAccuracy(680, 1000, -501)).toBe(50);
     });
+  });
+});
+
+const makeSnippet = (id: string, order: number): KaraokeSnippet => ({
+  snippetId: id,
+  songId: 'song1',
+  startMs: order * 1000,
+  endMs: order * 1000 + 500,
+  durationMs: 500,
+  difficulty: 1,
+  orderInSong: order,
+  referencePitchCurve: [],
+});
+
+describe('computeSnippetUnlocks', () => {
+  it('returns an empty record when snippets array is empty', () => {
+    const statuses: Record<string, KaraokeSnippetStatus> = {};
+    expect(computeSnippetUnlocks([], statuses)).toEqual({});
+  });
+
+  it('activates the single snippet when there is only 1 snippet and it is locked', () => {
+    const s = makeSnippet('s1', 0);
+    const statuses: Record<string, KaraokeSnippetStatus> = { s1: 'locked' };
+    expect(computeSnippetUnlocks([s], statuses)).toEqual({ s1: 'active' });
+  });
+
+  it('does not change a snippet that is already completed when there is only 1 snippet', () => {
+    const s = makeSnippet('s1', 0);
+    const statuses: Record<string, KaraokeSnippetStatus> = { s1: 'completed' };
+    expect(computeSnippetUnlocks([s], statuses)).toEqual({ s1: 'completed' });
+  });
+
+  it('unlocks the first 2 snippets when no snippets are completed', () => {
+    const snippets = ['s1', 's2', 's3', 's4'].map((id, i) => makeSnippet(id, i));
+    const statuses: Record<string, KaraokeSnippetStatus> = {
+      s1: 'locked',
+      s2: 'locked',
+      s3: 'locked',
+      s4: 'locked',
+    };
+    const result = computeSnippetUnlocks(snippets, statuses);
+    expect(result.s1).toBe('active');
+    expect(result.s2).toBe('active');
+    expect(result.s3).toBe('locked');
+    expect(result.s4).toBe('locked');
+  });
+
+  it('unlocks the 2 snippets following the last completed snippet', () => {
+    const snippets = ['s1', 's2', 's3', 's4', 's5'].map((id, i) => makeSnippet(id, i));
+    // s1 and s2 completed; the next 2 (s3, s4) should become active
+    const statuses: Record<string, KaraokeSnippetStatus> = {
+      s1: 'completed',
+      s2: 'completed',
+      s3: 'locked',
+      s4: 'locked',
+      s5: 'locked',
+    };
+    const result = computeSnippetUnlocks(snippets, statuses);
+    expect(result.s1).toBe('completed');
+    expect(result.s2).toBe('completed');
+    expect(result.s3).toBe('active');
+    expect(result.s4).toBe('active');
+    expect(result.s5).toBe('locked');
+  });
+
+  it('does not go out of bounds when the last snippet is completed', () => {
+    const snippets = ['s1', 's2', 's3'].map((id, i) => makeSnippet(id, i));
+    const statuses: Record<string, KaraokeSnippetStatus> = {
+      s1: 'completed',
+      s2: 'completed',
+      s3: 'completed',
+    };
+    const result = computeSnippetUnlocks(snippets, statuses);
+    expect(result.s1).toBe('completed');
+    expect(result.s2).toBe('completed');
+    expect(result.s3).toBe('completed');
+  });
+
+  it('caps unlocking at the last snippet when last completed is second-to-last', () => {
+    const snippets = ['s1', 's2', 's3'].map((id, i) => makeSnippet(id, i));
+    const statuses: Record<string, KaraokeSnippetStatus> = {
+      s1: 'completed',
+      s2: 'completed',
+      s3: 'locked',
+    };
+    const result = computeSnippetUnlocks(snippets, statuses);
+    expect(result.s3).toBe('active');
   });
 });

@@ -282,21 +282,19 @@ export function computeSnippetUnlocks(
   const updated = { ...currentStatuses };
   const sorted = [...snippets].sort((a, b) => a.orderInSong - b.orderInSong);
 
-  let lastCompletedIndex = -1;
+  let unlockUpTo = 1;
   for (let i = sorted.length - 1; i >= 0; i--) {
     const s = sorted[i];
     if (s && currentStatuses[s.snippetId] === 'completed') {
-      lastCompletedIndex = i;
+      unlockUpTo = i + 2;
       break;
     }
   }
 
-  // Unlock the first 2 snippets after the last completed one
-  const unlockUpTo = lastCompletedIndex + 2;
-  for (let i = 0; i < sorted.length; i++) {
+  const limit = Math.min(unlockUpTo, sorted.length - 1);
+  for (let i = 0; i <= limit; i++) {
     const s = sorted[i];
-    if (!s) continue;
-    if (i <= unlockUpTo && updated[s.snippetId] === 'locked') {
+    if (s && updated[s.snippetId] === 'locked') {
       updated[s.snippetId] = 'active';
     }
   }
