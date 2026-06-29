@@ -5,7 +5,7 @@ import {
   buildIntroDialogue,
   buildCoachingDialogue,
   buildCelebrationDialogue,
-  buildListeningPrompt
+  buildListeningPrompt,
 } from '../index';
 import type { CoachingPayload } from '@voice/shared-types';
 
@@ -30,7 +30,7 @@ describe('Avatar State', () => {
     expect(AVATAR_ANIMATION_ASSETS['CELEBRATING']).toBe('avatar_celebrating.json');
   });
 
-   describe('buildListeningPrompt', () => {
+  describe('buildListeningPrompt', () => {
     it('returns correct prompt for speaking tier when isRetry is true', () => {
       const result = buildListeningPrompt('speaking', true);
       expect(result).toEqual({
@@ -67,7 +67,7 @@ describe('Avatar State', () => {
       });
     });
   });
-  
+
   describe('buildIntroDialogue', () => {
     it('returns first session greeting for speaking tier', () => {
       const lines = buildIntroDialogue({ tier: 'speaking', sessionCount: 0 });
