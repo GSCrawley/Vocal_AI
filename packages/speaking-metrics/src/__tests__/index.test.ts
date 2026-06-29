@@ -1,4 +1,7 @@
+import type { SpeakingAnalysisResult } from '@voice/shared-types';
 import {
+  getSpeakingScoreBreakdown,
+
   generateSpeakingFeedback,
   scorePace,
   computeSpeakingScore,
@@ -302,5 +305,92 @@ describe('scoreFillerRate', () => {
     expect(scoreFillerRate(10.1)).toBe(15);
     expect(scoreFillerRate(15)).toBe(15);
     expect(scoreFillerRate(100)).toBe(15);
+  });
+});
+
+describe('getSpeakingScoreBreakdown', () => {
+  const defaultAnalysis = {
+    wpm: 145, // presentation target -> scorePace = 100
+    articulationRateWpm: 150,
+    meanF0Hz: 120,
+    f0RangeHz: 50, // -> scoreProsody ~ 90 (assumed typical value)
+    uptalkRatio: 0.1, // -> scoreProsody penalty small
+    pauseCount: 5,
+    meanPauseDurationMs: 500,
+    meanRmsDb: -15, // -> scoreProjection levelScore = 100
+    rmsVarianceDb: 5, // -> scoreProjection bonus = 10 (capped), total = 100
+    fillerEvents: [],
+    fillerRate: 0, // -> scoreFillerRate = 100
+  };
+
+  it('computes breakdown and overall score correctly based on goal weights (pace)', () => {
+    // For goal 'pace': { pace: 0.6, prosody: 0.15, projection: 0.15, fillerRate: 0.1 }
+    // Based on defaultAnalysis:
+    // wpm = 145 -> target 145 -> paceScore = 100
+    // f0RangeHz = 50, uptalkRatio = 0.1 -> prosodyScore = 90
+    // meanRmsDb = -15, rmsVarianceDb = 5 -> projectionScore = 100 (100 + 10 = 110 clamped to 100)
+    // fillerRate = 0 -> fillerRateScore = 100
+
+    const result = getSpeakingScoreBreakdown(defaultAnalysis, 'pace');
+
+    expect(result.pace).toBe(100);
+    expect(result.prosody).toBe(88.5);
+    expect(result.projection).toBe(100);
+    expect(result.fillerRate).toBe(100);
+
+    // overall = 100 * 0.6 + 88.5 * 0.15 + 100 * 0.15 + 100 * 0.1
+    // = 60 + 13.275 + 15 + 10 = 98.275 -> 98
+    expect(result.overall).toBe(98);
+  });
+
+  it('computes breakdown and overall score differently for a different goal (filler_reduction)', () => {
+    // For goal 'filler_reduction': { pace: 0.1, prosody: 0.1, projection: 0.1, fillerRate: 0.7 }
+    const result = getSpeakingScoreBreakdown(defaultAnalysis, 'filler_reduction');
+
+    // Component scores should be identical to the 'pace' goal test above
+    expect(result.pace).toBe(100);
+    expect(result.prosody).toBe(88.5);
+    expect(result.projection).toBe(100);
+    expect(result.fillerRate).toBe(100);
+
+    // overall = 100 * 0.1 + 88.5 * 0.1 + 100 * 0.1 + 100 * 0.7
+    // = 10 + 8.85 + 10 + 70 = 98.85 -> 99
+    expect(result.overall).toBe(99);
+  });
+
+  it('reflects changes in context correctly', () => {
+    // conversational target is 155, max 180, min 130. WPM 145 is 10 off target. Width is 25.
+    // scorePace = 100 - (10 / 25) * 15 = 100 - 6 = 94
+    const result = getSpeakingScoreBreakdown(defaultAnalysis, 'pace', 'conversational');
+
+    expect(result.pace).toBe(94);
+
+    // overall = 94 * 0.6 + 88.5 * 0.15 + 100 * 0.15 + 100 * 0.1
+    // = 56.4 + 13.275 + 15 + 10 = 94.675 -> 95
+    expect(result.overall).toBe(95);
+  });
+
+  it('handles lower scores logically', () => {
+    const poorAnalysis: SpeakingAnalysisResult = {
+      ...defaultAnalysis,
+      wpm: 85, // pace = 0
+      f0RangeHz: 15, // prosody penalty = 20 -> prosody = 80
+      uptalkRatio: 0.6, // prosody penalty = 20 -> prosody = 60
+      meanRmsDb: -35, // projection level = 30
+      rmsVarianceDb: 0, // projection bonus = 0 -> projection = 30
+      fillerRate: 15, // fillerRate = 15
+    };
+
+    const result = getSpeakingScoreBreakdown(poorAnalysis, 'authority');
+    // authority weights: { pace: 0.2, prosody: 0.5, projection: 0.2, fillerRate: 0.1 }
+
+    expect(result.pace).toBe(0);
+    expect(result.prosody).toBe(16);
+    expect(result.projection).toBe(30);
+    expect(result.fillerRate).toBe(15);
+
+    // overall = 0 * 0.2 + 16 * 0.5 + 30 * 0.2 + 15 * 0.1
+    // = 0 + 8 + 6 + 1.5 = 15.5 -> 16
+    expect(result.overall).toBe(16);
   });
 });
