@@ -282,18 +282,13 @@ export function computeSnippetUnlocks(
   const updated = { ...currentStatuses };
   const sorted = [...snippets].sort((a, b) => a.orderInSong - b.orderInSong);
 
-  let unlockUpTo = -1;
+  let unlockUpTo = 1;
   for (let i = sorted.length - 1; i >= 0; i--) {
     const s = sorted[i];
     if (s && currentStatuses[s.snippetId] === 'completed') {
       unlockUpTo = i + 2;
       break;
     }
-  }
-
-  // If nothing is completed, unlockUpTo stays -1, so we unlock up to index 1 (the first 2 snippets)
-  if (unlockUpTo === -1) {
-    unlockUpTo = 1;
   }
 
   const limit = Math.min(unlockUpTo, sorted.length - 1);
