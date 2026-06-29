@@ -1,12 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "esnext",
-    "moduleResolution": "node",
-    "allowJs": true,
     "types": ["node", "jest"],
-    "rootDir": "../.."
-  },
-  "include": ["src", "instrument.js", "../../packages/logger/src"],
-  "exclude": []
+    "isolatedModules": true
+  }
 }
