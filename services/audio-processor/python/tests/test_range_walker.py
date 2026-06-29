@@ -1,4 +1,3 @@
-import pytest
 from app.analysis.range_walker import _estimate_voice_type
 
 def test_estimate_voice_type_soprano():
