@@ -33,7 +33,7 @@ export function useMicrophonePermission() {
         setStatus(result.status);
       }
     })();
-  
+
     return () => {
       isMounted = false;
     };
