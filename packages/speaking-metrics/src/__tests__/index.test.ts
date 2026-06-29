@@ -308,7 +308,7 @@ describe('scoreFillerRate', () => {
 });
 
 describe('getSpeakingScoreBreakdown', () => {
-  const defaultAnalysis = {
+  const defaultAnalysis: SpeakingAnalysisResult = {
     wpm: 145, // presentation target -> scorePace = 100
     articulationRateWpm: 150,
     meanF0Hz: 120,
