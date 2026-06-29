@@ -1,4 +1,4 @@
-import { computeContourMatch, computePitchSimilarity, computeTimingAccuracy } from './index';
+import { computeContourMatch, computePitchSimilarity } from './index';
 import type { LivePitchFrame } from '@voice/shared-types';
 
 describe('computeContourMatch', () => {
