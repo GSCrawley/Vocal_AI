@@ -372,9 +372,9 @@ describe('getSpeakingScoreBreakdown', () => {
   it('handles lower scores logically', () => {
     const poorAnalysis: SpeakingAnalysisResult = {
       ...defaultAnalysis,
-      wpm: 85, // pace = 0
-      f0RangeHz: 15, // prosody penalty = 20 -> prosody = 80
-      uptalkRatio: 0.6, // prosody penalty = 20 -> prosody = 60
+      wpm: 85, // presentation context: 70 - (120 - 85) * 2 = 0
+      f0RangeHz: 15, // scoreProsody range bucket => 40
+      uptalkRatio: 0.6, // uptalk penalty Math.round(0.6 * 40) = 24 => prosody 16
       meanRmsDb: -35, // projection level = 30
       rmsVarianceDb: 0, // projection bonus = 0 -> projection = 30
       fillerRate: 15, // fillerRate = 15
