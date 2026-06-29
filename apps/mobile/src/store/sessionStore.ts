@@ -4,7 +4,6 @@ import {
   initialSessionState,
   SessionEvent,
   LivePitchFrame,
-
 } from '@voice/shared-types';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
