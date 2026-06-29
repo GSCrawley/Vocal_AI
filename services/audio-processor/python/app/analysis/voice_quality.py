@@ -1,5 +1,6 @@
 import parselmouth
 import numpy as np
+import io
 import soundfile as sf
 
 def analyze_voice_quality(y: np.ndarray, sr: int) -> dict:

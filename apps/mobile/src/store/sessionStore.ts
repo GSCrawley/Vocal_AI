@@ -4,6 +4,7 @@ import {
   initialSessionState,
   SessionEvent,
   LivePitchFrame,
+  SuccessBand,
 } from '@voice/shared-types';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -30,7 +31,7 @@ interface SessionStore {
 
 export const useSessionStore = create<SessionStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       sessionState: initialSessionState,
       sessionPlan: null,
       lastScore: 0,

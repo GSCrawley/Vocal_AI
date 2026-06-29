@@ -14,8 +14,8 @@ def run(job_payload: dict) -> dict:
     note_schedule = job_payload.get("noteSchedule", [])
 
     # 1. Download audio files from Supabase Storage
-    range_audio, sr = load_audio(range_test_url)
-    hold_audio, _ = load_audio(sustained_hold_url)
+    range_audio, sr = download_and_load(range_test_url)
+    hold_audio, _ = download_and_load(sustained_hold_url)
 
     # 2. Quality check — both files
     from app.analysis.pitch import extract_pitch_pyin
