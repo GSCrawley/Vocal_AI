@@ -44,7 +44,11 @@ describe('analyticsWorker', () => {
     const index = await import('./index.js');
     expect(index.analyticsWorker).toBeDefined();
     expect(index.analyticsWorker.service).toBe('analytics-worker');
-    expect(index.analyticsWorker.jobs).toEqual(['progress-snapshots', 'weekly-summaries', 'milestones']);
+    expect(index.analyticsWorker.jobs).toEqual([
+      'progress-snapshots',
+      'weekly-summaries',
+      'milestones',
+    ]);
   });
 
   it('starts server on default port when PORT is not set', async () => {

@@ -101,20 +101,17 @@ export function computeContourMatch(
 ): number {
   const getContourDirection = (frames: LivePitchFrame[]): ('up' | 'down' | 'flat')[] => {
     const voiced = frames.filter((f) => f.voiced && f.frequencyHz !== undefined);
+    const directions: ('up' | 'down' | 'flat')[] = [];
     const segmentSize = Math.max(1, Math.floor(voiced.length / 8));
-    const iterations = Math.max(0, Math.ceil((voiced.length - segmentSize) / segmentSize));
-    const directions: ('up' | 'down' | 'flat')[] = new Array(iterations);
 
-    let idx = 0;
     for (let i = 0; i < voiced.length - segmentSize; i += segmentSize) {
       const start = voiced[i]?.frequencyHz ?? 0;
       const end = voiced[i + segmentSize]?.frequencyHz ?? 0;
       const diff = end - start;
-      if (diff > 5) directions[idx++] = 'up';
-      else if (diff < -5) directions[idx++] = 'down';
-      else directions[idx++] = 'flat';
+      if (diff > 5) directions.push('up');
+      else if (diff < -5) directions.push('down');
+      else directions.push('flat');
     }
-    directions.length = idx;
     return directions;
   };
 

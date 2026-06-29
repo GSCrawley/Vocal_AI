@@ -1,5 +1,0 @@
-🎯 **What:** The `services/api/src/lib/supabase.ts` file had a hardcoded fallback for both the `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`. I removed these fallback strings and replaced them with standard `throw new Error()` checks that assert the environment variables exist before initializing the client.
-
-⚠️ **Risk:** The service role key is a privileged credential that bypasses Row Level Security (RLS) entirely. Hardcoding a fallback risks making the service operate insecurely in production-like environments where env vars may be accidentally missing. If the fallback keys had inadvertently granted access, it could have resulted in a full data breach or allowed the service to connect to unauthorized instances.
-
-🛡️ **Solution:** The application now strictly fails fast and throws an error upon module evaluation if either critical environment variable is absent. This prevents the application from booting in an insecure state and forces the operator to provide the correct credentials.
