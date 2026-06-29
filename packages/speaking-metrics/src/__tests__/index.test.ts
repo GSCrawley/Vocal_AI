@@ -1,7 +1,6 @@
 import type { SpeakingAnalysisResult } from '@voice/shared-types';
 import {
   getSpeakingScoreBreakdown,
-
   generateSpeakingFeedback,
   scorePace,
   computeSpeakingScore,
