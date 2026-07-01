@@ -7,8 +7,11 @@ export function usePitchAnalysis() {
     rmsDbFrames: number[],
     exercise: ExerciseDefinition
   ) => {
-    // Build 0.1: Derive fake LivePitchFrames from RMS data
-    // TODO: replace with pYIN pitch extraction
+    /**
+     * @alpha PARKED FOR PHASE 2 - Native pYIN pitch extraction is currently parked
+     * as it requires complex algorithms or native modules.
+     * Build 0.1: Deriving placeholder LivePitchFrames directly from RMS data.
+     */
     const frames: LivePitchFrame[] = rmsDbFrames.map((db, index) => {
       const voiced = db > -40; // simple threshold
       return {
@@ -26,8 +29,13 @@ export function usePitchAnalysis() {
       return { ok: false, reason: micStatus.reason, scoreBreakdown: null, frames: [] };
     }
 
-    const targetHz = (exercise.targetPatternPayload as any).targetHz as number;
-    const tolerance = exercise.evaluationConfig.toleranceCents as number;
+    const targetHzRaw = (exercise.targetPatternPayload as Record<string, unknown>)['targetHz'];
+    const toleranceRaw = (exercise.evaluationConfig as Record<string, unknown>)['toleranceCents'];
+    if (typeof targetHzRaw !== 'number' || typeof toleranceRaw !== 'number') {
+      return { ok: false, reason: 'invalid_exercise_config', scoreBreakdown: null, frames: [] };
+    }
+    const targetHz = targetHzRaw;
+    const tolerance = toleranceRaw;
 
     const scoreBreakdown = scoreSustainedNote(frames, targetHz, tolerance, {
       pitch: exercise.scoringWeights.pitch || 0.5,
