@@ -29,9 +29,13 @@ export function usePitchAnalysis() {
       return { ok: false, reason: micStatus.reason, scoreBreakdown: null, frames: [] };
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const targetHz = (exercise.targetPatternPayload as any).targetHz as number;
-    const tolerance = exercise.evaluationConfig.toleranceCents as number;
+    const targetHzRaw = (exercise.targetPatternPayload as Record<string, unknown>)['targetHz'];
+    const toleranceRaw = (exercise.evaluationConfig as Record<string, unknown>)['toleranceCents'];
+    if (typeof targetHzRaw !== 'number' || typeof toleranceRaw !== 'number') {
+      return { ok: false, reason: 'invalid_exercise_config', scoreBreakdown: null, frames: [] };
+    }
+    const targetHz = targetHzRaw;
+    const tolerance = toleranceRaw;
 
     const scoreBreakdown = scoreSustainedNote(frames, targetHz, tolerance, {
       pitch: exercise.scoringWeights.pitch || 0.5,
