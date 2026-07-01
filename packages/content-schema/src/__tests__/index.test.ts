@@ -73,7 +73,7 @@ describe('validateExerciseDefinition', () => {
   it('should throw an error when a property has an invalid enum type', () => {
     const invalidExercise = {
       ...build01SustainedNoteExercise,
-      tier: 'invalid_tier' as any,
+      tier: 'invalid_tier' as unknown as ExerciseDefinition['tier'],
     };
 
     try {
