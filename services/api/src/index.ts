@@ -5,6 +5,7 @@ import { LivePitchFrame, SessionState, SessionEvent } from '@voice/shared-types'
 import { micCheck, scoreSustainedNote } from '@voice/audio-metrics';
 import { transition } from '@voice/exercise-engine';
 import assessmentsRoutes from './routes/assessments.js';
+import pitchRoutes from './routes/pitch.js';
 
 export const apiService = {
   service: 'api',
@@ -58,6 +59,7 @@ app.get('/', async (_request: FastifyRequest, _reply: FastifyReply) => {
 });
 
 app.register(assessmentsRoutes, { prefix: '/v1/assessments' });
+app.register(pitchRoutes, { prefix: '/v1/pitch' });
 
 // Placeholder route for processing audio with audio-metrics
 app.post(

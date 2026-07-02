@@ -24,6 +24,7 @@
     "@voice/ui-tokens": "workspace:*",
     "expo": "~54.0.33",
     "expo-av": "~16.0.8",
+    "expo-constants": "~18.0.9",
     "expo-status-bar": "~3.0.9",
     "lottie-react-native": "^7.3.8",
     "pitchy": "^4.1.0",

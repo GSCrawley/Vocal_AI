@@ -1,27 +1,61 @@
 import { ExerciseDefinition, LivePitchFrame } from '@voice/shared-types';
 import { micCheck, scoreSustainedNote } from '@voice/audio-metrics';
 
+// Provide a sensible fallback API URL if one isn't defined via environment variables
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:10000';
+
 export function usePitchAnalysis() {
   const analyzeRecording = async (
-    _uri: string | null,
+    uri: string | null,
     rmsDbFrames: number[],
     exercise: ExerciseDefinition
   ) => {
-    /**
-     * @alpha PARKED FOR PHASE 2 - Native pYIN pitch extraction is currently parked
-     * as it requires complex algorithms or native modules.
-     * Build 0.1: Deriving placeholder LivePitchFrames directly from RMS data.
-     */
-    const frames: LivePitchFrame[] = rmsDbFrames.map((db, index) => {
-      const voiced = db > -40; // simple threshold
-      return {
-        timestampMs: index * 100,
-        frequencyHz: undefined, // Honest: we don't have pitch yet
-        centsFromTarget: undefined,
-        voiced,
-        confidence: voiced ? 0.8 : 0.1,
-      };
-    });
+    if (!uri) {
+      return { ok: false, reason: 'no_audio', scoreBreakdown: null, frames: [] };
+    }
+
+    let frames: LivePitchFrame[] = [];
+
+    // Offload pYIN pitch extraction to the backend audio-processor
+    try {
+      const formData = new FormData();
+
+      formData.append('file', {
+        uri,
+        name: 'recording.m4a',
+        type: 'audio/m4a',
+      } as any);
+
+      // We call the Fastify API proxy which coordinates with the Python audio-processor
+      const response = await fetch(`${API_URL}/v1/pitch/extract`, {
+        method: 'POST',
+        body: formData,
+        // Using a dummy auth header for now; in a real app this uses the actual session token
+        headers: {
+          Authorization: 'Bearer placeholder-token',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      if (result.ok && result.frames) {
+        frames = result.frames;
+      } else {
+        throw new Error('Invalid response format from pitch extraction API');
+      }
+    } catch (err) {
+      console.warn('Failed to extract pitch via backend:', err);
+      // Return explicit error rather than silently failing to fake frames
+      // The application relies on `ok: false` and a string reason for routing errors.
+      // `api_error` is used here instead of falling back to false RMS data.
+      // Ensure we explicitly mark the reason. If 'api_error' isn't supported by the typing,
+      // we'll cast it to `any` or extend the mic check type in the future.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return { ok: false, reason: 'api_error' as any, scoreBreakdown: null, frames: [] };
+    }
 
     const micStatus = micCheck(frames, rmsDbFrames);
 
