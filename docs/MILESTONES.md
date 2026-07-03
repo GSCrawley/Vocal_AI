@@ -32,10 +32,10 @@
   - [x] Package-level onset scoring implemented (`packages/audio-metrics`)
   - [x] Session-state transitions for attempt/analyze/review flow implemented (`packages/exercise-engine`)
   - [x] Placeholder API audio scoring route exists (`services/api`)
-  - [ ] Mic check flow implemented in the mobile app
-  - [ ] Sustained-note exercise execution implemented in the mobile app
+  - [x] Mic check flow implemented in the mobile app
+  - [x] Sustained-note exercise execution implemented in the mobile app
   - [ ] Live pitch guidance / feedback implemented in the mobile app
-  - [ ] Post-exercise score and coaching display implemented in the mobile app
+  - [x] Post-exercise score and coaching display implemented in the mobile app
 
 ### Step 3 — Best-take, reflection, and reward loop
 
@@ -46,8 +46,8 @@
   - [x] XP computation logic exists in `packages/reward-engine`
   - [ ] Best-take save flow implemented
   - [ ] Best-take replay flow implemented
-  - [ ] Reflection prompts implemented in the app
-  - [ ] XP / reward summary implemented after reflection
+  - [x] Reflection prompts implemented in the app
+  - [x] XP / reward summary implemented after reflection
   - [ ] Core Build 0.1 analytics events actually recorded end to end
 
 ## Build 0.2 — Audio Analysis Depth (Singing)

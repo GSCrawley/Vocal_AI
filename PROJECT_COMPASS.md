@@ -31,11 +31,10 @@ REAL and tested (the foundation — trust these):
 - `@voice/audio-metrics` — micCheck, scoreSustainedNote, pitch/stability/onset scoring.
 - `@voice/exercise-engine`, `@voice/coaching-rules`, `@voice/shared-types`,
   `@voice/content-schema`, `@voice/ui-tokens`.
+- `apps/mobile` — hooks: `useRecording.ts`, `usePitchAnalysis.ts` (pitch extraction offloaded to backend via /v1/pitch/extract), `useMicrophonePermission.ts` with tests; `navigation/AppNavigator.tsx`; `store/sessionStore.ts`; `constants/exercise.ts`; and screens: Home, Permission, MicPermission, MicCheck, ExerciseIntro, SustainedNote, SustainedNoteDemo, Result, Reflection, RewardSummary.
 
 STUBBED / preview only (do NOT assume these are functional):
-- `apps/mobile` — currently a lightweight PREVIEW shell. App.tsx is a useState stage flow;
-  screens (Home, Permission, MicCheck, SustainedNoteDemo) are static UI with no real
-  capture. There is NO navigation stack, NO zustand store, NO constants/ on `main`.
+- (Currently none — mobile implementation restored to functional status)
 
 KNOWN LOST WORK (regressions to be aware of):
 - Commit `afd898f` (mislabeled "test: add scoreStability tests") rewrote `apps/mobile`
