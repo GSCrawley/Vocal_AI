@@ -21,7 +21,60 @@ describe('usePitchAnalysis', () => {
     activeFlag: true,
   };
 
+  const originalFetch = global.fetch;
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    global.fetch = originalFetch;
+  });
+
   it('generates placeholder frames from RMS data and returns score when micCheck passes', async () => {
+    global.fetch = jest.fn().mockImplementation(() =>
+      Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            ok: true,
+            frames: [
+              {
+                timestampMs: 0,
+                frequencyHz: undefined,
+                centsFromTarget: undefined,
+                voiced: false,
+                confidence: 0.1,
+              },
+              {
+                timestampMs: 100,
+                frequencyHz: undefined,
+                centsFromTarget: undefined,
+                voiced: true,
+                confidence: 0.8,
+              },
+              {
+                timestampMs: 200,
+                frequencyHz: undefined,
+                centsFromTarget: undefined,
+                voiced: true,
+                confidence: 0.8,
+              },
+              {
+                timestampMs: 300,
+                frequencyHz: undefined,
+                centsFromTarget: undefined,
+                voiced: true,
+                confidence: 0.8,
+              },
+              {
+                timestampMs: 400,
+                frequencyHz: undefined,
+                centsFromTarget: undefined,
+                voiced: false,
+                confidence: 0.1,
+              },
+            ],
+          }),
+      })
+    );
     const { analyzeRecording } = usePitchAnalysis();
 
     // -20 is voiced (confidence 0.8), -50 is unvoiced (confidence 0.1)
@@ -58,7 +111,53 @@ describe('usePitchAnalysis', () => {
     expect(result.scoreBreakdown?.overall).toBe(0);
   });
 
-  it('fails early if micCheck detects clipping (e.g., db >= 0)', async () => {
+  it('fails if micCheck detects clipping (e.g., db >= 0)', async () => {
+    global.fetch = jest.fn().mockImplementation(() =>
+      Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            ok: true,
+            frames: [
+              {
+                timestampMs: 0,
+                frequencyHz: undefined,
+                centsFromTarget: undefined,
+                voiced: false,
+                confidence: 0.1,
+              },
+              {
+                timestampMs: 100,
+                frequencyHz: undefined,
+                centsFromTarget: undefined,
+                voiced: true,
+                confidence: 0.8,
+              },
+              {
+                timestampMs: 200,
+                frequencyHz: undefined,
+                centsFromTarget: undefined,
+                voiced: true,
+                confidence: 0.8,
+              },
+              {
+                timestampMs: 300,
+                frequencyHz: undefined,
+                centsFromTarget: undefined,
+                voiced: true,
+                confidence: 0.8,
+              },
+              {
+                timestampMs: 400,
+                frequencyHz: undefined,
+                centsFromTarget: undefined,
+                voiced: false,
+                confidence: 0.1,
+              },
+            ],
+          }),
+      })
+    );
     const { analyzeRecording } = usePitchAnalysis();
 
     // 0 is clipping
@@ -72,7 +171,39 @@ describe('usePitchAnalysis', () => {
     expect(result.scoreBreakdown).toBeNull();
   });
 
-  it('fails early if micCheck detects no usable frames (e.g. too quiet)', async () => {
+  it('fails if micCheck detects no usable frames (e.g. too quiet)', async () => {
+    global.fetch = jest.fn().mockImplementation(() =>
+      Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            ok: true,
+            frames: [
+              {
+                timestampMs: 0,
+                frequencyHz: undefined,
+                centsFromTarget: undefined,
+                voiced: false,
+                confidence: 0.1,
+              },
+              {
+                timestampMs: 100,
+                frequencyHz: undefined,
+                centsFromTarget: undefined,
+                voiced: false,
+                confidence: 0.1,
+              },
+              {
+                timestampMs: 200,
+                frequencyHz: undefined,
+                centsFromTarget: undefined,
+                voiced: false,
+                confidence: 0.1,
+              },
+            ],
+          }),
+      })
+    );
     const { analyzeRecording } = usePitchAnalysis();
 
     // All frames are below -40 threshold, so voiced = false, confidence = 0.1
