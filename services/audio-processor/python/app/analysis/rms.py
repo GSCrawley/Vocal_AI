@@ -2,6 +2,7 @@ import librosa
 import numpy as np
 from app.config import settings
 
+
 def extract_rms_envelope(y: np.ndarray, sr: int) -> dict:
     """
     Returns:
@@ -19,9 +20,12 @@ def extract_rms_envelope(y: np.ndarray, sr: int) -> dict:
         hop_length=settings.hop_length,
     )[0]
     rms_db = librosa.amplitude_to_db(rms, ref=np.max)
-    times_ms = (librosa.frames_to_time(
-        np.arange(len(rms_db)), sr=sr, hop_length=settings.hop_length
-    ) * 1000)
+    times_ms = (
+        librosa.frames_to_time(
+            np.arange(len(rms_db)), sr=sr, hop_length=settings.hop_length
+        )
+        * 1000
+    )
 
     return {
         "rms_db": rms_db.tolist(),
@@ -32,6 +36,7 @@ def extract_rms_envelope(y: np.ndarray, sr: int) -> dict:
         "max_db": float(rms_db.max()),
         "dynamic_range_db": float(rms_db.max() - rms_db.min()),
     }
+
 
 def score_breath_control(rms_result: dict, pitch_voiced: np.ndarray) -> float:
     """
@@ -55,6 +60,7 @@ def score_breath_control(rms_result: dict, pitch_voiced: np.ndarray) -> float:
         base_score = max(0.0, 50.0 - (variance - 10.0) * 5.0)
 
     return min(100.0, base_score)
+
 
 def score_dynamics_control(rms_result: dict, target_pattern: str) -> float:
     """
