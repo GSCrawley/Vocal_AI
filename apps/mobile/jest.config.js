@@ -11,9 +11,7 @@ module.exports = {
     '^@voice/audio-metrics$': '<rootDir>/../../packages/audio-metrics/src/index.ts',
     '^expo-av$': '<rootDir>/__mocks__/expo-av.ts',
   },
-  globals: {
-    'ts-jest': {
-      tsconfig: './tsconfig.test.json',
-    },
+  transform: {
+    '^.+\\.tsx?$': ['ts-jest', { tsconfig: './tsconfig.test.json' }],
   },
 };
