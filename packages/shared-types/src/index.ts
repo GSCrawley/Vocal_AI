@@ -681,3 +681,41 @@ export interface BaselineSnapshot {
     hnrDb: number;
   };
 }
+
+// ------------------------------------------------------------
+// DEEP AUDIO ANALYSIS
+// ------------------------------------------------------------
+
+export interface DeepAnalysisResult {
+  refinedPitchContour: LivePitchFrame[];
+  onsetTimestamps: number[];
+  rmsEnvelope: {
+    meanDb: number;
+    varianceDb: number;
+    peakDb: number;
+  };
+  vibrato: {
+    rateHz?: number;
+    depthCents?: number;
+    hasVibrato: boolean;
+  };
+  overallConfidence: number;
+}
+
+export interface AudioAnalysisJob {
+  jobType: 'audio_analysis';
+  jobId: string;
+  attemptId: string;
+  userId: string;
+  audioFileUrl: string;
+  targetHz?: number;
+  toleranceCents?: number;
+  requestedAt: string;
+}
+
+export interface AudioAnalysisJobResult {
+  jobId: string;
+  attemptId: string;
+  analysis: DeepAnalysisResult;
+  completedAt: string;
+}

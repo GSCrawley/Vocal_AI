@@ -9,7 +9,7 @@
  * for the Python setup, Demucs configuration, and job queue setup.
  */
 
-import type { ExerciseCategory } from '@voice/shared-types';
+import type { ExerciseCategory, LivePitchFrame, AudioAnalysisJob, AudioAnalysisJobResult } from '@voice/shared-types';
 
 // ------------------------------------------------------------
 // JOB TYPES dispatched to the audio processor
@@ -21,7 +21,8 @@ export type AudioProcessorJobType =
   | 'filler_detection'   // Whisper: detect filler words in speaking recording
   | 'karaoke_compare'    // DTW comparison of user attempt vs reference vocal
   | 'singing_metrics'    // Full 11-metric analysis
-  | 'baseline_assessment'; // Onboarding vocal profile
+  | 'baseline_assessment' // Onboarding vocal profile
+  | 'audio_analysis';    // Deep audio analysis
 
 export interface VocalSeparationJob {
   jobType: 'vocal_separation';
@@ -103,7 +104,8 @@ export type AudioProcessorJob =
   | FillerDetectionJob
   | KaraokeCompareJob
   | SingingMetricsJob
-  | BaselineAssessmentJob;
+  | BaselineAssessmentJob
+  | AudioAnalysisJob;
 
 // ------------------------------------------------------------
 // JOB RESULTS returned by the audio processor
@@ -120,12 +122,7 @@ export interface VocalSeparationResult {
 export interface VocalAnalysisResult {
   jobId: string;
   songId: string;
-  pitchFrames: Array<{
-    timestampMs: number;
-    frequencyHz: number | null;
-    voiced: boolean;
-    confidence: number;
-  }>;
+  pitchFrames: LivePitchFrame[];
   phraseSegments: Array<{
     startMs: number;
     endMs: number;
@@ -180,12 +177,7 @@ export interface SingingMetricsResult {
   rmsVarianceDb: number;
   voicedFrameRatio: number;
   qualityFlag: string | null;
-  pitchFrames: Array<{
-    timestampMs: number;
-    frequencyHz: number | null;
-    voiced: boolean;
-    confidence: number;
-  }>;
+  pitchFrames: LivePitchFrame[];
   completedAt: string;
 }
 
@@ -218,3 +210,5 @@ export interface BaselineAssessmentResult {
    */
   qualityFlag: 'ok' | 'degraded';
 }
+
+export type { AudioAnalysisJob, AudioAnalysisJobResult };
