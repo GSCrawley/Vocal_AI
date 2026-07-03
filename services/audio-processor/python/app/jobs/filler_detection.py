@@ -7,31 +7,16 @@ from app.config import settings
 # Module-level model cache — load once at worker startup
 _whisper_model = None
 
-
 def get_whisper_model():
     global _whisper_model
     if _whisper_model is None:
         _whisper_model = whisper.load_model(settings.whisper_model)
     return _whisper_model
 
-
 FILLER_WORDS = {
-    "um",
-    "uh",
-    "er",
-    "ah",
-    "like",
-    "you know",
-    "so",
-    "basically",
-    "literally",
-    "actually",
-    "kind of",
-    "sort of",
-    "i mean",
-    "right",
+    "um", "uh", "er", "ah", "like", "you know", "so", "basically",
+    "literally", "actually", "kind of", "sort of", "i mean", "right",
 }
-
 
 def run(job_payload: dict) -> dict:
     job_id = job_payload["jobId"]
@@ -53,13 +38,11 @@ def run(job_payload: dict) -> dict:
             word = word_info["word"].strip().lower().rstrip(".,!?")
             total_words += 1
             if word in FILLER_WORDS:
-                filler_events.append(
-                    {
-                        "timestampMs": round(word_info["start"] * 1000),
-                        "word": word_info["word"].strip(),
-                        "confidence": float(word_info.get("probability", 0.8)),
-                    }
-                )
+                filler_events.append({
+                    "timestampMs": round(word_info["start"] * 1000),
+                    "word": word_info["word"].strip(),
+                    "confidence": float(word_info.get("probability", 0.8)),
+                })
 
     duration_minutes = len(y) / 16000 / 60
     filler_rate = len(filler_events) / max(duration_minutes, 0.01)

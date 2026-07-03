@@ -3,9 +3,8 @@ from fastdtw import fastdtw
 from scipy.spatial.distance import euclidean
 from app.analysis.pitch import hz_to_cents
 
-
 def compare_pitch_curves(
-    user_frames: list[dict],  # LivePitchFrame[] from user recording
+    user_frames: list[dict],    # LivePitchFrame[] from user recording
     reference_frames: list[dict],  # LivePitchFrame[] from VocalAnalysisResult
 ) -> dict:
     """
@@ -25,13 +24,11 @@ def compare_pitch_curves(
     """
     # Extract voiced frames only
     user_voiced = [
-        f
-        for f in user_frames
+        f for f in user_frames
         if f["voiced"] and f.get("frequencyHz") and f["confidence"] >= 0.5
     ]
     ref_voiced = [
-        f
-        for f in reference_frames
+        f for f in reference_frames
         if f["voiced"] and f.get("frequencyHz") and f["confidence"] >= 0.5
     ]
 
@@ -61,9 +58,7 @@ def compare_pitch_curves(
 
     # Timing accuracy
     user_duration_ms = user_frames[-1]["timestampMs"] - user_frames[0]["timestampMs"]
-    ref_duration_ms = (
-        reference_frames[-1]["timestampMs"] - reference_frames[0]["timestampMs"]
-    )
+    ref_duration_ms = reference_frames[-1]["timestampMs"] - reference_frames[0]["timestampMs"]
     duration_ratio = abs(user_duration_ms - ref_duration_ms) / max(ref_duration_ms, 1)
     timing_accuracy = max(50.0, 100.0 - duration_ratio * 100.0)
 
@@ -80,12 +75,8 @@ def compare_pitch_curves(
 
     # Dominant failure mode
     failure = _detect_failure_mode(
-        pitch_similarity,
-        timing_accuracy,
-        contour_match,
-        signed_error,
-        user_duration_ms,
-        ref_duration_ms,
+        pitch_similarity, timing_accuracy, contour_match,
+        signed_error, user_duration_ms, ref_duration_ms
     )
 
     return {
@@ -97,7 +88,6 @@ def compare_pitch_curves(
         "dominant_failure_mode": failure,
         "dtw_distance": round(normalized_distance, 4),
     }
-
 
 def _compute_contour_match(user_cents, ref_cents, n_segments=8):
     def directions(arr):
@@ -113,29 +103,19 @@ def _compute_contour_match(user_cents, ref_cents, n_segments=8):
     matches = sum(u == r for u, r in zip(u_dirs, r_dirs))
     return round(100.0 * matches / max(len(u_dirs), 1), 1)
 
-
 def _detect_failure_mode(pitch, timing, contour, signed_error, user_dur, ref_dur):
     min_score = min(pitch, timing, contour)
     if min_score >= 60:
         return None
     if pitch == min_score:
-        return (
-            "pitch_flat"
-            if signed_error < -20
-            else "pitch_sharp" if signed_error > 20 else "pitch_instability"
-        )
+        return "pitch_flat" if signed_error < -20 else "pitch_sharp" if signed_error > 20 else "pitch_instability"
     if timing == min_score:
         return "rushing" if user_dur < ref_dur * 0.85 else "dragging"
     return "wrong_contour"
 
-
 def _empty_comparison():
     return {
-        "pitch_similarity": 0.0,
-        "timing_accuracy": 0.0,
-        "contour_match": 0.0,
-        "overall": 0.0,
-        "signed_pitch_error_cents": 0.0,
-        "dominant_failure_mode": None,
-        "dtw_distance": 999.0,
+        "pitch_similarity": 0.0, "timing_accuracy": 0.0, "contour_match": 0.0,
+        "overall": 0.0, "signed_pitch_error_cents": 0.0,
+        "dominant_failure_mode": None, "dtw_distance": 999.0,
     }

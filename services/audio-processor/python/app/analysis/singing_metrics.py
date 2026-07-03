@@ -120,15 +120,15 @@ def compute_singing_metrics(
 
     return {
         "quality_flag": None,
-        "pitch_accuracy": (
-            round(pitch_accuracy, 1) if pitch_accuracy is not None else None
-        ),
-        "pitch_stability": (
-            round(pitch_stability, 1) if pitch_stability is not None else None
-        ),
-        "onset_accuracy": (
-            round(onset_accuracy, 1) if onset_accuracy is not None else None
-        ),
+        "pitch_accuracy": round(pitch_accuracy, 1)
+        if pitch_accuracy is not None
+        else None,
+        "pitch_stability": round(pitch_stability, 1)
+        if pitch_stability is not None
+        else None,
+        "onset_accuracy": round(onset_accuracy, 1)
+        if onset_accuracy is not None
+        else None,
         "breath_control": round(breath_control, 1),
         "tone_quality": round(tone_quality, 1),
         "dynamics_score": round(

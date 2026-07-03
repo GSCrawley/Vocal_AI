@@ -32,20 +32,17 @@ def segment_range_walk(audio: np.ndarray, sr: int, note_schedule: list) -> dict:
 
     return pitch_frames_per_note
 
-
 def note_to_hz(midi_note: int) -> float:
     return 440.0 * (2 ** ((midi_note - 69) / 12))
 
-
 def hz_to_midi(hz: float) -> int:
     return round(69 + 12 * np.log2(hz / 440.0))
-
 
 def detect_vocal_range(
     pitch_frames_per_note: dict,  # {midi_note: LivePitchFrame[]} from baseline assessment
     confidence_threshold: float = 0.6,
     min_voiced_ratio: float = 0.5,
-    sustain_frames_required: int = 8,  # ~1 second of sustained voiced frames
+    sustain_frames_required: int = 8,   # ~1 second of sustained voiced frames
 ) -> dict:
     """
     Given a dict of per-note pitch frame arrays (from systematic scale test),
@@ -66,22 +63,14 @@ def detect_vocal_range(
     comfortable_notes = []
 
     for midi_note, frames in sorted(pitch_frames_per_note.items()):
-        voiced_frames = [
-            f for f in frames if f["voiced"] and f["confidence"] >= confidence_threshold
-        ]
+        voiced_frames = [f for f in frames if f["voiced"] and f["confidence"] >= confidence_threshold]
         voiced_ratio = len(voiced_frames) / max(len(frames), 1)
         has_sustained = len(voiced_frames) >= sustain_frames_required
-        avg_confidence = (
-            np.mean([f["confidence"] for f in voiced_frames]) if voiced_frames else 0.0
-        )
+        avg_confidence = np.mean([f["confidence"] for f in voiced_frames]) if voiced_frames else 0.0
 
         if voiced_ratio >= min_voiced_ratio and has_sustained:
             usable_notes.append(midi_note)
-        if (
-            voiced_ratio >= min_voiced_ratio
-            and has_sustained
-            and avg_confidence >= 0.75
-        ):
+        if voiced_ratio >= min_voiced_ratio and has_sustained and avg_confidence >= 0.75:
             comfortable_notes.append(midi_note)
 
     if not usable_notes:
@@ -95,7 +84,7 @@ def detect_vocal_range(
     voice_type = _estimate_voice_type(comfortable_low, comfortable_high)
 
     def midi_to_name(n):
-        notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+        notes = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]
         return f"{notes[n % 12]}{(n // 12) - 1}"
 
     return {
@@ -110,17 +99,11 @@ def detect_vocal_range(
         "voice_type": voice_type,
     }
 
-
 def _estimate_voice_type(low_midi: int, high_midi: int) -> str:
     mid = (low_midi + high_midi) / 2
-    if mid >= 62:
-        return "soprano"  # above D4
-    if mid >= 57:
-        return "mezzo"  # A3–D4
-    if mid >= 53:
-        return "alto"  # F3–A3
-    if mid >= 48:
-        return "tenor"  # C3–F3
-    if mid >= 43:
-        return "baritone"  # G2–C3
-    return "bass"  # below G2
+    if mid >= 62:    return "soprano"    # above D4
+    if mid >= 57:    return "mezzo"      # A3–D4
+    if mid >= 53:    return "alto"       # F3–A3
+    if mid >= 48:    return "tenor"      # C3–F3
+    if mid >= 43:    return "baritone"   # G2–C3
+    return "bass"                        # below G2

@@ -2,7 +2,6 @@ import librosa
 import numpy as np
 from app.config import settings
 
-
 def extract_pitch_pyin(
     y: np.ndarray,
     sr: int,
@@ -29,12 +28,9 @@ def extract_pitch_pyin(
         fill_na=np.nan,
     )
 
-    times_ms = (
-        librosa.frames_to_time(
-            np.arange(len(f0)), sr=sr, hop_length=settings.hop_length
-        )
-        * 1000
-    ).astype(np.float32)
+    times_ms = (librosa.frames_to_time(
+        np.arange(len(f0)), sr=sr, hop_length=settings.hop_length
+    ) * 1000).astype(np.float32)
 
     return {
         "f0": f0,
@@ -43,16 +39,14 @@ def extract_pitch_pyin(
         "times_ms": times_ms,
     }
 
-
 import crepe
 import numpy as np
-
 
 def extract_pitch_crepe(
     y: np.ndarray,
     sr: int,
     model_capacity: str = "tiny",  # "tiny" | "small" | "medium" | "large" | "full"
-    viterbi: bool = True,  # Viterbi smoothing recommended
+    viterbi: bool = True,          # Viterbi smoothing recommended
 ) -> dict:
     """
     Returns same shape as extract_pitch_pyin.
@@ -60,8 +54,7 @@ def extract_pitch_crepe(
     voiced_flag = confidence > 0.5
     """
     times_s, f0, confidence, activation = crepe.predict(
-        y,
-        sr,
+        y, sr,
         model_capacity=model_capacity,
         viterbi=viterbi,
         center=True,
@@ -79,31 +72,25 @@ def extract_pitch_crepe(
         "times_ms": times_ms,
     }
 
-
 def pitch_to_frames(pitch_result: dict) -> list[dict]:
     """
     Convert raw pitch arrays to the LivePitchFrame[] contract shape
     expected by the TypeScript coaching packages.
     """
     frames = []
-    for i, (hz, voiced, prob, ts) in enumerate(
-        zip(
-            pitch_result["f0"],
-            pitch_result["voiced_flag"],
-            pitch_result["voiced_prob"],
-            pitch_result["times_ms"],
-        )
-    ):
-        frames.append(
-            {
-                "timestampMs": float(ts),
-                "frequencyHz": float(hz) if voiced and not np.isnan(hz) else None,
-                "voiced": bool(voiced),
-                "confidence": float(prob),
-            }
-        )
+    for i, (hz, voiced, prob, ts) in enumerate(zip(
+        pitch_result["f0"],
+        pitch_result["voiced_flag"],
+        pitch_result["voiced_prob"],
+        pitch_result["times_ms"],
+    )):
+        frames.append({
+            "timestampMs": float(ts),
+            "frequencyHz": float(hz) if voiced and not np.isnan(hz) else None,
+            "voiced": bool(voiced),
+            "confidence": float(prob),
+        })
     return frames
-
 
 def hz_to_cents(frequency_hz: float, reference_hz: float) -> float:
     if frequency_hz <= 0 or reference_hz <= 0:
@@ -123,7 +110,6 @@ def midi_to_name(midi_note: int) -> str:
 def snap_to_exercise_key(midi_note: int) -> int:
     a_notes = [21, 33, 45, 57, 69, 81]
     return min(a_notes, key=lambda a: abs(a - midi_note))
-
 
 def hz_to_note_name(frequency_hz: float) -> str:
     """Return e.g. 'A4', 'C#3', 'Bb5'."""

@@ -9,13 +9,12 @@ from app.config import settings
 from app.utils.audio_io import audio_to_wav_bytes
 from app.storage.supabase_client import upload_file
 
-
 def separate_vocals(
     input_audio_bytes: bytes,
     job_id: str,
     song_id: str,
     output_bucket: str,
-    ephemeral: bool = False,  # True for user-upload sessions; stems not cached
+    ephemeral: bool = False,   # True for user-upload sessions; stems not cached
 ) -> dict:
     """
     Run HTDemucs on the input audio and return Supabase signed URLs
@@ -42,15 +41,10 @@ def separate_vocals(
         # --two-stems=vocals splits into vocals and no_vocals only
         # More efficient than full 4-stem when we only need vocal/instrumental
         cmd = [
-            "python",
-            "-m",
-            "demucs",
-            "--two-stems",
-            "vocals",
-            "-n",
-            settings.demucs_model,  # "htdemucs" or "htdemucs_ft"
-            "--out",
-            tmpdir,
+            "python", "-m", "demucs",
+            "--two-stems", "vocals",
+            "-n", settings.demucs_model,     # "htdemucs" or "htdemucs_ft"
+            "--out", tmpdir,
             input_path,
         ]
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)

@@ -7,7 +7,6 @@ from app.config import settings
 from app.utils.audio_io import load_audio
 from app.analysis.pitch import extract_pitch_pyin, pitch_to_frames, hz_to_note_name
 
-
 def run(job_payload: dict):
     """
     Matches TypeScript VocalAnalysisJob / VocalAnalysisResult.
@@ -24,13 +23,8 @@ def run(job_payload: dict):
     pitch_frames = pitch_to_frames(pitch_result)
 
     # Phrase segmentation via onset detection
-    onset_frames = librosa.onset.onset_detect(
-        y=y, sr=sr, hop_length=settings.hop_length
-    )
-    onset_times_ms = (
-        librosa.frames_to_time(onset_frames, sr=sr, hop_length=settings.hop_length)
-        * 1000
-    ).tolist()
+    onset_frames = librosa.onset.onset_detect(y=y, sr=sr, hop_length=settings.hop_length)
+    onset_times_ms = (librosa.frames_to_time(onset_frames, sr=sr, hop_length=settings.hop_length) * 1000).tolist()
     phrase_segments = _build_phrase_segments(onset_times_ms, len(y) / sr * 1000)
 
     # Key and tempo
@@ -41,9 +35,7 @@ def run(job_payload: dict):
     estimated_key = key_names[key_index]
 
     # Vocal range from pitch data
-    voiced_hz = [
-        f["frequencyHz"] for f in pitch_frames if f["voiced"] and f.get("frequencyHz")
-    ]
+    voiced_hz = [f["frequencyHz"] for f in pitch_frames if f["voiced"] and f.get("frequencyHz")]
     vocal_range = {
         "low": min(voiced_hz) if voiced_hz else 0,
         "high": max(voiced_hz) if voiced_hz else 0,
@@ -61,18 +53,13 @@ def run(job_payload: dict):
     }
     return output
 
-
 def _build_phrase_segments(onset_times_ms, total_duration_ms):
     segments = []
     for i, start_ms in enumerate(onset_times_ms):
-        end_ms = (
-            onset_times_ms[i + 1] if i + 1 < len(onset_times_ms) else total_duration_ms
-        )
-        segments.append(
-            {
-                "startMs": start_ms,
-                "endMs": end_ms,
-                "labelledAsPhrase": True,
-            }
-        )
+        end_ms = onset_times_ms[i + 1] if i + 1 < len(onset_times_ms) else total_duration_ms
+        segments.append({
+            "startMs": start_ms,
+            "endMs": end_ms,
+            "labelledAsPhrase": True,
+        })
     return segments
