@@ -31,7 +31,7 @@ REAL and tested (the foundation — trust these):
 - `@voice/audio-metrics` — micCheck, scoreSustainedNote, pitch/stability/onset scoring.
 - `@voice/exercise-engine`, `@voice/coaching-rules`, `@voice/shared-types`,
   `@voice/content-schema`, `@voice/ui-tokens`.
-- `apps/mobile` — hooks: `useRecording.ts`, `usePitchAnalysis.ts` (pitch extraction offloaded to backend via /v1/pitch/extract), `useMicrophonePermission.ts` with tests; `navigation/AppNavigator.tsx`; `store/sessionStore.ts`; `constants/exercise.ts`; and screens: Home, Permission, MicPermission, MicCheck, ExerciseIntro, SustainedNote, SustainedNoteDemo, Result, Reflection, RewardSummary.
+- `apps/mobile` — hooks: `useRecording.ts`, `usePitchAnalysis.ts` (pitch extraction offloaded to backend via /v1/pitch/extract), `useMicrophonePermission.ts` with tests; `navigation/AppNavigator.tsx`; `store/sessionStore.ts`; `constants/exercise.ts`; and screens: MicPermission, MicCheck, ExerciseIntro, SustainedNote, Result, Reflection, RewardSummary. (Note: Home, Permission, and SustainedNoteDemo exist as files but are unwired leftovers from the preview shell).
 
 STUBBED / preview only (do NOT assume these are functional):
 - (Currently none — mobile implementation restored to functional status)
