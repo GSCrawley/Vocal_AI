@@ -21,8 +21,11 @@ describe('usePitchAnalysis', () => {
     activeFlag: true,
   };
 
+  const originalFetch = global.fetch;
+
   afterEach(() => {
     jest.restoreAllMocks();
+    global.fetch = originalFetch;
   });
 
   it('generates placeholder frames from RMS data and returns score when micCheck passes', async () => {
@@ -108,7 +111,7 @@ describe('usePitchAnalysis', () => {
     expect(result.scoreBreakdown?.overall).toBe(0);
   });
 
-  it('fails early if micCheck detects clipping (e.g., db >= 0)', async () => {
+  it('fails if micCheck detects clipping (e.g., db >= 0)', async () => {
     global.fetch = jest.fn().mockImplementation(() =>
       Promise.resolve({
         ok: true,
@@ -168,7 +171,7 @@ describe('usePitchAnalysis', () => {
     expect(result.scoreBreakdown).toBeNull();
   });
 
-  it('fails early if micCheck detects no usable frames (e.g. too quiet)', async () => {
+  it('fails if micCheck detects no usable frames (e.g. too quiet)', async () => {
     global.fetch = jest.fn().mockImplementation(() =>
       Promise.resolve({
         ok: true,
