@@ -199,7 +199,11 @@ export interface ExerciseDefinition {
 
 export interface LivePitchFrame {
   timestampMs: number;
-  frequencyHz?: number;
+  /**
+   * frequencyHz is null when unvoiced, matching the Python output format.
+   * See R-01/R-02 normalization layer decisions.
+   */
+  frequencyHz?: number | null;
   centsFromTarget?: number;
   voiced: boolean;
   confidence: number;
@@ -688,7 +692,7 @@ export interface BaselineSnapshot {
 
 export interface DeepAnalysisResult {
   refinedPitchContour: LivePitchFrame[];
-  onsetTimestamps: number[];
+  onsetTimestampsMs: number[];
   rmsEnvelope: {
     meanDb: number;
     varianceDb: number;
