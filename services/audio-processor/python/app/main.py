@@ -106,6 +106,18 @@ async def analyze_audio(
             status_code=400, content={"error": "Must provide either file or audio_url"}
         )
 
+    if file is not None and audio_url is not None:
+        return JSONResponse(
+            status_code=400, content={"error": "Provide only one of file or audio_url"}
+        )
+
+    if audio_url is not None and not (
+        audio_url.startswith("http://") or audio_url.startswith("https://")
+    ):
+        return JSONResponse(
+            status_code=400, content={"error": "audio_url must be an http(s) URL"}
+        )
+
     tmp_path = None
     try:
         if file:
