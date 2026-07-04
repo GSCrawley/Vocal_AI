@@ -1,5 +1,10 @@
+import { useSettingsStore } from '../store/settingsStore';
 import { usePitchAnalysis } from './usePitchAnalysis';
 import { ExerciseDefinition } from '@voice/shared-types';
+
+jest.mock('../store/settingsStore', () => ({
+  useSettingsStore: { getState: jest.fn() },
+}));
 
 describe('usePitchAnalysis', () => {
   const mockExercise: ExerciseDefinition = {
@@ -22,6 +27,10 @@ describe('usePitchAnalysis', () => {
   };
 
   const originalFetch = global.fetch;
+
+  beforeEach(() => {
+    (useSettingsStore as unknown as { getState: jest.Mock }).getState.mockReturnValue({ audioStorageConsent: false });
+  });
 
   afterEach(() => {
     jest.restoreAllMocks();

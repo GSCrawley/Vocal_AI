@@ -1,7 +1,8 @@
 import React from 'react';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { mapSustainedNoteScoreToCoaching } from '@voice/coaching-rules';
+import { mapSustainedNoteScoreToCoaching, buildTemplateFallback } from '@voice/coaching-rules';
+import { scoreToBand } from '@voice/shared-types';
 import { colors } from '@voice/ui-tokens';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -13,10 +14,32 @@ type ResultRouteProp = RouteProp<RootStackParamList, 'Result'>;
 export default function ResultScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<ResultRouteProp>();
-  const { score } = route.params;
+  const { score, deepAnalysis } = route.params;
   const { dispatch, bestScore } = useSessionStore();
 
-  const coaching = mapSustainedNoteScoreToCoaching(score);
+    let coaching = mapSustainedNoteScoreToCoaching(score);
+
+  if (deepAnalysis) {
+     const band = scoreToBand(score);
+     const fallback = buildTemplateFallback({
+       weaknessReport: {
+         focusMetric: 'pitchAccuracy',
+         focusScore: score,
+         rationale: 'Deep analysis indicates pitch focus',
+       },
+       successBand: band,
+     } as unknown as Parameters<typeof buildTemplateFallback>[0]);
+
+     coaching = {
+        ...fallback,
+        successBand: band,
+     };
+
+     const da = deepAnalysis as Record<string, unknown>;
+     if (typeof da.onset_timing === 'number' && da.onset_timing < 0) {
+        coaching.actionTip = `Your pitch was stable but your attack was early by ${Math.abs(Math.round(da.onset_timing * 1000))}ms — try waiting for the count.`;
+     }
+  }
   const isBest = score > 0 && score >= bestScore;
 
   const handleTryAgain = () => {
