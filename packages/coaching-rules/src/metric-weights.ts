@@ -1,12 +1,14 @@
 import type { SingingGoal, SingingMetricKey } from '@voice/shared-types';
 
+type GoalMetricWeightConfig = Partial<Record<SingingMetricKey, number>> & {
+  primary?: SingingMetricKey;
+  secondary?: SingingMetricKey;
+};
+
 // Weight multipliers: higher = this metric gets priority for coaching focus
 // when the user has selected the corresponding goal.
 // Weights do NOT affect the scoring formulas themselves.
-export const GOAL_METRIC_WEIGHTS: Record<
-  SingingGoal,
-  Partial<Record<SingingMetricKey | 'primary' | 'secondary', number | string>>
-> = {
+export const GOAL_METRIC_WEIGHTS: Record<SingingGoal, GoalMetricWeightConfig> = {
   pitch: {
     pitchAccuracy: 2.0,
     stability: 1.5,

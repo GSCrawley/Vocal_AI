@@ -1,9 +1,4 @@
-import type {
-  CoachingQualityFlag,
-  SingingMetricsResult,
-  CoachingPayload,
-  SuccessBand,
-} from '@voice/shared-types';
+import type { CoachingQualityFlag, CoachingPayload, SuccessBand } from '@voice/shared-types';
 import { MIC_CHECK_FAIL_DIALOGUE, STRAIN_WARNING_DIALOGUE } from '@voice/avatar-state';
 
 export interface SafetyOverrideResult {
@@ -24,7 +19,7 @@ export type SafetyCheckResult = SafetyOverrideResult | { triggered: false };
  * This function interprets the result; it does not recompute it.
  */
 export function checkSafetyOverrides(
-  result: Omit<SingingMetricsResult, 'qualityFlag'> & { qualityFlag: CoachingQualityFlag },
+  result: { qualityFlag: CoachingQualityFlag },
   _stylePack?: string,
   strainRiskFlagged?: boolean
 ): SafetyCheckResult {

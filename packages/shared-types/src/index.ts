@@ -728,7 +728,7 @@ export interface AudioAnalysisJobResult {
 // ADAPTIVE COACHING ENGINE TYPES (Build 0.2 / Task 9)
 // ------------------------------------------------------------
 
-export type CoachingQualityFlag = 'ok' | 'unusable' | 'review_required';
+export type CoachingQualityFlag = 'ok' | 'degraded' | 'unusable';
 
 export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
 
