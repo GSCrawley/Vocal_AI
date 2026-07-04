@@ -69,7 +69,7 @@ async def extract_pitch_sync(
         tmp_path = tmp.name
 
     try:
-        y, sr = load_audio(tmp_path, sr=settings.sample_rate)
+        y, sr = load_audio(tmp_path, sr=settings.sample_rate, allow_local_path=True)
         pitch_result = extract_pitch_pyin(y, sr)
         pitch_frames = pitch_to_frames(pitch_result)
         return {"ok": True, "frames": pitch_frames}
@@ -127,7 +127,7 @@ async def analyze_audio(
                 content = await file.read()
                 tmp.write(content)
                 tmp_path = tmp.name
-            y, sr = load_audio(tmp_path, sr=settings.sample_rate)
+            y, sr = load_audio(tmp_path, sr=settings.sample_rate, allow_local_path=True)
         else:
             y, sr = load_audio(audio_url, sr=settings.sample_rate)
 

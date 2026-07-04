@@ -13,11 +13,14 @@ def load_audio(
     sr: int | None = None,
     mono: bool = True,
     max_duration: float = MAX_DURATION_SECONDS,
+    allow_local_path: bool = False,
 ) -> tuple[np.ndarray, int]:
     """
     Download audio from a Supabase signed URL or load from local path and return (samples, sample_rate).
     Resamples to `sr` if provided. Forces mono if mono=True.
     Raises ValueError if duration exceeds max_duration.
+    Local filesystem paths are only permitted when allow_local_path=True; this must only be
+    set for internally-generated temp files, never for user-controlled strings.
     """
     sr = sr or settings.sample_rate
 
@@ -25,6 +28,11 @@ def load_audio(
         audio_bytes = download_file(url_or_path)
         y, original_sr = sf.read(io.BytesIO(audio_bytes), always_2d=False)
     else:
+        if not allow_local_path:
+            raise ValueError(
+                "Local filesystem paths are not permitted. "
+                "Pass allow_local_path=True only for internally-generated temp files."
+            )
         y, original_sr = sf.read(url_or_path, always_2d=False)
 
     if len(y) / original_sr > max_duration:
