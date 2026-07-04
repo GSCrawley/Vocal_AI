@@ -141,9 +141,15 @@ async def analyze_audio(
         )
 
         # 2. Onset Timestamps
-        onset_env = librosa.onset.onset_strength(y=y, sr=sr)
-        onsets = librosa.onset.onset_detect(onset_envelope=onset_env, sr=sr)
-        onset_timestamps_ms = (librosa.frames_to_time(onsets, sr=sr) * 1000).tolist()
+        onset_env = librosa.onset.onset_strength(
+            y=y, sr=sr, hop_length=settings.hop_length
+        )
+        onsets = librosa.onset.onset_detect(
+            onset_envelope=onset_env, sr=sr, hop_length=settings.hop_length
+        )
+        onset_timestamps_ms = (
+            librosa.frames_to_time(onsets, sr=sr, hop_length=settings.hop_length) * 1000
+        ).tolist()
 
         # 3. RMS Peak
         from app.analysis.rms import extract_rms_envelope
