@@ -1,12 +1,18 @@
-import os
 import io
-import pytest
+import os
+
 import numpy as np
 import soundfile as sf
 from fastapi.testclient import TestClient
 
-from app.main import app
+# Set safe defaults before importing the app so Settings() doesn't require a real .env
+os.environ.setdefault("REDIS_URL", "redis://localhost:6379")
+os.environ.setdefault("SUPABASE_URL", "https://test.supabase.co")
+os.environ.setdefault("SUPABASE_SERVICE_ROLE_KEY", "test-service-role-key")
+os.environ.setdefault("INTERNAL_SERVICE_TOKEN", "test-internal-token")
+
 from app.config import settings
+from app.main import app
 
 client = TestClient(app)
 
