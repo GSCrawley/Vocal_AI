@@ -17,28 +17,28 @@ export default function ResultScreen() {
   const { score, deepAnalysis } = route.params;
   const { dispatch, bestScore } = useSessionStore();
 
-    let coaching = mapSustainedNoteScoreToCoaching(score);
+  let coaching = mapSustainedNoteScoreToCoaching(score);
 
   if (deepAnalysis) {
-     const band = scoreToBand(score);
-     const fallback = buildTemplateFallback({
-       weaknessReport: {
-         focusMetric: 'pitchAccuracy',
-         focusScore: score,
-         rationale: 'Deep analysis indicates pitch focus',
-       },
-       successBand: band,
-     } as unknown as Parameters<typeof buildTemplateFallback>[0]);
+    const band = scoreToBand(score);
+    const fallback = buildTemplateFallback({
+      weaknessReport: {
+        focusMetric: 'pitchAccuracy',
+        focusScore: score,
+        rationale: 'Deep analysis indicates pitch focus',
+      },
+      successBand: band,
+    } as unknown as Parameters<typeof buildTemplateFallback>[0]);
 
-     coaching = {
-        ...fallback,
-        successBand: band,
-     };
+    coaching = {
+      ...fallback,
+      successBand: band,
+    };
 
-     const da = deepAnalysis as Record<string, unknown>;
-     if (typeof da.onset_timing === 'number' && da.onset_timing < 0) {
-        coaching.actionTip = `Your pitch was stable but your attack was early by ${Math.abs(Math.round(da.onset_timing * 1000))}ms — try waiting for the count.`;
-     }
+    const da = deepAnalysis as Record<string, unknown>;
+    if (typeof da.onset_timing === 'number' && da.onset_timing < 0) {
+      coaching.actionTip = `Your pitch was stable but your attack was early by ${Math.abs(Math.round(da.onset_timing * 1000))}ms — try waiting for the count.`;
+    }
   }
   const isBest = score > 0 && score >= bestScore;
 

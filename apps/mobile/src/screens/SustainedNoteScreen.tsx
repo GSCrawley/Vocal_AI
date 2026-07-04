@@ -17,7 +17,12 @@ export default function SustainedNoteScreen() {
   const { startRecording, stopRecording, rmsDbFrames, isRecording } = useRecording();
   const { analyzeRecording } = usePitchAnalysis();
   const { dispatch, setFrames, setLastScore } = useSessionStore();
-  const { audioStorageConsent, hasPromptedForConsent, setAudioStorageConsent, setHasPromptedForConsent } = useSettingsStore();
+  const {
+    audioStorageConsent,
+    hasPromptedForConsent,
+    setAudioStorageConsent,
+    setHasPromptedForConsent,
+  } = useSettingsStore();
 
   const [countdown, setCountdown] = useState(5);
   const [phase, setPhase] = useState<'countdown' | 'recording' | 'analyzing'>('countdown');
@@ -74,7 +79,10 @@ export default function SustainedNoteScreen() {
         if (result.ok && result.scoreBreakdown) {
           setFrames(result.frames);
           setLastScore(result.scoreBreakdown.overall);
-          navigation.replace('Result', { score: result.scoreBreakdown.overall, deepAnalysis: (result as unknown as { deepAnalysis: unknown }).deepAnalysis });
+          navigation.replace('Result', {
+            score: result.scoreBreakdown.overall,
+            deepAnalysis: (result as unknown as { deepAnalysis: unknown }).deepAnalysis,
+          });
         } else {
           // Route noisy/clipped audio back to mic check as per rules
           navigation.replace('MicCheck');

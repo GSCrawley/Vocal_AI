@@ -29,7 +29,9 @@ describe('usePitchAnalysis', () => {
   const originalFetch = global.fetch;
 
   beforeEach(() => {
-    (useSettingsStore as unknown as { getState: jest.Mock }).getState.mockReturnValue({ audioStorageConsent: false });
+    (useSettingsStore as unknown as { getState: jest.Mock }).getState.mockReturnValue({
+      audioStorageConsent: false,
+    });
   });
 
   afterEach(() => {

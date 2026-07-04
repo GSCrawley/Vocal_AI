@@ -18,7 +18,8 @@ export default function SettingsScreen() {
         <View style={styles.settingTextContainer}>
           <Text style={styles.settingTitle}>Audio Storage Consent</Text>
           <Text style={styles.settingDescription}>
-            Enable deep analysis of your vocal exercises. This requires uploading your audio recordings securely to our servers.
+            Enable deep analysis of your vocal exercises. This requires uploading your audio
+            recordings securely to our servers.
           </Text>
         </View>
         <Switch

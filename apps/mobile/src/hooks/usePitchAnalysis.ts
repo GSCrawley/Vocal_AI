@@ -83,7 +83,11 @@ export function usePitchAnalysis() {
       try {
         // Deep analysis upload step (placeholder for actual integration)
         const daFormData = new FormData();
-        daFormData.append('file', { uri, name: 'recording.m4a', type: 'audio/m4a' } as unknown as Blob);
+        daFormData.append('file', {
+          uri,
+          name: 'recording.m4a',
+          type: 'audio/m4a',
+        } as unknown as Blob);
 
         const daResponse = await fetch(`${API_URL}/api/attempts/temp-id/analyze`, {
           method: 'POST',
