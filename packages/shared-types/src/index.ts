@@ -723,3 +723,70 @@ export interface AudioAnalysisJobResult {
   analysis: DeepAnalysisResult;
   completedAt: string;
 }
+
+// ------------------------------------------------------------
+// ADAPTIVE COACHING ENGINE TYPES (Build 0.2 / Task 9)
+// ------------------------------------------------------------
+
+export type CoachingQualityFlag = 'ok' | 'unusable' | 'review_required';
+
+export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
+
+export interface SessionPerformanceHistory {
+  totalAttemptsOnExercise: number;
+  consecutiveGoodOrExcellent: number;
+  consecutiveRetry: number;
+}
+
+export interface DifficultyConfig {
+  currentDifficulty: DifficultyLevel;
+  nextDifficulty: DifficultyLevel;
+  signal: 'maintain' | 'increase' | 'decrease';
+  adaptationReason: string;
+}
+
+export interface MetricWeaknessReport {
+  focusMetric: SingingMetricKey;
+  focusScore: number;
+  rationale: string;
+}
+
+export interface LLMCoachingRequest {
+  userId: string;
+  userFirstName?: string;
+  sessionId: string;
+  attemptId: string;
+  exerciseId: string;
+  exerciseTitle: string;
+  tier: Tier;
+  goal: SpeakingGoal | SingingGoal;
+  overallScore: number | null;
+  successBand: SuccessBand;
+  isPersonalBest: boolean;
+  weaknessReport: MetricWeaknessReport;
+  difficultyConfig: DifficultyConfig;
+  sessionHistory: SessionPerformanceHistory;
+  lastSessionFocus?: SingingMetricKey;
+}
+
+export interface LLMCoachingResponse {
+  praiseMessage: string;
+  correctionMessage: string;
+  actionTip: string;
+  microExerciseCue?: string;
+  avatarMood: 'encouraging' | 'celebratory' | 'calm' | 'challenging';
+  generatedBy: 'llm' | 'template';
+}
+
+export interface NextExerciseConfig {
+  exerciseId: string;
+  difficultyLevel: DifficultyLevel;
+}
+
+export interface AdaptiveCoachingResult {
+  coachingPayload: CoachingPayload;
+  avatarDialogue: AvatarDialogueLine[];
+  weaknessReport: MetricWeaknessReport;
+  difficultyConfig: DifficultyConfig;
+  generatedBy: 'llm' | 'template';
+}

@@ -11,7 +11,8 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
-    "@voice/shared-types": "workspace:*"
+    "@voice/shared-types": "workspace:*",
+    "@voice/avatar-state": "workspace:*"
   },
   "type": "module"
 }

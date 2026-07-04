@@ -3,6 +3,7 @@ import numpy as np
 import io
 import soundfile as sf
 
+
 def analyze_voice_quality(y: np.ndarray, sr: int) -> dict:
     """
     Returns:
@@ -21,19 +22,19 @@ def analyze_voice_quality(y: np.ndarray, sr: int) -> dict:
 
     # HNR
     harmonicity = sound.to_harmonicity_cc(
-        time_step=0.01,
+        time_step=0.011,
         minimum_pitch=65.0,
         silence_threshold=0.1,
         periods_per_window=1.0,
     )
-    hnr_values = harmonicity.values[harmonicity.values != -200]  # -200 = unvoiced sentinel
+    hnr_values = harmonicity.values[
+        harmonicity.values != -200
+    ]  # -200 = unvoiced sentinel
     hnr_db = float(hnr_values.mean()) if len(hnr_values) > 0 else 0.0
 
     # Jitter and shimmer via PointProcess
-    pitch = sound.to_pitch(time_step=0.0, pitch_floor=65.0, pitch_ceiling=1047.0)
-    point_process = parselmouth.praat.call(
-        [sound, pitch], "To PointProcess (cc)"
-    )
+    pitch = sound.to_pitch(time_step=0.01, pitch_floor=65.0, pitch_ceiling=1047.0)
+    point_process = parselmouth.praat.call([sound, pitch], "To PointProcess (cc)")
 
     jitter_local = parselmouth.praat.call(
         point_process, "Get jitter (local)", 0, 0, 0.0001, 0.02, 1.3
@@ -61,6 +62,7 @@ def analyze_voice_quality(y: np.ndarray, sr: int) -> dict:
         "shimmer_apq11": shimmer_apq11,
     }
 
+
 def _compute_cpp(sound: parselmouth.Sound) -> float:
     """
     Approximate CPP using Praat's cepstrum analysis.
@@ -71,12 +73,24 @@ def _compute_cpp(sound: parselmouth.Sound) -> float:
             sound, "To PowerCepstrogram", 60.0, 0.002, 5000.0, 50.0
         )
         cpps = parselmouth.praat.call(
-            cepstrogram, "Get CPPS", True, 0.02, 0.0005, 60.0, 330.0,
-            0.05, "Parabolic", 0.001, 0.05, "Exponential decay", "Robust"
+            cepstrogram,
+            "Get CPPS",
+            True,
+            0.02,
+            0.0005,
+            60.0,
+            330.0,
+            0.05,
+            "Parabolic",
+            0.001,
+            0.05,
+            "Exponential decay",
+            "Robust",
         )
         return float(cpps)
     except Exception:
         return 0.0
+
 
 def score_tone_quality(vq: dict) -> float:
     """
