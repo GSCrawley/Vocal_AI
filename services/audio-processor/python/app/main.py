@@ -5,7 +5,10 @@ import secrets
 import tempfile
 import os
 from app.config import settings
-import redis
+try:
+    import redis
+except ImportError:
+    redis = None
 
 # We import pitch processing directly for the fast synchronous endpoint
 from app.utils.audio_io import load_audio
