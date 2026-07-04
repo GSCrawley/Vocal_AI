@@ -80,13 +80,12 @@ async def extract_pitch_sync(
             os.remove(tmp_path)
 
 
-from pydantic import BaseModel
 from typing import Optional
-from app.analysis.singing_metrics import compute_singing_metrics
-from app.utils.audio_io import load_audio
+
 import librosa
-import numpy as np
 from fastapi import Form
+
+from app.analysis.singing_metrics import compute_singing_metrics
 
 
 @app.post("/analyze")
