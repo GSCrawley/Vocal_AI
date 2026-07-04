@@ -184,8 +184,8 @@ async def analyze_audio(
             },
             "overallConfidence": metrics["voiced_frame_ratio"],
         }
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
+    except Exception:
+        return JSONResponse(status_code=500, content={"error": "internal_error"})
     finally:
         if tmp_path and os.path.exists(tmp_path):
             os.remove(tmp_path)
