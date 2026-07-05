@@ -55,7 +55,7 @@ export default async function profilesRoutes(app: FastifyInstance) {
       request: FastifyRequest<{ Body: { audioStorageConsent?: boolean } }>,
       reply: FastifyReply
     ) => {
-      const userId = (request.user as { sub?: string })?.sub || 'test-user';
+      const userId = (request.user as { sub?: string })?.sub;
       if (!userId) {
         return reply.code(401).send({ error: 'Unauthorized' });
       }
