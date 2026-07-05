@@ -76,5 +76,6 @@ export default async function profilesRoutes(app: FastifyInstance) {
       }
 
       return reply.code(200).send({ success: true, audioStorageConsent });
+    }
   );
 }
