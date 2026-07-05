@@ -86,8 +86,17 @@ def test_analyze_endpoint_with_synthesized_tone():
 
     # Check vibrato (should not have vibrato for a pure sine wave)
     vibrato = result["vibrato"]
-    assert vibrato["hasVibrato"] in (True, False)
-    # assert vibrato["rateHz"] == 0.0
+    assert isinstance(vibrato["hasVibrato"], bool)
+    assert isinstance(vibrato["rateHz"], (int, float))
+    assert isinstance(vibrato["depthCents"], (int, float))
+    assert vibrato["rateHz"] >= 0.0
+    assert vibrato["depthCents"] >= 0.0
+    if vibrato["hasVibrato"]:
+        assert vibrato["rateHz"] > 0.0
+        assert vibrato["depthCents"] > 0.0
+    else:
+        assert vibrato["rateHz"] == 0.0
+        assert vibrato["depthCents"] == 0.0
 
     # Overall confidence (most of the 1-second file should be voiced)
     assert result["overallConfidence"] > 0.8
