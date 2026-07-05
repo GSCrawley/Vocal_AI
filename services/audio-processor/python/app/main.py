@@ -59,7 +59,7 @@ def job_status(job_id: str, x_internal_token: str = Header(None)):
 
 
 @app.post("/pitch/extract")
-async def extract_pitch_sync(
+def extract_pitch_sync(
     file: UploadFile = File(...), x_internal_token: str = Header(None)
 ):
     if x_internal_token is None or not secrets.compare_digest(
@@ -67,14 +67,14 @@ async def extract_pitch_sync(
     ):
         raise HTTPException(status_code=403)
 
-    with tempfile.NamedTemporaryFile(
-        delete=False, suffix=os.path.splitext(file.filename or "")[1] or ".m4a"
-    ) as tmp:
-        content = await file.read()
-        tmp.write(content)
-        tmp_path = tmp.name
-
+    tmp_path = None
     try:
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=os.path.splitext(file.filename or "")[1] or ".m4a"
+        ) as tmp:
+            content = file.file.read()
+            tmp.write(content)
+            tmp_path = tmp.name
         y, sr = load_audio(tmp_path, sr=settings.sample_rate, allow_local_path=True)
         pitch_result = extract_pitch_pyin(y, sr)
         pitch_frames = pitch_to_frames(pitch_result)
@@ -85,12 +85,12 @@ async def extract_pitch_sync(
             status_code=500, content={"ok": False, "error": "internal_error"}
         )
     finally:
-        if os.path.exists(tmp_path):
+        if tmp_path and os.path.exists(tmp_path):
             os.remove(tmp_path)
 
 
 @app.post("/analyze")
-async def analyze_audio(
+def analyze_audio(
     file: Optional[UploadFile] = File(None),
     audio_url: Optional[str] = Form(None),
     targetHz: Optional[float] = Form(None),
@@ -125,7 +125,7 @@ async def analyze_audio(
             with tempfile.NamedTemporaryFile(
                 delete=False, suffix=os.path.splitext(file.filename or "")[1] or ".m4a"
             ) as tmp:
-                content = await file.read()
+                content = file.file.read()
                 tmp.write(content)
                 tmp_path = tmp.name
             y, sr = load_audio(tmp_path, sr=settings.sample_rate, allow_local_path=True)

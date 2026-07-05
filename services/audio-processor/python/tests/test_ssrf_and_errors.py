@@ -77,3 +77,34 @@ def test_extract_pitch_hides_internal_errors(monkeypatch):
     assert response.status_code == 500
     assert response.json() == {"ok": False, "error": "internal_error"}
     assert "secret exception details" not in response.text
+
+
+def test_extract_pitch_handles_tempfile_write_errors(monkeypatch):
+    class BrokenTempFile:
+        name = "/tmp/broken-temp.wav"
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def write(self, _content):
+            raise OSError("disk full")
+
+    import app.main
+
+    monkeypatch.setattr(
+        app.main.tempfile,
+        "NamedTemporaryFile",
+        lambda *args, **kwargs: BrokenTempFile(),
+    )
+
+    response = client.post(
+        "/pitch/extract",
+        headers={"x-internal-token": settings.internal_service_token},
+        files={"file": ("test.wav", b"fake audio data", "audio/wav")},
+    )
+
+    assert response.status_code == 500
+    assert response.json() == {"ok": False, "error": "internal_error"}
