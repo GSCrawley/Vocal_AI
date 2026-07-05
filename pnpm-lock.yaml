@@ -171,6 +171,9 @@ importers:
 
   packages/coaching-rules:
     dependencies:
+      '@voice/avatar-state':
+        specifier: workspace:*
+        version: link:../avatar-state
       '@voice/shared-types':
         specifier: workspace:*
         version: link:../shared-types
