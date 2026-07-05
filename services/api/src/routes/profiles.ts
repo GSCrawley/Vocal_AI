@@ -61,20 +61,20 @@ export default async function profilesRoutes(app: FastifyInstance) {
       }
 
       const { audioStorageConsent } = request.body;
+      if (audioStorageConsent === undefined) {
+        return reply.code(400).send({ error: 'audioStorageConsent is required' });
+      }
 
-      if (audioStorageConsent !== undefined) {
-        // We will attempt to update Supabase, but catch if the table doesn't exist yet
-        const { error } = await supabase
-          .from('user_profiles')
-          .update({ audio_storage_consent: audioStorageConsent })
-          .eq('user_id', userId);
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ audio_storage_consent: audioStorageConsent })
+        .eq('user_id', userId);
 
-        if (error) {
-          app.log.warn(error, 'Failed to update profile in DB, falling back to success for stub');
-        }
+      if (error) {
+        app.log.error(error, 'Failed to update audio storage consent');
+        return reply.code(500).send({ error: 'Failed to update profile' });
       }
 
       return reply.code(200).send({ success: true, audioStorageConsent });
-    }
   );
 }
