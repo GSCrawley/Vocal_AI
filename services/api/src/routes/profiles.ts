@@ -33,7 +33,20 @@ export default async function profilesRoutes(app: FastifyInstance) {
       });
     }
 
-    return reply.code(200).send(data);
+    const row = data as Record<string, unknown>;
+    const profile = {
+      userId: (row['user_id'] as string | undefined) ?? userId,
+      displayName: (row['display_name'] as string | undefined) ?? 'Test User',
+      activeTier: (row['active_tier'] as string | undefined) ?? 'singing',
+      level: (row['level'] as number | undefined) ?? 1,
+      totalXp: (row['total_xp'] as number | undefined) ?? 0,
+      streakDays: (row['streak_days'] as number | undefined) ?? 0,
+      streakShieldsRemaining: (row['streak_shields_remaining'] as number | undefined) ?? 0,
+      createdAt: (row['created_at'] as string | undefined) ?? new Date().toISOString(),
+      audioStorageConsent: (row['audio_storage_consent'] as boolean | undefined) ?? false,
+    };
+
+    return reply.code(200).send(profile);
   });
 
   app.patch(
