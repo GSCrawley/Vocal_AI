@@ -5,6 +5,7 @@ import secrets
 import tempfile
 import os
 from app.config import settings
+
 try:
     import redis
 except ImportError:
@@ -56,7 +57,7 @@ def job_status(job_id: str, x_internal_token: str = Header(None)):
 
 
 @app.post("/pitch/extract")
-async def extract_pitch_sync(
+def extract_pitch_sync(
     file: UploadFile = File(...), x_internal_token: str = Header(None)
 ):
     if x_internal_token is None or not secrets.compare_digest(
@@ -67,7 +68,7 @@ async def extract_pitch_sync(
     with tempfile.NamedTemporaryFile(
         delete=False, suffix=os.path.splitext(file.filename or "")[1] or ".m4a"
     ) as tmp:
-        content = await file.read()
+        content = file.file.read()
         tmp.write(content)
         tmp_path = tmp.name
 
@@ -92,7 +93,7 @@ from app.analysis.singing_metrics import compute_singing_metrics
 
 
 @app.post("/analyze")
-async def analyze_audio(
+def analyze_audio(
     file: Optional[UploadFile] = File(None),
     audio_url: Optional[str] = Form(None),
     targetHz: Optional[float] = Form(None),
@@ -127,7 +128,7 @@ async def analyze_audio(
             with tempfile.NamedTemporaryFile(
                 delete=False, suffix=os.path.splitext(file.filename or "")[1] or ".m4a"
             ) as tmp:
-                content = await file.read()
+                content = file.file.read()
                 tmp.write(content)
                 tmp_path = tmp.name
             y, sr = load_audio(tmp_path, sr=settings.sample_rate, allow_local_path=True)
