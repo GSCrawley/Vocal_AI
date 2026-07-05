@@ -7,6 +7,56 @@ jest.mock('../store/settingsStore', () => ({
 }));
 
 describe('usePitchAnalysis', () => {
+  it('does not attempt deep analysis upload when consent is false', async () => {
+    (useSettingsStore as unknown as { getState: jest.Mock }).getState.mockReturnValue({
+      audioStorageConsent: false,
+    });
+
+    global.fetch = jest.fn().mockImplementation(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ ok: true, frames: [] }),
+      })
+    );
+    const { analyzeRecording } = usePitchAnalysis();
+
+    const rmsDbFrames = [-50, -50];
+    const result = await analyzeRecording('mock-uri', rmsDbFrames, mockExercise);
+
+    // Should only have called the pitch extraction endpoint
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/v1/pitch/extract'),
+      expect.any(Object)
+    );
+    expect((result as unknown as { deepAnalysis: unknown }).deepAnalysis).toBeUndefined();
+  });
+
+  it('leaves deepAnalysis null as a guarded no-op when consent is true (Group D stub)', async () => {
+    (useSettingsStore as unknown as { getState: jest.Mock }).getState.mockReturnValue({
+      audioStorageConsent: true,
+    });
+
+    global.fetch = jest.fn().mockImplementation(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ ok: true, frames: [] }),
+      })
+    );
+    const { analyzeRecording } = usePitchAnalysis();
+
+    const rmsDbFrames = [-50, -50];
+    const result = await analyzeRecording('mock-uri', rmsDbFrames, mockExercise);
+
+    // Even with consent=true, the deep analysis endpoint should NOT be called until Group D
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/v1/pitch/extract'),
+      expect.any(Object)
+    );
+    expect((result as unknown as { deepAnalysis: unknown }).deepAnalysis).toBeUndefined();
+  });
+
   const mockExercise: ExerciseDefinition = {
     exerciseId: 'test-exercise',
     version: 1,
