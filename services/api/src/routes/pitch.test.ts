@@ -5,7 +5,6 @@ import FormData from 'form-data';
 const mockFetch = jest.fn();
 global.fetch = mockFetch as unknown as typeof fetch;
 
-
 const { app } = await import('../index.js');
 
 describe('Pitch Routes', () => {
