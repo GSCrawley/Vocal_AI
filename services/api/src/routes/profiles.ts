@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase.js';
 export default async function profilesRoutes(app: FastifyInstance) {
   app.get('/me', async (request: FastifyRequest, reply: FastifyReply) => {
     // In a real app, auth.uid would come from the JWT via request.user
-    const userId = (request.user as { sub?: string })?.sub || 'test-user';
+    const userId = (request.user as { sub?: string })?.sub;
     if (!userId) {
       return reply.code(401).send({ error: 'Unauthorized' });
     }
