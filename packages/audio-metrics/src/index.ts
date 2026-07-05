@@ -30,7 +30,8 @@ export function evaluateFrame(
   frameHz: number,
   targetHz: number,
   toleranceCents: number,
-  confidence: number
+  confidence: number,
+  precalculatedCentsError?: number
 ): FrameEvaluation {
   const isUsable = confidence >= 0.5 && frameHz > 0;
 
@@ -41,7 +42,8 @@ export function evaluateFrame(
     };
   }
 
-  const centsError = hzToCents(frameHz, targetHz);
+  const centsError =
+    precalculatedCentsError !== undefined ? precalculatedCentsError : hzToCents(frameHz, targetHz);
   const inTolerance = Math.abs(centsError) <= toleranceCents;
 
   return {
@@ -91,7 +93,13 @@ export function scorePitchAccuracy(
     if (!frame.voiced || frame.confidence < 0.5 || !frame.frequencyHz) continue;
 
     usableFrames++;
-    const evaluation = evaluateFrame(frame.frequencyHz, targetHz, toleranceCents, frame.confidence);
+    const evaluation = evaluateFrame(
+      frame.frequencyHz,
+      targetHz,
+      toleranceCents,
+      frame.confidence,
+      frame.centsFromTarget
+    );
 
     if (evaluation.inTolerance) {
       framesInTolerance++;
@@ -152,7 +160,13 @@ export function scoreOnset(
 
     if (firstUsableFrameIdx === -1) firstUsableFrameIdx = i;
 
-    const evaluation = evaluateFrame(frame.frequencyHz, targetHz, toleranceCents, frame.confidence);
+    const evaluation = evaluateFrame(
+      frame.frequencyHz,
+      targetHz,
+      toleranceCents,
+      frame.confidence,
+      frame.centsFromTarget
+    );
     if (evaluation.inTolerance) {
       continuousLockCount++;
       if (continuousLockCount >= REQUIRED_LOCK_FRAMES && lockIdx === -1) {
