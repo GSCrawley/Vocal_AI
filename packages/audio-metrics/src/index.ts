@@ -154,13 +154,7 @@ export function scoreOnset(
 
     if (firstUsableFrameIdx === -1) firstUsableFrameIdx = i;
 
-    const evaluation = evaluateFrame(
-      frame.frequencyHz,
-      targetHz,
-      toleranceCents,
-      frame.confidence,
-      frame.centsFromTarget
-    );
+    const evaluation = evaluateFrame(frame.frequencyHz, targetHz, toleranceCents, frame.confidence);
     if (evaluation.inTolerance) {
       continuousLockCount++;
       if (continuousLockCount >= REQUIRED_LOCK_FRAMES && lockIdx === -1) {
