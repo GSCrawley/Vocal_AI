@@ -1,5 +1,6 @@
 import { ExerciseDefinition, LivePitchFrame } from '@voice/shared-types';
 import { micCheck, scoreSustainedNote } from '@voice/audio-metrics';
+import { useSettingsStore } from '../store/settingsStore';
 
 // Provide a sensible fallback API URL if one isn't defined via environment variables
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:10000';
@@ -24,7 +25,7 @@ export function usePitchAnalysis() {
         uri,
         name: 'recording.m4a',
         type: 'audio/m4a',
-      } as any);
+      } as unknown as Blob);
 
       // We call the Fastify API proxy which coordinates with the Python audio-processor
       const response = await fetch(`${API_URL}/v1/pitch/extract`, {
@@ -76,11 +77,39 @@ export function usePitchAnalysis() {
       stability: exercise.scoringWeights.stability || 0.5,
     });
 
+    let deepAnalysis = null;
+    const currentConsent = useSettingsStore.getState().audioStorageConsent;
+    if (currentConsent) {
+      try {
+        // Deep analysis upload step (placeholder for actual integration)
+        const daFormData = new FormData();
+        daFormData.append('file', {
+          uri,
+          name: 'recording.m4a',
+          type: 'audio/m4a',
+        } as unknown as Blob);
+
+        const daResponse = await fetch(`${API_URL}/api/attempts/temp-id/analyze`, {
+          method: 'POST',
+          body: daFormData,
+          headers: { Authorization: 'Bearer placeholder-token' },
+        });
+
+        if (daResponse.ok) {
+          const daResult = await daResponse.json();
+          deepAnalysis = daResult.deepAnalysis;
+        }
+      } catch (err) {
+        console.warn('Failed to perform deep analysis:', err);
+      }
+    }
+
     return {
       ok: true,
       reason: undefined,
       scoreBreakdown,
       frames,
+      deepAnalysis,
     };
   };
 

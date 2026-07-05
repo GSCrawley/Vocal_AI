@@ -7,13 +7,15 @@ import SustainedNoteScreen from '../screens/SustainedNoteScreen';
 import ResultScreen from '../screens/ResultScreen';
 import ReflectionScreen from '../screens/ReflectionScreen';
 import RewardSummaryScreen from '../screens/RewardSummaryScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 
 export type RootStackParamList = {
+  Settings: undefined;
   MicPermission: undefined;
   MicCheck: undefined;
   ExerciseIntro: undefined;
   SustainedNote: undefined;
-  Result: { score: number };
+  Result: { score: number; deepAnalysis?: unknown };
   Reflection: undefined;
   RewardSummary: undefined;
 };
@@ -35,6 +37,7 @@ export default function AppNavigator() {
       <Stack.Screen name="Result" component={ResultScreen} />
       <Stack.Screen name="Reflection" component={ReflectionScreen} />
       <Stack.Screen name="RewardSummary" component={RewardSummaryScreen} />
+      <Stack.Screen name="Settings" component={SettingsScreen} />
     </Stack.Navigator>
   );
 }
