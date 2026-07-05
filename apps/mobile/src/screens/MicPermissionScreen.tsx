@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { colors } from '@voice/ui-tokens';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -24,7 +24,12 @@ export default function MicPermissionScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Microphone Access</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Microphone Access</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+          <Text style={styles.settingsLink}>Settings</Text>
+        </TouchableOpacity>
+      </View>
       <Text style={styles.body}>We need microphone access to hear you and provide feedback.</Text>
       {status === 'denied' && (
         <Text style={styles.error}>
@@ -42,6 +47,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     justifyContent: 'center',
     padding: 24,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  settingsLink: {
+    color: colors.accent,
+    fontSize: 16,
   },
   title: {
     color: colors.text,
