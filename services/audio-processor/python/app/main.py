@@ -67,14 +67,14 @@ def extract_pitch_sync(
     ):
         raise HTTPException(status_code=403)
 
-    with tempfile.NamedTemporaryFile(
-        delete=False, suffix=os.path.splitext(file.filename or "")[1] or ".m4a"
-    ) as tmp:
-        content = file.file.read()
-        tmp.write(content)
-        tmp_path = tmp.name
-
+    tmp_path = None
     try:
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=os.path.splitext(file.filename or "")[1] or ".m4a"
+        ) as tmp:
+            content = file.file.read()
+            tmp.write(content)
+            tmp_path = tmp.name
         y, sr = load_audio(tmp_path, sr=settings.sample_rate, allow_local_path=True)
         pitch_result = extract_pitch_pyin(y, sr)
         pitch_frames = pitch_to_frames(pitch_result)
@@ -85,7 +85,7 @@ def extract_pitch_sync(
             status_code=500, content={"ok": False, "error": "internal_error"}
         )
     finally:
-        if os.path.exists(tmp_path):
+        if tmp_path and os.path.exists(tmp_path):
             os.remove(tmp_path)
 
 
