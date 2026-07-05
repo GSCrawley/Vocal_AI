@@ -8,6 +8,7 @@ from app.separation.demucs_runner import separate_vocals
 
 redis_client = redis.from_url(settings.redis_url)
 
+
 def run(job_payload: dict):
     """
     Input matches TypeScript VocalSeparationJob:
@@ -42,13 +43,18 @@ def run(job_payload: dict):
     _set_result(job_id, output)
     return output
 
+
 def _set_status(job_id: str, status: str):
     redis_client.hset(f"job:{job_id}", "status", status)
 
+
 def _set_result(job_id: str, result: dict):
-    redis_client.hset(f"job:{job_id}", mapping={
-        "status": "complete",
-        "result": json.dumps(result),
-        "completedAt": result["completedAt"],
-    })
+    redis_client.hset(
+        f"job:{job_id}",
+        mapping={
+            "status": "complete",
+            "result": json.dumps(result),
+            "completedAt": result["completedAt"],
+        },
+    )
     redis_client.expire(f"job:{job_id}", 86400)  # 24-hour TTL on job result
