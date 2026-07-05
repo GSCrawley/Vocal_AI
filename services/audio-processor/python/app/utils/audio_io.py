@@ -25,28 +25,40 @@ def validate_url_safe(url: str) -> None:
     if not hostname:
         raise ValueError("URL must contain a hostname")
 
-    # Resolve hostname to IP
+    # 1. Enforce a host allow-list: must match the Supabase URL host
+    supabase_parsed = urllib.parse.urlparse(settings.supabase_url)
+    allowed_host = supabase_parsed.hostname
+    if hostname != allowed_host:
+        raise ValueError(f"URL hostname '{hostname}' is not allowed. Must match Supabase host '{allowed_host}'.")
+
+    # 2. Resolve ALL addresses and reject if ANY is forbidden
     try:
-        ip_addr = socket.gethostbyname(hostname)
-        ip = ipaddress.ip_address(ip_addr)
+        # Resolve all IPv4 and IPv6 addresses
+        addr_infos = socket.getaddrinfo(hostname, None, proto=socket.IPPROTO_TCP)
     except socket.gaierror:
         raise ValueError(f"Could not resolve hostname: {hostname}")
-    except ValueError:
-        raise ValueError(f"Invalid IP address resolved from hostname: {hostname}")
 
-    # Check for private, loopback, link-local, multicast, reserved
-    if (
-        ip.is_private
-        or ip.is_loopback
-        or ip.is_link_local
-        or ip.is_multicast
-        or ip.is_reserved
-        or str(ip) == "0.0.0.0"
-        or str(ip) == "255.255.255.255"
-        # Explicit check for AWS metadata endpoint just in case
-        or str(ip) == "169.254.169.254"
-    ):
-        raise ValueError(f"URL resolves to a forbidden IP address: {ip}")
+    for info in addr_infos:
+        # info structure: (family, type, proto, canonname, sockaddr)
+        ip_addr = info[4][0]
+        try:
+            ip = ipaddress.ip_address(ip_addr)
+        except ValueError:
+            raise ValueError(f"Invalid IP address resolved from hostname: {hostname}")
+
+        # Check for private, loopback, link-local, multicast, reserved
+        if (
+            ip.is_private
+            or ip.is_loopback
+            or ip.is_link_local
+            or ip.is_multicast
+            or ip.is_reserved
+            or str(ip) == "0.0.0.0"
+            or str(ip) == "255.255.255.255"
+            # Explicit check for AWS metadata endpoint just in case
+            or str(ip) == "169.254.169.254"
+        ):
+            raise ValueError(f"URL resolves to a forbidden IP address: {ip}")
 
 
 def load_audio(
