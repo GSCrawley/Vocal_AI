@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import { View, Text, StyleSheet, Animated, Alert } from 'react-native';
 import { colors } from '@voice/ui-tokens';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -8,6 +8,7 @@ import { useRecording } from '../hooks/useRecording';
 import { usePitchAnalysis } from '../hooks/usePitchAnalysis';
 import { BUILD_01_EXERCISE } from '../constants/exercise';
 import { useSessionStore } from '../store/sessionStore';
+import { useSettingsStore } from '../store/settingsStore';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'SustainedNote'>;
 
@@ -16,6 +17,12 @@ export default function SustainedNoteScreen() {
   const { startRecording, stopRecording, rmsDbFrames, isRecording } = useRecording();
   const { analyzeRecording } = usePitchAnalysis();
   const { dispatch, setFrames, setLastScore } = useSessionStore();
+  const {
+    audioStorageConsent,
+    hasPromptedForConsent,
+    setAudioStorageConsent,
+    setHasPromptedForConsent,
+  } = useSettingsStore();
 
   const [countdown, setCountdown] = useState(5);
   const [phase, setPhase] = useState<'countdown' | 'recording' | 'analyzing'>('countdown');
@@ -61,20 +68,52 @@ export default function SustainedNoteScreen() {
 
     recordingStopTimeoutRef.current = setTimeout(async () => {
       dispatch({ type: 'LISTENING_DONE' });
-      setPhase('analyzing');
       const { uri, frames } = await stopRecording();
 
-      const result = await analyzeRecording(uri, frames, BUILD_01_EXERCISE);
+      const proceedWithAnalysis = async () => {
+        setPhase('analyzing');
+        const result = await analyzeRecording(uri, frames, BUILD_01_EXERCISE);
 
-      dispatch({ type: 'ANALYSIS_DONE' });
+        dispatch({ type: 'ANALYSIS_DONE' });
 
-      if (result.ok && result.scoreBreakdown) {
-        setFrames(result.frames);
-        setLastScore(result.scoreBreakdown.overall);
-        navigation.replace('Result', { score: result.scoreBreakdown.overall });
+        if (result.ok && result.scoreBreakdown) {
+          setFrames(result.frames);
+          setLastScore(result.scoreBreakdown.overall);
+          navigation.replace('Result', {
+            score: result.scoreBreakdown.overall,
+            deepAnalysis: (result as unknown as { deepAnalysis: unknown }).deepAnalysis,
+          });
+        } else {
+          // Route noisy/clipped audio back to mic check as per rules
+          navigation.replace('MicCheck');
+        }
+      };
+
+      if (!audioStorageConsent && !hasPromptedForConsent) {
+        Alert.alert(
+          'Deep Analysis',
+          'Deep analysis requires uploading your recording. Want to enable it for this attempt?',
+          [
+            {
+              text: 'No',
+              style: 'cancel',
+              onPress: () => {
+                setHasPromptedForConsent(true);
+                proceedWithAnalysis();
+              },
+            },
+            {
+              text: 'Yes',
+              onPress: () => {
+                setHasPromptedForConsent(true);
+                setAudioStorageConsent(true);
+                proceedWithAnalysis();
+              },
+            },
+          ]
+        );
       } else {
-        // Route noisy/clipped audio back to mic check as per rules
-        navigation.replace('MicCheck');
+        proceedWithAnalysis();
       }
     }, BUILD_01_EXERCISE.durationTargetSeconds * 1000);
   };

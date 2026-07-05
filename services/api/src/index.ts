@@ -4,6 +4,7 @@ import fastifyJwt from '@fastify/jwt';
 import { LivePitchFrame, SessionState, SessionEvent } from '@voice/shared-types';
 import { micCheck, scoreSustainedNote } from '@voice/audio-metrics';
 import { transition } from '@voice/exercise-engine';
+import profilesRoutes from './routes/profiles.js';
 import assessmentsRoutes from './routes/assessments.js';
 import pitchRoutes from './routes/pitch.js';
 
@@ -58,6 +59,7 @@ app.get('/', async (_request: FastifyRequest, _reply: FastifyReply) => {
   return { service: 'api', status: 'stub' };
 });
 
+app.register(profilesRoutes, { prefix: '/v1/profiles' });
 app.register(assessmentsRoutes, { prefix: '/v1/assessments' });
 app.register(pitchRoutes, { prefix: '/v1/pitch' });
 

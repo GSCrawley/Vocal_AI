@@ -2,15 +2,16 @@ import numpy as np
 from scipy.signal import butter, filtfilt, find_peaks
 
 # Target vibrato parameters (classical/pop)
-TARGET_RATE_HZ = 6.0      # oscillations per second
+TARGET_RATE_HZ = 6.0  # oscillations per second
 TARGET_WIDTH_CENTS = 50.0  # ± cents deviation
-RATE_TOLERANCE_HZ = 1.5   # acceptable range: 4.5–7.5 Hz
+RATE_TOLERANCE_HZ = 1.5  # acceptable range: 4.5–7.5 Hz
 WIDTH_TOLERANCE_CENTS = 25.0
+
 
 def detect_vibrato(
     f0_hz: np.ndarray,
     voiced_flag: np.ndarray,
-    sr_frames: float,      # frame rate = sr / hop_length
+    sr_frames: float,  # frame rate = sr / hop_length
 ) -> dict:
     """
     Detect vibrato in a sustained pitch curve.
@@ -33,10 +34,12 @@ def detect_vibrato(
         return _no_vibrato()
 
     mean_f0 = np.mean(voiced_f0)
-    cents_curve = np.array([
-        1200 * np.log2(f / mean_f0) if (v and not np.isnan(f) and f > 0) else 0.0
-        for f, v in zip(f0_hz, voiced_flag)
-    ])
+    cents_curve = np.array(
+        [
+            1200 * np.log2(f / mean_f0) if (v and not np.isnan(f) and f > 0) else 0.0
+            for f, v in zip(f0_hz, voiced_flag)
+        ]
+    )
 
     # Skip first 500ms (onset period)
     onset_skip = int(0.5 * sr_frames)
@@ -88,8 +91,14 @@ def detect_vibrato(
         "overall_score": overall_score,
     }
 
+
 def _no_vibrato() -> dict:
     return {
-        "detected": False, "rate_hz": 0.0, "width_cents": 0.0,
-        "onset_frame": 0, "rate_score": 0.0, "width_score": 0.0, "overall_score": 0.0,
+        "detected": False,
+        "rate_hz": 0.0,
+        "width_cents": 0.0,
+        "onset_frame": 0,
+        "rate_score": 0.0,
+        "width_score": 0.0,
+        "overall_score": 0.0,
     }

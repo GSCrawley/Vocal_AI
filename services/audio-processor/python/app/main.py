@@ -1,19 +1,21 @@
-# app/main.py
-from fastapi import FastAPI, Header, HTTPException, UploadFile, File
-from fastapi.responses import JSONResponse
+import logging
+import os
 import secrets
 import tempfile
-import os
+from typing import Optional
+
+import librosa
+import redis
+from fastapi import FastAPI, Header, HTTPException, UploadFile, File, Form
+from fastapi.responses import JSONResponse
+
 from app.config import settings
-
-try:
-    import redis
-except ImportError:
-    redis = None
-
-# We import pitch processing directly for the fast synchronous endpoint
 from app.utils.audio_io import load_audio
 from app.analysis.pitch import extract_pitch_pyin, pitch_to_frames
+from app.analysis.singing_metrics import compute_singing_metrics
+from app.analysis.rms import extract_rms_envelope
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="voice-audio-processor", version="0.1.0")
 redis_client = redis.from_url(settings.redis_url)
@@ -77,19 +79,14 @@ def extract_pitch_sync(
         pitch_result = extract_pitch_pyin(y, sr)
         pitch_frames = pitch_to_frames(pitch_result)
         return {"ok": True, "frames": pitch_frames}
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
+    except Exception:
+        logger.exception("Failed to extract pitch")
+        return JSONResponse(
+            status_code=500, content={"ok": False, "error": "internal_error"}
+        )
     finally:
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
-
-
-from typing import Optional
-
-import librosa
-from fastapi import Form
-
-from app.analysis.singing_metrics import compute_singing_metrics
 
 
 @app.post("/analyze")
@@ -156,8 +153,6 @@ def analyze_audio(
         ).tolist()
 
         # 3. RMS Peak
-        from app.analysis.rms import extract_rms_envelope
-
         rms_result = extract_rms_envelope(y, sr)
         peak_db = rms_result["max_db"]
 
@@ -189,6 +184,7 @@ def analyze_audio(
             "overallConfidence": metrics["voiced_frame_ratio"],
         }
     except Exception:
+        logger.exception("Failed to analyze audio")
         return JSONResponse(status_code=500, content={"error": "internal_error"})
     finally:
         if tmp_path and os.path.exists(tmp_path):
