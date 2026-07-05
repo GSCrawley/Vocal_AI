@@ -93,13 +93,7 @@ export function scorePitchAccuracy(
     if (!frame.voiced || frame.confidence < 0.5 || !frame.frequencyHz) continue;
 
     usableFrames++;
-    const evaluation = evaluateFrame(
-      frame.frequencyHz,
-      targetHz,
-      toleranceCents,
-      frame.confidence,
-      frame.centsFromTarget
-    );
+    const evaluation = evaluateFrame(frame.frequencyHz, targetHz, toleranceCents, frame.confidence);
 
     if (evaluation.inTolerance) {
       framesInTolerance++;
