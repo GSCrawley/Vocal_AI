@@ -7,6 +7,19 @@ from app.config import settings
 client = TestClient(app)
 
 def test_validate_url_safe_blocks_private_ips(monkeypatch):
+
+    def mock_getaddrinfo(host, port, *args, **kwargs):
+        import socket
+        if host == "localhost":
+            ip = "127.0.0.1"
+        elif host == "example.com" or host == "otherdomain.com":
+            ip = "93.184.216.34"
+        else:
+            ip = host
+        return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', (ip, 0))]
+
+    import socket
+    monkeypatch.setattr(socket, "getaddrinfo", mock_getaddrinfo)
     # Set supabase_url so hostname match logic succeeds
     monkeypatch.setattr(settings, "supabase_url", "https://localhost:8000")
     # Test localhost and loopback
