@@ -30,7 +30,8 @@ export const app = Fastify({
   logger: true,
 });
 
-const jwtSecret = process.env.JWT_SECRET || (process.env.NODE_ENV === 'test' ? 'test-secret' : undefined);
+const jwtSecret =
+  process.env.JWT_SECRET || (process.env.NODE_ENV === 'test' ? 'test-secret' : undefined);
 
 if (!jwtSecret) {
   app.log.error('JWT_SECRET environment variable is missing');
