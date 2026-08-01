@@ -45,8 +45,8 @@ def compare_pitch_curves(
     user_mean = user_hz.mean()
     ref_mean = ref_hz.mean()
 
-    user_cents = np.array([hz_to_cents(h, user_mean) for h in user_hz])
-    ref_cents = np.array([hz_to_cents(h, ref_mean) for h in ref_hz])
+    user_cents = 1200.0 * np.log2(user_hz / user_mean)
+    ref_cents = 1200.0 * np.log2(ref_hz / ref_mean)
 
     # DTW distance (lower = more similar)
     distance, path = fastdtw(
