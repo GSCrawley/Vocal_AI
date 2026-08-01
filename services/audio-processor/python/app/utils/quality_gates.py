@@ -23,7 +23,7 @@ def check_quality(y: np.ndarray, sr: int, pitch_voiced: np.ndarray) -> QualityRe
     rms = librosa.feature.rms(
         y=y, frame_length=settings.frame_length, hop_length=settings.hop_length
     )[0]
-    rms_db = float(librosa.amplitude_to_db(rms).mean())
+    rms_db = float(librosa.amplitude_to_db(rms, ref=np.max).mean())
     peak = float(np.abs(y).max())
     clipping = peak >= 0.99
 
