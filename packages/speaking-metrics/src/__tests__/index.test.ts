@@ -1,14 +1,14 @@
 import {
   getSpeakingScoreBreakdown,
+  SpeakingAnalysisResult,
   generateSpeakingFeedback,
   scorePace,
-  scoreProsody,
   computeSpeakingScore,
   scoreProjection,
   scoreFillerRate,
   mapSpeakingScoreToCoaching,
 } from '../index';
-import type { SpeakingExerciseScoreBreakdown, SpeakingAnalysisResult } from '@voice/shared-types';
+import type { SpeakingExerciseScoreBreakdown } from '@voice/shared-types';
 
 describe('generateSpeakingFeedback', () => {
   it('returns praise for null failureMode', () => {
