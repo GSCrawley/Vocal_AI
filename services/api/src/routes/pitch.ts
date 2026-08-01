@@ -19,7 +19,11 @@ export default async function pitchRoutes(app: FastifyInstance) {
       app.log.warn('No user id in JWT, proceeding for pitch extraction proxy');
     }
 
-    const INTERNAL_TOKEN = process.env.INTERNAL_SERVICE_TOKEN || 'dev-token';
+    const INTERNAL_TOKEN = process.env.INTERNAL_SERVICE_TOKEN;
+    if (!INTERNAL_TOKEN) {
+      app.log.error('INTERNAL_SERVICE_TOKEN is not configured');
+      return reply.code(500).send({ error: 'Internal server configuration error' });
+    }
     const AUDIO_PROCESSOR_URL = process.env.AUDIO_PROCESSOR_URL || 'http://localhost:8000';
 
     try {
