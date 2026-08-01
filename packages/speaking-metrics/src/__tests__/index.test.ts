@@ -1,6 +1,5 @@
 import {
   getSpeakingScoreBreakdown,
-  SpeakingAnalysisResult,
   generateSpeakingFeedback,
   scorePace,
   computeSpeakingScore,
