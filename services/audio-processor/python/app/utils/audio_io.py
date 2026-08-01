@@ -2,63 +2,10 @@ import librosa
 import numpy as np
 import soundfile as sf
 import io
-import urllib.parse
-import ipaddress
-import socket
 from app.config import settings
 from app.storage.supabase_client import download_file
 
 MAX_DURATION_SECONDS = 600  # 10 minutes hard cap
-
-
-def validate_url_safe(url: str) -> None:
-    """
-    Validates that a URL is safe to download from.
-    Prevents SSRF by checking against private, loopback, and link-local IP addresses.
-    Expects audio_url to be a Supabase Storage URL.
-    """
-    parsed = urllib.parse.urlparse(url)
-    if parsed.scheme not in ("http", "https"):
-        raise ValueError("URL must use http or https scheme")
-
-    hostname = parsed.hostname
-    if not hostname:
-        raise ValueError("URL must contain a hostname")
-
-    # 1. Enforce a host allow-list: must match the Supabase URL host
-    supabase_parsed = urllib.parse.urlparse(settings.supabase_url)
-    allowed_host = supabase_parsed.hostname
-    if hostname != allowed_host:
-        raise ValueError(f"URL hostname '{hostname}' is not allowed. Must match Supabase host '{allowed_host}'.")
-
-    # 2. Resolve ALL addresses and reject if ANY is forbidden
-    try:
-        # Resolve all IPv4 and IPv6 addresses
-        addr_infos = socket.getaddrinfo(hostname, None, proto=socket.IPPROTO_TCP)
-    except socket.gaierror:
-        raise ValueError(f"Could not resolve hostname: {hostname}")
-
-    for info in addr_infos:
-        # info structure: (family, type, proto, canonname, sockaddr)
-        ip_addr = info[4][0]
-        try:
-            ip = ipaddress.ip_address(ip_addr)
-        except ValueError:
-            raise ValueError(f"Invalid IP address resolved from hostname: {hostname}")
-
-        # Check for private, loopback, link-local, multicast, reserved
-        if (
-            ip.is_private
-            or ip.is_loopback
-            or ip.is_link_local
-            or ip.is_multicast
-            or ip.is_reserved
-            or str(ip) == "0.0.0.0"
-            or str(ip) == "255.255.255.255"
-            # Explicit check for AWS metadata endpoint just in case
-            or str(ip) == "169.254.169.254"
-        ):
-            raise ValueError(f"URL resolves to a forbidden IP address: {ip}")
 
 
 def load_audio(
@@ -78,7 +25,6 @@ def load_audio(
     sr = sr or settings.sample_rate
 
     if url_or_path.startswith("http://") or url_or_path.startswith("https://"):
-        validate_url_safe(url_or_path)
         audio_bytes = download_file(url_or_path)
         y, original_sr = sf.read(io.BytesIO(audio_bytes), always_2d=False)
     else:
