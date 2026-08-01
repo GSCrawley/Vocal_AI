@@ -2,6 +2,7 @@ import {
   getSpeakingScoreBreakdown,
   generateSpeakingFeedback,
   scorePace,
+  scoreProsody,
   computeSpeakingScore,
   scoreProjection,
   scoreFillerRate,
