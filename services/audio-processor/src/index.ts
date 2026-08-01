@@ -64,6 +64,7 @@ export interface SingingMetricsJob {
   jobId: string;
   attemptId: string;
   userId: string;
+  exerciseId: string;
   audioFileUrl: string; // User's singing attempt audio
   targetHz?: number; // Expected pitch (for exercise attempts)
   toleranceCents?: number; // Default 25
@@ -163,6 +164,7 @@ export interface KaraokeCompareResult {
 export interface SingingMetricsResult {
   jobId: string;
   attemptId: string;
+  exerciseId: string;
   pitchAccuracy: number | null; // null if no target
   pitchStability: number | null;
   onsetAccuracy: number | null;
