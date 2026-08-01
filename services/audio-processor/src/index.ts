@@ -92,9 +92,8 @@ export interface BaselineAssessmentJob {
    */
   noteSchedule: Array<{
     midiNote: number;
-    noteName: string;
-    timestampMs: number;
-    holdDurationMs: number;
+    startMs: number;
+    endMs: number;
   }>;
 }
 
