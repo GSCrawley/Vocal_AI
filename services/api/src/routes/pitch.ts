@@ -16,7 +16,8 @@ export default async function pitchRoutes(app: FastifyInstance) {
     const multipartRequest = request as MultipartRequest;
     const userId = (request.user as { sub?: string })?.sub;
     if (!userId) {
-      app.log.warn('No user id in JWT, proceeding for pitch extraction proxy');
+      app.log.warn('No user id in JWT, rejecting pitch extraction proxy');
+      return reply.code(401).send({ error: 'Unauthorized' });
     }
 
     const INTERNAL_TOKEN = process.env.INTERNAL_SERVICE_TOKEN || 'dev-token';
