@@ -310,7 +310,7 @@ describe('scoreFillerRate', () => {
 });
 
 describe('getSpeakingScoreBreakdown', () => {
-  const baseAnalysis = {
+  const baseAnalysis: SpeakingAnalysisResult = {
     wpm: 147.5, // exact midpoint of presentation target (130-165) scores 100
     articulationRateWpm: 160,
     meanF0Hz: 120,
@@ -326,17 +326,16 @@ describe('getSpeakingScoreBreakdown', () => {
 
   it('delegates to scoring functions and applies goal-specific weights (e.g. pace)', () => {
     // With everything scoring 100, the overall score should be 100 regardless of weights
-    const breakdown = getSpeakingScoreBreakdown(
-      baseAnalysis as unknown as SpeakingAnalysisResult,
-      'pace'
-    );
+    const breakdown = getSpeakingScoreBreakdown(baseAnalysis, 'pace');
 
-    // As long as it returns numbers for all these, it successfully delegated
-    expect(typeof breakdown.pace).toBe('number');
-    expect(typeof breakdown.prosody).toBe('number');
-    expect(typeof breakdown.projection).toBe('number');
-    expect(typeof breakdown.fillerRate).toBe('number');
-    expect(typeof breakdown.overall).toBe('number');
+    // Assert each sub-score matches what the individual scorers produce
+    expect(breakdown.pace).toBe(scorePace(baseAnalysis.wpm));
+    expect(breakdown.prosody).toBe(scoreProsody(baseAnalysis.f0RangeHz, baseAnalysis.uptalkRatio));
+    expect(breakdown.projection).toBe(
+      scoreProjection(baseAnalysis.meanRmsDb, baseAnalysis.rmsVarianceDb)
+    );
+    expect(breakdown.fillerRate).toBe(scoreFillerRate(baseAnalysis.fillerRate));
+    expect(Number.isFinite(breakdown.overall)).toBe(true);
 
     // And overall should be computed based on pace goal weights:
     // pace: 0.6, prosody: 0.15, projection: 0.15, fillerRate: 0.1
@@ -351,7 +350,7 @@ describe('getSpeakingScoreBreakdown', () => {
 
   it('varies overall score based on the chosen goal (weighting)', () => {
     // Let's make pace score 100, but others score less.
-    const analysis = {
+    const analysis: SpeakingAnalysisResult = {
       ...baseAnalysis,
       wpm: 150, // pace = 100
       f0RangeHz: 10, // low prosody
@@ -361,41 +360,27 @@ describe('getSpeakingScoreBreakdown', () => {
 
     // Pace goal weights: pace 0.6, prosody 0.15, projection 0.15, fillerRate 0.1
     // It should score higher for 'pace' goal than for 'filler_reduction' goal
-    const paceBreakdown = getSpeakingScoreBreakdown(
-      analysis as unknown as SpeakingAnalysisResult,
-      'pace'
-    );
-    const fillerBreakdown = getSpeakingScoreBreakdown(
-      analysis as unknown as SpeakingAnalysisResult,
-      'filler_reduction'
-    );
+    const paceBreakdown = getSpeakingScoreBreakdown(analysis, 'pace');
+    const fillerBreakdown = getSpeakingScoreBreakdown(analysis, 'filler_reduction');
 
     expect(paceBreakdown.overall).toBeGreaterThan(fillerBreakdown.overall);
   });
 
   it('uses a different context for pace scoring when provided', () => {
-    const analysis = {
+    const analysis: SpeakingAnalysisResult = {
       ...baseAnalysis,
-      wpm: 190, // Fast for presentation, but maybe closer to conversation target (140-180)
+      wpm: 190, // Fast for presentation, but within conversational target (130-180)
     };
 
-    const presentationBreakdown = getSpeakingScoreBreakdown(
-      analysis as unknown as SpeakingAnalysisResult,
-      'pace',
-      'presentation'
-    );
-    const conversationBreakdown = getSpeakingScoreBreakdown(
-      analysis as unknown as SpeakingAnalysisResult,
-      'pace',
-      'conversation'
-    );
+    const presentationBreakdown = getSpeakingScoreBreakdown(analysis, 'pace', 'presentation');
+    const conversationalBreakdown = getSpeakingScoreBreakdown(analysis, 'pace', 'conversational');
 
-    // Conversation target is faster, so 190 wpm should score higher in 'conversation' than 'presentation'
-    expect(conversationBreakdown.pace!).toBeGreaterThan(presentationBreakdown.pace!);
+    // Conversational target is faster, so 190 wpm should score higher in 'conversational' than 'presentation'
+    expect(conversationalBreakdown.pace!).toBeGreaterThan(presentationBreakdown.pace!);
   });
 
   it('handles edge case values safely without throwing', () => {
-    const edgeAnalysis = {
+    const edgeAnalysis: SpeakingAnalysisResult = {
       wpm: 0,
       articulationRateWpm: 0,
       meanF0Hz: 0,
@@ -409,18 +394,14 @@ describe('getSpeakingScoreBreakdown', () => {
       fillerRate: 100, // Very high
     };
 
-    const breakdown = getSpeakingScoreBreakdown(
-      edgeAnalysis as unknown as SpeakingAnalysisResult,
-      'authority'
-    );
+    const breakdown = getSpeakingScoreBreakdown(edgeAnalysis, 'authority');
 
-    // We expect valid numbers back, even if they are 0 or the lowest band
-    expect(typeof breakdown.pace).toBe('number');
-    expect(typeof breakdown.prosody).toBe('number');
-    expect(typeof breakdown.projection).toBe('number');
-    expect(typeof breakdown.fillerRate).toBe('number');
-    expect(typeof breakdown.overall).toBe('number');
-    expect(breakdown.overall).not.toBeNaN();
+    // We expect finite numbers back, even if they are 0 or the lowest band
+    expect(Number.isFinite(breakdown.pace)).toBe(true);
+    expect(Number.isFinite(breakdown.prosody)).toBe(true);
+    expect(Number.isFinite(breakdown.projection)).toBe(true);
+    expect(Number.isFinite(breakdown.fillerRate)).toBe(true);
+    expect(Number.isFinite(breakdown.overall)).toBe(true);
   });
 });
 
