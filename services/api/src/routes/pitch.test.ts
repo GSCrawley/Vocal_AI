@@ -11,10 +11,12 @@ describe('Pitch Routes', () => {
     // Mock fastify-jwt decorator for testing
     app.decorate('user', null);
     app.addHook('onRequest', async (request, _reply) => {
-       // Allow test runner to set user manually or leave empty
-       if ((request as { headers: Record<string, string> }).headers['x-mock-user']) {
-           request.user = { sub: (request as { headers: Record<string, string> }).headers['x-mock-user'] };
-       }
+      // Allow test runner to set user manually or leave empty
+      if ((request as { headers: Record<string, string> }).headers['x-mock-user']) {
+        request.user = {
+          sub: (request as { headers: Record<string, string> }).headers['x-mock-user'],
+        };
+      }
     });
 
     await app.register(pitchRoutes);
@@ -29,14 +31,14 @@ describe('Pitch Routes', () => {
     const form = new FormData();
     form.append('file', Buffer.from('dummy audio data'), {
       filename: 'test.m4a',
-      contentType: 'audio/mp4'
+      contentType: 'audio/mp4',
     });
 
     const response = await app.inject({
       method: 'POST',
       url: '/extract',
       headers: form.getHeaders(),
-      payload: form
+      payload: form,
     });
 
     expect(response.statusCode).toBe(401);
