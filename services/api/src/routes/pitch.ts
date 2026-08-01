@@ -32,12 +32,7 @@ export default async function pitchRoutes(app: FastifyInstance) {
 
       // Reconstruct multipart/form-data for the Python service using FormData
       const formData = new FormData();
-      const arrayBuffer = new ArrayBuffer(buffer.length);
-      const view = new Uint8Array(arrayBuffer);
-      for (let i = 0; i < buffer.length; ++i) {
-        view[i] = buffer[i];
-      }
-      const blob = new Blob([arrayBuffer], { type: data.mimetype });
+      const blob = new Blob([new Uint8Array(buffer)], { type: data.mimetype });
       formData.append('file', blob, data.filename || 'recording.m4a');
 
       const response = await fetch(`${AUDIO_PROCESSOR_URL}/pitch/extract`, {
