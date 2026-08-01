@@ -1,4 +1,7 @@
 import {
+  getSpeakingScoreBreakdown,
+  SpeakingAnalysisResult,
+
   generateSpeakingFeedback,
   scorePace,
   computeSpeakingScore,
@@ -304,6 +307,102 @@ describe('scoreFillerRate', () => {
     expect(scoreFillerRate(10.1)).toBe(15);
     expect(scoreFillerRate(15)).toBe(15);
     expect(scoreFillerRate(100)).toBe(15);
+  });
+});
+
+
+describe('getSpeakingScoreBreakdown', () => {
+  const baseAnalysis = {
+    wpm: 147.5, // exact midpoint of presentation target (130-165) scores 100
+    articulationRateWpm: 160,
+    meanF0Hz: 120,
+    f0RangeHz: 40, // >= 35 gives 100
+    uptalkRatio: 0.1, // <= 0.1 gives 100, average with f0Range gives prosody = 100
+    pauseCount: 5,
+    meanPauseDurationMs: 400,
+    meanRmsDb: -15, // > -18 gives 100
+    rmsVarianceDb: 5, // bonus 10 -> projection 100 (capped)
+    fillerEvents: [],
+    fillerRate: 0, // <= 1 gives 100
+  };
+
+  it('delegates to scoring functions and applies goal-specific weights (e.g. pace)', () => {
+    // With everything scoring 100, the overall score should be 100 regardless of weights
+    const breakdown = getSpeakingScoreBreakdown(baseAnalysis as unknown as SpeakingAnalysisResult, 'pace');
+
+    // As long as it returns numbers for all these, it successfully delegated
+    expect(typeof breakdown.pace).toBe('number');
+    expect(typeof breakdown.prosody).toBe('number');
+    expect(typeof breakdown.projection).toBe('number');
+    expect(typeof breakdown.fillerRate).toBe('number');
+    expect(typeof breakdown.overall).toBe('number');
+
+    // And overall should be computed based on pace goal weights:
+    // pace: 0.6, prosody: 0.15, projection: 0.15, fillerRate: 0.1
+    const expectedOverall = Math.round(
+      breakdown.pace! * 0.6 +
+      breakdown.prosody! * 0.15 +
+      breakdown.projection! * 0.15 +
+      breakdown.fillerRate! * 0.1
+    );
+    expect(breakdown.overall).toBe(expectedOverall);
+  });
+
+  it('varies overall score based on the chosen goal (weighting)', () => {
+    // Let's make pace score 100, but others score less.
+    const analysis = {
+      ...baseAnalysis,
+      wpm: 150, // pace = 100
+      f0RangeHz: 10, // low prosody
+      meanRmsDb: -40, // low projection
+      fillerRate: 20, // high fillers -> score 15
+    };
+
+    // Pace goal weights: pace 0.6, prosody 0.15, projection 0.15, fillerRate 0.1
+    // It should score higher for 'pace' goal than for 'filler_reduction' goal
+    const paceBreakdown = getSpeakingScoreBreakdown(analysis as unknown as SpeakingAnalysisResult, 'pace');
+    const fillerBreakdown = getSpeakingScoreBreakdown(analysis as unknown as SpeakingAnalysisResult, 'filler_reduction');
+
+    expect(paceBreakdown.overall).toBeGreaterThan(fillerBreakdown.overall);
+  });
+
+  it('uses a different context for pace scoring when provided', () => {
+    const analysis = {
+      ...baseAnalysis,
+      wpm: 190, // Fast for presentation, but maybe closer to conversation target (140-180)
+    };
+
+    const presentationBreakdown = getSpeakingScoreBreakdown(analysis as unknown as SpeakingAnalysisResult, 'pace', 'presentation');
+    const conversationBreakdown = getSpeakingScoreBreakdown(analysis as unknown as SpeakingAnalysisResult, 'pace', 'conversation');
+
+    // Conversation target is faster, so 190 wpm should score higher in 'conversation' than 'presentation'
+    expect(conversationBreakdown.pace!).toBeGreaterThan(presentationBreakdown.pace!);
+  });
+
+  it('handles edge case values safely without throwing', () => {
+    const edgeAnalysis = {
+      wpm: 0,
+      articulationRateWpm: 0,
+      meanF0Hz: 0,
+      f0RangeHz: 0,
+      uptalkRatio: 1,
+      pauseCount: 0,
+      meanPauseDurationMs: 0,
+      meanRmsDb: -100,
+      rmsVarianceDb: 0,
+      fillerEvents: [],
+      fillerRate: 100, // Very high
+    };
+
+    const breakdown = getSpeakingScoreBreakdown(edgeAnalysis as unknown as SpeakingAnalysisResult, 'authority');
+
+    // We expect valid numbers back, even if they are 0 or the lowest band
+    expect(typeof breakdown.pace).toBe('number');
+    expect(typeof breakdown.prosody).toBe('number');
+    expect(typeof breakdown.projection).toBe('number');
+    expect(typeof breakdown.fillerRate).toBe('number');
+    expect(typeof breakdown.overall).toBe('number');
+    expect(breakdown.overall).not.toBeNaN();
   });
 });
 
