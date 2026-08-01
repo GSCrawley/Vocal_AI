@@ -1,10 +1,11 @@
 import pytest
-from app.utils.audio_io import validate_url_safe
+from app.storage.supabase_client import validate_url_safe
 from app.main import app
 from fastapi.testclient import TestClient
 from app.config import settings
 
 client = TestClient(app)
+
 
 def test_validate_url_safe_blocks_private_ips(monkeypatch):
 
@@ -49,11 +50,14 @@ def test_validate_url_safe_blocks_private_ips(monkeypatch):
     try:
         validate_url_safe("https://example.com/audio.wav")
     except ValueError as e:
-        pytest.fail(f"validate_url_safe raised ValueError unexpectedly on a valid public URL: {e}")
+        pytest.fail(
+            f"validate_url_safe raised ValueError unexpectedly on a valid public URL: {e}"
+        )
 
     # Should raise if hostname does not match supabase host
     with pytest.raises(ValueError, match="is not allowed"):
         validate_url_safe("https://otherdomain.com/audio.wav")
+
 
 def test_analyze_endpoint_hides_internal_errors(monkeypatch):
     # Mock load_audio to raise an exception
@@ -61,6 +65,7 @@ def test_analyze_endpoint_hides_internal_errors(monkeypatch):
         raise RuntimeError("Internal secret exception details")
 
     import app.main
+
     monkeypatch.setattr(app.main, "load_audio", mock_load_audio)
 
     response = client.post(
@@ -74,17 +79,19 @@ def test_analyze_endpoint_hides_internal_errors(monkeypatch):
     # The actual exception message should not leak
     assert "secret exception details" not in response.text
 
+
 def test_extract_pitch_hides_internal_errors(monkeypatch):
     def mock_load_audio(*args, **kwargs):
         raise RuntimeError("Internal secret exception details in pitch")
 
     import app.main
+
     monkeypatch.setattr(app.main, "load_audio", mock_load_audio)
 
     response = client.post(
         "/pitch/extract",
         headers={"x-internal-token": settings.internal_service_token},
-        files={"file": ("test.wav", b"fake audio data", "audio/wav")}
+        files={"file": ("test.wav", b"fake audio data", "audio/wav")},
     )
 
     assert response.status_code == 500
