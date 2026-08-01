@@ -14,7 +14,6 @@ describe('pitchRoutes', () => {
       request.user = { sub: 'test-user' };
     });
 
-
     app.register(pitchRoutes);
     await app.ready();
   });
