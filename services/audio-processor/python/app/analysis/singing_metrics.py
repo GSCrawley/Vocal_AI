@@ -79,14 +79,13 @@ def compute_singing_metrics(
     cents_errors = []
 
     if target_hz is not None:
-        for hz, voiced in zip(f0, voiced_flag):
-            if voiced and not np.isnan(hz) and hz > 0:
-                err = hz_to_cents(hz, target_hz)
-                cents_errors.append(err)
+        valid_mask = voiced_flag & ~np.isnan(f0) & (f0 > 0)
+        valid_f0 = f0[valid_mask]
 
-        if cents_errors:
-            in_tolerance = [abs(e) <= tolerance_cents for e in cents_errors]
-            time_in_tolerance = sum(in_tolerance) / len(cents_errors)
+        if len(valid_f0) > 0:
+            cents_errors = 1200.0 * np.log2(valid_f0 / target_hz)
+            in_tolerance = np.abs(cents_errors) <= tolerance_cents
+            time_in_tolerance = float(np.sum(in_tolerance)) / len(valid_f0)
             median_error = float(np.median(np.abs(cents_errors)))
 
             # Mirror TypeScript scorePitchAccuracy logic
