@@ -35,6 +35,7 @@ def extract_rms_envelope(y: np.ndarray, sr: int) -> dict:
         "min_db": float(rms_db.min()),
         "max_db": float(rms_db.max()),
         "dynamic_range_db": float(rms_db.max() - rms_db.min()),
+        "duration_seconds": float(len(y) / sr),
     }
 
 

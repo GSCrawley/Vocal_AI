@@ -110,7 +110,10 @@ def compute_singing_metrics(
 
     # 5. RMS / breath control
     rms_result = extract_rms_envelope(y, sr)
-    breath_control = score_breath_control(rms_result, voiced_flag)
+    if rms_result.get("duration_seconds", 0.0) < 1.0 or rms_result["mean_db"] < -40.0:
+        breath_control = None
+    else:
+        breath_control = score_breath_control(rms_result, voiced_flag)
 
     # 6. Vibrato (always run; score is 0 if not detected)
     vibrato_result = detect_vibrato(f0, voiced_flag, sr_frames)
@@ -129,7 +132,9 @@ def compute_singing_metrics(
         "onset_accuracy": (
             round(onset_accuracy, 1) if onset_accuracy is not None else None
         ),
-        "breath_control": round(breath_control, 1),
+        "breath_control": (
+            round(breath_control, 1) if breath_control is not None else None
+        ),
         "tone_quality": round(tone_quality, 1),
         "dynamics_score": round(
             rms_result["variance_db"], 2

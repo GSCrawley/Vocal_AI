@@ -681,7 +681,7 @@ export interface BaselineSnapshot {
   baselineMetrics: {
     pitchAccuracy: number | null;
     pitchStability: number | null;
-    breathControl: number;
+    breathControl: number | null;
     toneQuality: number;
     hnrDb: number;
   };
