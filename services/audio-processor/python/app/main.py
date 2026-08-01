@@ -21,6 +21,28 @@ app = FastAPI(title="voice-audio-processor", version="0.1.0")
 redis_client = redis.from_url(settings.redis_url)
 
 
+def get_safe_suffix(filename: Optional[str]) -> str:
+    if not filename:
+        return ".m4a"
+
+    # Normalize slashes to handle Windows paths on POSIX systems
+    filename = filename.replace("\\", "/")
+
+    # Extract just the base filename
+    base_name = os.path.basename(filename)
+
+    # Get the extension
+    _, ext = os.path.splitext(base_name)
+
+    # Sanitize extension: only alphanumeric and dot allowed
+    ext = "".join(c for c in ext if c.isalnum() or c == ".")
+
+    if not ext or ext == "." or len(ext) > 10:
+        return ".m4a"
+
+    return ext
+
+
 @app.get("/healthz")
 def health():
     checks = {"redis": "ok", "supabase": "ok"}
@@ -70,7 +92,7 @@ def extract_pitch_sync(
     tmp_path = None
     try:
         with tempfile.NamedTemporaryFile(
-            delete=False, suffix=os.path.splitext(file.filename or "")[1] or ".m4a"
+            delete=False, suffix=get_safe_suffix(file.filename)
         ) as tmp:
             content = file.file.read()
             tmp.write(content)
@@ -123,7 +145,7 @@ def analyze_audio(
     try:
         if file:
             with tempfile.NamedTemporaryFile(
-                delete=False, suffix=os.path.splitext(file.filename or "")[1] or ".m4a"
+                delete=False, suffix=get_safe_suffix(file.filename)
             ) as tmp:
                 content = file.file.read()
                 tmp.write(content)
