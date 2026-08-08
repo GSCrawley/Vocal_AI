@@ -5,6 +5,7 @@ import {
   buildIntroDialogue,
   buildCoachingDialogue,
   buildCelebrationDialogue,
+  buildReflectionDialogue,
   buildListeningPrompt,
 } from '../index';
 import type { CoachingPayload } from '@voice/shared-types';
@@ -344,6 +345,50 @@ describe('Avatar State', () => {
         state: 'CELEBRATING',
         durationMs: 3500,
       });
+    });
+  });
+
+  describe('buildReflectionDialogue', () => {
+    it('returns the reflection dialogue for speaking tier', () => {
+      const result = buildReflectionDialogue('speaking');
+      expect(result).toEqual([
+        {
+          text: 'Two quick questions before you go.',
+          state: 'COACHING',
+          durationMs: 2000,
+        },
+        {
+          text: "What felt easiest in today's session?",
+          state: 'COACHING',
+          awaitUserAction: true,
+        },
+        {
+          text: 'And what will you focus on next time you practice?',
+          state: 'COACHING',
+          awaitUserAction: true,
+        },
+      ]);
+    });
+
+    it('returns the reflection dialogue for singing tier', () => {
+      const result = buildReflectionDialogue('singing');
+      expect(result).toEqual([
+        {
+          text: 'Two quick questions before you go.',
+          state: 'COACHING',
+          durationMs: 2000,
+        },
+        {
+          text: "What felt easiest in today's session?",
+          state: 'COACHING',
+          awaitUserAction: true,
+        },
+        {
+          text: 'And what will you focus on next time you practice?',
+          state: 'COACHING',
+          awaitUserAction: true,
+        },
+      ]);
     });
   });
 });
