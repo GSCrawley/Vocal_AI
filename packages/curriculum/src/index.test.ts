@@ -1,5 +1,5 @@
 import type { ExerciseDefinition } from '@voice/shared-types';
-import { meetsPrerequisites, selectNextExercise } from './index';
+import { meetsPrerequisites, selectNextExercise, determineLevel } from './index';
 
 function makeExercise(overrides: Partial<ExerciseDefinition> = {}): ExerciseDefinition {
   return {
@@ -24,6 +24,48 @@ function makeExercise(overrides: Partial<ExerciseDefinition> = {}): ExerciseDefi
 }
 
 describe('curriculum', () => {
+  describe('determineLevel', () => {
+    describe('speaking tier', () => {
+      // thresholds: 1: 10, 2: 20, 3: 30, 4: Infinity
+      // Level 1: < 10
+      // Level 2: < 30 (10+20)
+      // Level 3: < 60 (10+20+30)
+      // Level 4: >= 60
+      it.each([
+        [0, 1],
+        [9, 1],
+        [10, 2],
+        [29, 2],
+        [30, 3],
+        [59, 3],
+        [60, 4],
+        [100, 4],
+      ])('completedSessions=%i returns level %i', (completedSessions, expectedLevel) => {
+        expect(determineLevel('speaking', completedSessions)).toBe(expectedLevel);
+      });
+    });
+
+    describe('singing tier', () => {
+      // thresholds: 1: 15, 2: 25, 3: 40, 4: Infinity
+      // Level 1: < 15
+      // Level 2: < 40 (15+25)
+      // Level 3: < 80 (15+25+40)
+      // Level 4: >= 80
+      it.each([
+        [0, 1],
+        [14, 1],
+        [15, 2],
+        [39, 2],
+        [40, 3],
+        [79, 3],
+        [80, 4],
+        [100, 4],
+      ])('completedSessions=%i returns level %i', (completedSessions, expectedLevel) => {
+        expect(determineLevel('singing', completedSessions)).toBe(expectedLevel);
+      });
+    });
+  });
+
   it('meetsPrerequisites returns true only when all prerequisites are completed', () => {
     const ex = makeExercise({ prerequisiteExerciseIds: ['a', 'b'] });
     expect(meetsPrerequisites(ex, ['a', 'b', 'c'], 1)).toBe(true);
