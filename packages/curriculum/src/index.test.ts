@@ -1,5 +1,5 @@
 import type { ExerciseDefinition } from '@voice/shared-types';
-import { meetsPrerequisites, selectNextExercise } from './index';
+import { meetsPrerequisites, selectNextExercise, buildSessionPlan } from './index';
 
 function makeExercise(overrides: Partial<ExerciseDefinition> = {}): ExerciseDefinition {
   return {
@@ -68,5 +68,107 @@ describe('curriculum', () => {
 
     const result = selectNextExercise(available, ['done'], 1, 'pace', 0);
     expect(result?.exerciseId).toBe('next');
+  });
+});
+
+describe('buildSessionPlan', () => {
+  it('generates correct warm-up exercises for speaking tier', () => {
+    const available: ExerciseDefinition[] = [];
+    const plan = buildSessionPlan('speaking', 1, 'pace', available, []);
+    expect(plan.warmUpExerciseIds).toEqual(['breathing-diaphragm-001', 'resonance-hum-001']);
+  });
+
+  it('generates correct warm-up exercises for singing tier level 1', () => {
+    const available: ExerciseDefinition[] = [];
+    const plan = buildSessionPlan('singing', 1, 'pitch', available, []);
+    expect(plan.warmUpExerciseIds).toEqual(['breathing-diaphragm-001', 'reference-tone-match-001']);
+  });
+
+  it('generates correct warm-up exercises for singing tier level > 1', () => {
+    const available: ExerciseDefinition[] = [];
+    const plan = buildSessionPlan('singing', 2, 'pitch', available, []);
+    expect(plan.warmUpExerciseIds).toEqual([
+      'breathing-diaphragm-001',
+      'sustain-note-beginner-001',
+    ]);
+  });
+
+  it('filters core exercises by tier, activeFlag, and minimumLevelRequired, limiting to 3', () => {
+    const available = [
+      makeExercise({
+        exerciseId: 'ex1',
+        tier: 'singing',
+        minimumLevelRequired: 1,
+        activeFlag: true,
+      }),
+      makeExercise({
+        exerciseId: 'ex2',
+        tier: 'singing',
+        minimumLevelRequired: 2,
+        activeFlag: true,
+      }),
+      makeExercise({
+        exerciseId: 'ex3',
+        tier: 'singing',
+        minimumLevelRequired: 3,
+        activeFlag: true,
+      }), // Excluded due to level
+      makeExercise({
+        exerciseId: 'ex4',
+        tier: 'speaking',
+        minimumLevelRequired: 1,
+        activeFlag: true,
+      }), // Excluded due to tier
+      makeExercise({
+        exerciseId: 'ex5',
+        tier: 'singing',
+        minimumLevelRequired: 1,
+        activeFlag: false,
+      }), // Excluded due to activeFlag
+      makeExercise({
+        exerciseId: 'ex6',
+        tier: 'singing',
+        minimumLevelRequired: 1,
+        activeFlag: true,
+      }),
+      makeExercise({
+        exerciseId: 'ex7',
+        tier: 'singing',
+        minimumLevelRequired: 1,
+        activeFlag: true,
+      }), // Excluded due to limit 3
+    ];
+
+    const plan = buildSessionPlan('singing', 2, 'pitch', available, []);
+    expect(plan.coreExerciseIds).toEqual(['ex1', 'ex2', 'ex6']);
+  });
+
+  it('sorts core exercises to prefer uncompleted ones', () => {
+    const available = [
+      makeExercise({ exerciseId: 'ex1', tier: 'singing', activeFlag: true }),
+      makeExercise({ exerciseId: 'ex2', tier: 'singing', activeFlag: true }),
+      makeExercise({ exerciseId: 'ex3', tier: 'singing', activeFlag: true }),
+      makeExercise({ exerciseId: 'ex4', tier: 'singing', activeFlag: true }),
+    ];
+
+    const completed = ['ex1', 'ex2'];
+    const plan = buildSessionPlan('singing', 2, 'pitch', available, completed);
+
+    // Should pick ex3 and ex4 first, then one of ex1/ex2 to fill to 3
+    expect(plan.coreExerciseIds.length).toBe(3);
+    expect(plan.coreExerciseIds.slice(0, 2)).toEqual(expect.arrayContaining(['ex3', 'ex4']));
+    expect(['ex1', 'ex2']).toContain(plan.coreExerciseIds[2]);
+  });
+
+  it('calculates estimatedDurationMinutes correctly', () => {
+    // 2 warmups (2*2 = 4) + 3 cores (3*5 = 15) = 19
+    const available = [
+      makeExercise({ exerciseId: 'ex1', tier: 'speaking', activeFlag: true }),
+      makeExercise({ exerciseId: 'ex2', tier: 'speaking', activeFlag: true }),
+      makeExercise({ exerciseId: 'ex3', tier: 'speaking', activeFlag: true }),
+    ];
+
+    const plan = buildSessionPlan('speaking', 1, 'pace', available, []);
+    expect(plan.estimatedDurationMinutes).toBe(19);
   });
 });
