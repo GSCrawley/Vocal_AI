@@ -19,7 +19,14 @@ export default async function profilesRoutes(app: FastifyInstance) {
       .single();
 
     if (error) {
-      // Fallback for Build 0.2 if DB isn't strictly seeded
+      app.log.warn({ err: error, userId }, 'Failed to fetch profile');
+
+      // PGRST116: no rows returned. 42P01: undefined_table (table not created yet).
+      if (error.code !== 'PGRST116' && error.code !== '42P01') {
+        return reply.code(500).send({ error: 'Failed to load profile' });
+      }
+
+      // Fallback stub when the profile row/table isn't present yet.
       return reply.code(200).send({
         userId,
         displayName: 'Test User',
