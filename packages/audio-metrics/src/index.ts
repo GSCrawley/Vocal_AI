@@ -30,7 +30,8 @@ export function evaluateFrame(
   frameHz: number,
   targetHz: number,
   toleranceCents: number,
-  confidence: number
+  confidence: number,
+  precalculatedCentsError?: number
 ): FrameEvaluation {
   const isUsable = confidence >= 0.5 && frameHz > 0;
 
@@ -41,7 +42,8 @@ export function evaluateFrame(
     };
   }
 
-  const centsError = hzToCents(frameHz, targetHz);
+  const centsError =
+    precalculatedCentsError !== undefined ? precalculatedCentsError : hzToCents(frameHz, targetHz);
   const inTolerance = Math.abs(centsError) <= toleranceCents;
 
   return {

@@ -1,18 +1,21 @@
-# app/main.py
-from fastapi import FastAPI, Header, HTTPException, UploadFile, File
-from fastapi.responses import JSONResponse
+import logging
+import os
 import secrets
 import tempfile
-import os
-from app.config import settings
-try:
-    import redis
-except ImportError:
-    redis = None
+from typing import Optional
 
-# We import pitch processing directly for the fast synchronous endpoint
+import librosa
+import redis
+from fastapi import FastAPI, Header, HTTPException, UploadFile, File, Form
+from fastapi.responses import JSONResponse
+
+from app.config import settings
 from app.utils.audio_io import load_audio
 from app.analysis.pitch import extract_pitch_pyin, pitch_to_frames
+from app.analysis.singing_metrics import compute_singing_metrics
+from app.analysis.rms import extract_rms_envelope
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="voice-audio-processor", version="0.1.0")
 redis_client = redis.from_url(settings.redis_url)
@@ -56,7 +59,7 @@ def job_status(job_id: str, x_internal_token: str = Header(None)):
 
 
 @app.post("/pitch/extract")
-async def extract_pitch_sync(
+def extract_pitch_sync(
     file: UploadFile = File(...), x_internal_token: str = Header(None)
 ):
     if x_internal_token is None or not secrets.compare_digest(
@@ -64,35 +67,30 @@ async def extract_pitch_sync(
     ):
         raise HTTPException(status_code=403)
 
-    with tempfile.NamedTemporaryFile(
-        delete=False, suffix=os.path.splitext(file.filename or "")[1] or ".m4a"
-    ) as tmp:
-        content = await file.read()
-        tmp.write(content)
-        tmp_path = tmp.name
-
+    tmp_path = None
     try:
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=os.path.splitext(file.filename or "")[1] or ".m4a"
+        ) as tmp:
+            content = file.file.read()
+            tmp.write(content)
+            tmp_path = tmp.name
         y, sr = load_audio(tmp_path, sr=settings.sample_rate, allow_local_path=True)
         pitch_result = extract_pitch_pyin(y, sr)
         pitch_frames = pitch_to_frames(pitch_result)
         return {"ok": True, "frames": pitch_frames}
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
+    except Exception:
+        logger.exception("Failed to extract pitch")
+        return JSONResponse(
+            status_code=500, content={"ok": False, "error": "internal_error"}
+        )
     finally:
-        if os.path.exists(tmp_path):
+        if tmp_path and os.path.exists(tmp_path):
             os.remove(tmp_path)
 
 
-from typing import Optional
-
-import librosa
-from fastapi import Form
-
-from app.analysis.singing_metrics import compute_singing_metrics
-
-
 @app.post("/analyze")
-async def analyze_audio(
+def analyze_audio(
     file: Optional[UploadFile] = File(None),
     audio_url: Optional[str] = Form(None),
     targetHz: Optional[float] = Form(None),
@@ -127,7 +125,7 @@ async def analyze_audio(
             with tempfile.NamedTemporaryFile(
                 delete=False, suffix=os.path.splitext(file.filename or "")[1] or ".m4a"
             ) as tmp:
-                content = await file.read()
+                content = file.file.read()
                 tmp.write(content)
                 tmp_path = tmp.name
             y, sr = load_audio(tmp_path, sr=settings.sample_rate, allow_local_path=True)
@@ -155,8 +153,6 @@ async def analyze_audio(
         ).tolist()
 
         # 3. RMS Peak
-        from app.analysis.rms import extract_rms_envelope
-
         rms_result = extract_rms_envelope(y, sr)
         peak_db = rms_result["max_db"]
 
@@ -188,6 +184,7 @@ async def analyze_audio(
             "overallConfidence": metrics["voiced_frame_ratio"],
         }
     except Exception:
+        logger.exception("Failed to analyze audio")
         return JSONResponse(status_code=500, content={"error": "internal_error"})
     finally:
         if tmp_path and os.path.exists(tmp_path):

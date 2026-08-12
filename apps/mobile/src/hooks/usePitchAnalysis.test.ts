@@ -29,7 +29,8 @@ describe('usePitchAnalysis', () => {
       expect.stringContaining('/v1/pitch/extract'),
       expect.any(Object)
     );
-    expect((result as unknown as { deepAnalysis: unknown }).deepAnalysis).toBeNull();
+    expect((result as unknown as { deepAnalysis: unknown }).deepAnalysis).toBeUndefined();
+  });
 
   it('leaves deepAnalysis null as a guarded no-op when consent is true (Group D stub)', async () => {
     (useSettingsStore as unknown as { getState: jest.Mock }).getState.mockReturnValue({

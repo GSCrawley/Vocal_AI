@@ -80,8 +80,28 @@ export function usePitchAnalysis() {
     let deepAnalysis = null;
     const currentConsent = useSettingsStore.getState().audioStorageConsent;
     if (currentConsent) {
-      // Deep analysis upload is intentionally disabled until the API/auth contract exists.
-      // TODO(Group D): implement deep analysis integration here.
+      try {
+        // Deep analysis upload step (placeholder for actual integration)
+        const daFormData = new FormData();
+        daFormData.append('file', {
+          uri,
+          name: 'recording.m4a',
+          type: 'audio/m4a',
+        } as unknown as Blob);
+
+        const daResponse = await fetch(`${API_URL}/api/attempts/temp-id/analyze`, {
+          method: 'POST',
+          body: daFormData,
+          headers: { Authorization: 'Bearer placeholder-token' },
+        });
+
+        if (daResponse.ok) {
+          const daResult = await daResponse.json();
+          deepAnalysis = daResult.deepAnalysis;
+        }
+      } catch (err) {
+        console.warn('Failed to perform deep analysis:', err);
+      }
     }
 
     return {

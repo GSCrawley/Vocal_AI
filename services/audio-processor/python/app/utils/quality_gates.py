@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Optional
 from app.config import settings
 
+
 @dataclass
 class QualityReport:
     is_usable: bool
@@ -12,14 +13,16 @@ class QualityReport:
     clipping_detected: bool
     failure_reason: Optional[str] = None  # matches TypeScript MicCheckResult reason
 
+
 def check_quality(y: np.ndarray, sr: int, pitch_voiced: np.ndarray) -> QualityReport:
     """
     y: audio samples
     pitch_voiced: boolean array of voiced frames from pYIN
     Returns QualityReport. is_usable=False means do not score.
     """
-    rms = librosa.feature.rms(y=y, frame_length=settings.frame_length,
-                               hop_length=settings.hop_length)[0]
+    rms = librosa.feature.rms(
+        y=y, frame_length=settings.frame_length, hop_length=settings.hop_length
+    )[0]
     rms_db = float(librosa.amplitude_to_db(rms).mean())
     peak = float(np.abs(y).max())
     clipping = peak >= 0.99

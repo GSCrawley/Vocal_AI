@@ -4,17 +4,22 @@ import httpx
 
 _client: Client = None
 
+
 def get_client() -> Client:
     global _client
     if _client is None:
-        _client = create_client(settings.supabase_url, settings.supabase_service_role_key)
+        _client = create_client(
+            settings.supabase_url, settings.supabase_service_role_key
+        )
     return _client
+
 
 def download_file(url: str) -> bytes:
     """Download audio from a Supabase signed URL."""
     response = httpx.get(url, timeout=60.0)
     response.raise_for_status()
     return response.content
+
 
 def upload_file(
     data: bytes,

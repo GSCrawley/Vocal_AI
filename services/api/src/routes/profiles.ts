@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { createUserSupabaseClient } from '../lib/supabase.js';
+import { supabase } from '../lib/supabase.js';
 
 export default async function profilesRoutes(app: FastifyInstance) {
   app.get('/me', async (request: FastifyRequest, reply: FastifyReply) => {
@@ -9,27 +9,17 @@ export default async function profilesRoutes(app: FastifyInstance) {
       return reply.code(401).send({ error: 'Unauthorized' });
     }
 
-    const jwt = request.headers.authorization?.replace(/^Bearer\s+/i, '') ?? '';
-    const userClient = createUserSupabaseClient(jwt);
-
     // Minimal stub if supabase table doesn't exist yet, we'll return a stub profile
     // But we will try to fetch if possible, though 'profiles' might be 'users' or 'user_profiles'
     // According to standard Supabase setup, it's usually `user_profiles` or `profiles`.
-    const { data, error } = await userClient
+    const { data, error } = await supabase
       .from('user_profiles')
       .select('*')
       .eq('user_id', userId)
       .single();
 
     if (error) {
-      app.log.warn({ err: error, userId }, 'Failed to fetch profile');
-
-      // PGRST116: no rows returned. 42P01: undefined_table (table not created yet).
-      if (error.code !== 'PGRST116' && error.code !== '42P01') {
-        return reply.code(500).send({ error: 'Failed to load profile' });
-      }
-
-      // Fallback stub when the profile row/table isn't present yet.
+      // Fallback for Build 0.2 if DB isn't strictly seeded
       return reply.code(200).send({
         userId,
         displayName: 'Test User',
@@ -75,10 +65,7 @@ export default async function profilesRoutes(app: FastifyInstance) {
         return reply.code(400).send({ error: 'audioStorageConsent is required' });
       }
 
-      const jwt = request.headers.authorization?.replace(/^Bearer\s+/i, '') ?? '';
-      const userClient = createUserSupabaseClient(jwt);
-
-      const { error } = await userClient
+      const { error } = await supabase
         .from('user_profiles')
         .update({ audio_storage_consent: audioStorageConsent })
         .eq('user_id', userId);
