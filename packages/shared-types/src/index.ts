@@ -103,7 +103,7 @@ export interface UserProfile {
   lastSessionDate?: string; // ISO 8601
   streakShieldsRemaining: number;
   createdAt: string;
-  audioStorageConsent?: boolean;
+  audioStorageConsent: boolean;
 }
 
 // ------------------------------------------------------------
