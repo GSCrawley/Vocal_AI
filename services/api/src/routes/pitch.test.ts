@@ -25,11 +25,11 @@ describe('pitchRoutes', () => {
   const originalToken = process.env.INTERNAL_SERVICE_TOKEN;
 
   afterEach(() => {
-    process.env.INTERNAL_SERVICE_TOKEN = originalToken;
-  });
-
-  beforeEach(() => {
-    delete process.env.INTERNAL_SERVICE_TOKEN;
+    if (originalToken === undefined) {
+      delete process.env.INTERNAL_SERVICE_TOKEN;
+    } else {
+      process.env.INTERNAL_SERVICE_TOKEN = originalToken;
+    }
   });
 
   it('fails securely with 500 when INTERNAL_SERVICE_TOKEN is missing', async () => {
