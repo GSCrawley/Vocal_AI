@@ -1,12 +1,15 @@
 import {
+  getSpeakingScoreBreakdown,
+  SpeakingAnalysisResult,
   generateSpeakingFeedback,
   scorePace,
   computeSpeakingScore,
   scoreProjection,
   scoreFillerRate,
+  scoreProsody,
   mapSpeakingScoreToCoaching,
 } from '../index';
-import type { SpeakingExerciseScoreBreakdown, SpeakingAnalysisResult } from '@voice/shared-types';
+import type { SpeakingExerciseScoreBreakdown } from '@voice/shared-types';
 
 describe('generateSpeakingFeedback', () => {
   it('returns praise for null failureMode', () => {
@@ -304,6 +307,102 @@ describe('scoreFillerRate', () => {
     expect(scoreFillerRate(10.1)).toBe(15);
     expect(scoreFillerRate(15)).toBe(15);
     expect(scoreFillerRate(100)).toBe(15);
+  });
+});
+
+describe('getSpeakingScoreBreakdown', () => {
+  const baseAnalysis: SpeakingAnalysisResult = {
+    wpm: 147.5, // exact midpoint of presentation target (130-165) scores 100
+    articulationRateWpm: 160,
+    meanF0Hz: 120,
+    f0RangeHz: 40, // >= 35 gives 100
+    uptalkRatio: 0.1, // <= 0.1 gives 100, average with f0Range gives prosody = 100
+    pauseCount: 5,
+    meanPauseDurationMs: 400,
+    meanRmsDb: -15, // > -18 gives 100
+    rmsVarianceDb: 5, // bonus 10 -> projection 100 (capped)
+    fillerEvents: [],
+    fillerRate: 0, // <= 1 gives 100
+  };
+
+  it('delegates to scoring functions and applies goal-specific weights (e.g. pace)', () => {
+    // With everything scoring 100, the overall score should be 100 regardless of weights
+    const breakdown = getSpeakingScoreBreakdown(baseAnalysis, 'pace');
+
+    // Assert each sub-score matches what the individual scorers produce
+    expect(breakdown.pace).toBe(scorePace(baseAnalysis.wpm));
+    expect(breakdown.prosody).toBe(scoreProsody(baseAnalysis.f0RangeHz, baseAnalysis.uptalkRatio));
+    expect(breakdown.projection).toBe(
+      scoreProjection(baseAnalysis.meanRmsDb, baseAnalysis.rmsVarianceDb)
+    );
+    expect(breakdown.fillerRate).toBe(scoreFillerRate(baseAnalysis.fillerRate));
+    expect(Number.isFinite(breakdown.overall)).toBe(true);
+
+    // And overall should be computed based on pace goal weights:
+    // pace: 0.6, prosody: 0.15, projection: 0.15, fillerRate: 0.1
+    const expectedOverall = Math.round(
+      breakdown.pace! * 0.6 +
+        breakdown.prosody! * 0.15 +
+        breakdown.projection! * 0.15 +
+        breakdown.fillerRate! * 0.1
+    );
+    expect(breakdown.overall).toBe(expectedOverall);
+  });
+
+  it('varies overall score based on the chosen goal (weighting)', () => {
+    // Let's make pace score 100, but others score less.
+    const analysis: SpeakingAnalysisResult = {
+      ...baseAnalysis,
+      wpm: 150, // pace = 100
+      f0RangeHz: 10, // low prosody
+      meanRmsDb: -40, // low projection
+      fillerRate: 20, // high fillers -> score 15
+    };
+
+    // Pace goal weights: pace 0.6, prosody 0.15, projection 0.15, fillerRate 0.1
+    // It should score higher for 'pace' goal than for 'filler_reduction' goal
+    const paceBreakdown = getSpeakingScoreBreakdown(analysis, 'pace');
+    const fillerBreakdown = getSpeakingScoreBreakdown(analysis, 'filler_reduction');
+
+    expect(paceBreakdown.overall).toBeGreaterThan(fillerBreakdown.overall);
+  });
+
+  it('uses a different context for pace scoring when provided', () => {
+    const analysis: SpeakingAnalysisResult = {
+      ...baseAnalysis,
+      wpm: 190, // Fast for presentation, but within conversational target (130-180)
+    };
+
+    const presentationBreakdown = getSpeakingScoreBreakdown(analysis, 'pace', 'presentation');
+    const conversationalBreakdown = getSpeakingScoreBreakdown(analysis, 'pace', 'conversational');
+
+    // Conversational target is faster, so 190 wpm should score higher in 'conversational' than 'presentation'
+    expect(conversationalBreakdown.pace!).toBeGreaterThan(presentationBreakdown.pace!);
+  });
+
+  it('handles edge case values safely without throwing', () => {
+    const edgeAnalysis: SpeakingAnalysisResult = {
+      wpm: 0,
+      articulationRateWpm: 0,
+      meanF0Hz: 0,
+      f0RangeHz: 0,
+      uptalkRatio: 1,
+      pauseCount: 0,
+      meanPauseDurationMs: 0,
+      meanRmsDb: -100,
+      rmsVarianceDb: 0,
+      fillerEvents: [],
+      fillerRate: 100, // Very high
+    };
+
+    const breakdown = getSpeakingScoreBreakdown(edgeAnalysis, 'authority');
+
+    // We expect finite numbers back, even if they are 0 or the lowest band
+    expect(Number.isFinite(breakdown.pace)).toBe(true);
+    expect(Number.isFinite(breakdown.prosody)).toBe(true);
+    expect(Number.isFinite(breakdown.projection)).toBe(true);
+    expect(Number.isFinite(breakdown.fillerRate)).toBe(true);
+    expect(Number.isFinite(breakdown.overall)).toBe(true);
   });
 });
 

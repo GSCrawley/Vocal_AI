@@ -57,9 +57,7 @@ describe('analyticsWorker', () => {
     await import('./index.js');
 
     expect(http.createServer).toHaveBeenCalled();
-    const serverMock = (http.createServer as jest.Mock).mock.results[0].value as {
-      listen: jest.Mock;
-    };
+    const serverMock = (http.createServer as jest.Mock).mock.results[0].value as unknown;
     expect(serverMock.listen).toHaveBeenCalledWith(3001, '0.0.0.0');
   });
 
@@ -69,9 +67,7 @@ describe('analyticsWorker', () => {
     await import('./index.js');
 
     expect(http.createServer).toHaveBeenCalled();
-    const serverMock = (http.createServer as jest.Mock).mock.results[0].value as {
-      listen: jest.Mock;
-    };
+    const serverMock = (http.createServer as jest.Mock).mock.results[0].value as unknown;
     expect(serverMock.listen).toHaveBeenCalledWith(4005, '0.0.0.0');
   });
 

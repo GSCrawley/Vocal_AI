@@ -299,6 +299,7 @@ export function mapSpeakingScoreToCoaching(
 /**
  * Generate feedback based on the failure mode.
  */
+export type { SpeakingAnalysisResult };
 export type SpeakingFailureMode = 'too_fast' | 'too_slow' | 'uptalk' | 'monotone';
 
 export interface SpeakingFeedback {
