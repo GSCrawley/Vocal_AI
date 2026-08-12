@@ -6,6 +6,7 @@ import {
   computeSpeakingScore,
   scoreProjection,
   scoreFillerRate,
+  scoreProsody,
   mapSpeakingScoreToCoaching,
 } from '../index';
 import type { SpeakingExerciseScoreBreakdown } from '@voice/shared-types';
