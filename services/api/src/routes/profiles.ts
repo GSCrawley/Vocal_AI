@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { supabase } from '../lib/supabase.js';
+import { createUserSupabaseClient } from '../lib/supabase.js';
 
 export default async function profilesRoutes(app: FastifyInstance) {
   app.get('/me', async (request: FastifyRequest, reply: FastifyReply) => {
@@ -9,10 +9,13 @@ export default async function profilesRoutes(app: FastifyInstance) {
       return reply.code(401).send({ error: 'Unauthorized' });
     }
 
+    const jwt = request.headers.authorization?.replace(/^Bearer\s+/i, '') ?? '';
+    const userClient = createUserSupabaseClient(jwt);
+
     // Minimal stub if supabase table doesn't exist yet, we'll return a stub profile
     // But we will try to fetch if possible, though 'profiles' might be 'users' or 'user_profiles'
     // According to standard Supabase setup, it's usually `user_profiles` or `profiles`.
-    const { data, error } = await supabase
+    const { data, error } = await userClient
       .from('user_profiles')
       .select('*')
       .eq('user_id', userId)
@@ -72,7 +75,10 @@ export default async function profilesRoutes(app: FastifyInstance) {
         return reply.code(400).send({ error: 'audioStorageConsent is required' });
       }
 
-      const { error } = await supabase
+      const jwt = request.headers.authorization?.replace(/^Bearer\s+/i, '') ?? '';
+      const userClient = createUserSupabaseClient(jwt);
+
+      const { error } = await userClient
         .from('user_profiles')
         .update({ audio_storage_consent: audioStorageConsent })
         .eq('user_id', userId);
