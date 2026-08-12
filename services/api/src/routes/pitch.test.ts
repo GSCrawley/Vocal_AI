@@ -56,12 +56,13 @@ describe('pitchRoutes', () => {
       headers: {
         'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW',
       },
-      // Give it empty payload so it fails validation (400) rather than making a network request
-      payload: '',
+      // Valid multipart body, but with no file part.
+      payload:
+        '------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name="foo"\r\n\r\nbar\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n',
     });
 
-    expect(response.statusCode).toBe(400); // Fails the fastify-multipart file check, meaning it got past our config check
-
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toEqual({ error: 'No audio file provided' });
     // reset for other tests
     delete process.env.INTERNAL_SERVICE_TOKEN;
   });
