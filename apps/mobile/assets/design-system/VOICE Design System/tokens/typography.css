@@ -1,0 +1,39 @@
+/* VOICE — Typography tokens
+   NOTE — FONT SUBSTITUTION FLAG:
+   The Vocal_AI codebase (packages/ui-tokens) defines NO typeface — React Native
+   screens use platform system fonts only. No font files were provided anywhere
+   in the repo. The families below are a Google Fonts substitution chosen to match
+   the product's tone (modern, warm, confident — a vocal coach, not a spreadsheet)
+   and its metrics-heavy UI (Hz, cents, XP, dB readouts). Please supply real brand
+   fonts if VOICE has them, and swap the @import below.
+*/
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* ---- Font families ---- */
+  --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* ---- Type scale (matches literal RN fontSize values found in screens) ---- */
+  --text-xs: 14px;    /* helper copy, settings descriptions */
+  --text-sm: 16px;    /* body copy, buttons */
+  --text-md: 18px;    /* prompts, reflection questions, band text */
+  --text-lg: 20px;    /* praise messages, target callouts */
+  --text-xl: 24px;    /* screen titles (MicCheck, MicPermission) */
+  --text-2xl: 28px;   /* screen titles (Result, Reflection, RewardSummary, Settings) */
+  --text-3xl: 48px;   /* XP readout */
+  --text-4xl: 64px;   /* score readout */
+  --text-5xl: 72px;   /* countdown numeral */
+
+  /* ---- Weights ---- */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-heavy: 800;
+
+  /* ---- Line heights (literal values used in RN screens) ---- */
+  --leading-tight: 1.2;
+  --leading-body: 1.5;   /* lineHeight:24 over fontSize:16 */
+  --leading-loose: 1.43; /* lineHeight:20 over fontSize:14 */
+}

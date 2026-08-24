@@ -1,0 +1,62 @@
+<!-- @dsCard group="Components" viewport="760x640" name="Avatar — AvatarOrb" subtitle="Coach states, live vibration, and playback comparison layouts" -->
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<div id="root" style="background:var(--voice-bg-1); min-height:640px; padding:28px; font-family:var(--font-sans);"></div>
+<script type="text/babel">
+  const { AvatarOrb } = window.VOICEDesignSystem_a64ca0;
+  const YOU = [0.15,0.4,0.75,0.5,0.3,0.65,0.85,0.4,0.2,0.55,0.7,0.35,0.5,0.8,0.3,0.45];
+  const TARGET = [0.45,0.5,0.55,0.5,0.48,0.52,0.55,0.5,0.47,0.5,0.53,0.5,0.49,0.5,0.51,0.5];
+
+  function SectionLabel({ children }) {
+    return <div style={{color:'var(--text-muted)', fontSize:12, fontWeight:700, letterSpacing:0.5, textTransform:'uppercase', marginBottom:14}}>{children}</div>;
+  }
+
+  function Toggle() {
+    const [src, setSrc] = React.useState('you');
+    return (
+      <div style={{display:'flex', flexDirection:'column', alignItems:'center', gap:14}}>
+        <AvatarOrb state="playback" size={160} waveform={src === 'you' ? YOU : TARGET} label={src === 'you' ? 'You' : 'Target'} />
+        <div style={{display:'flex', gap:8}}>
+          <button onClick={() => setSrc('you')} style={{padding:'6px 14px', borderRadius:999, border:'none', cursor:'pointer', fontFamily:'var(--font-sans)', fontWeight:700, fontSize:12, whiteSpace:'nowrap', background: src==='you' ? 'var(--action-primary)' : 'var(--surface-raised)', color: src==='you' ? '#fff' : 'var(--text-muted)'}}>This is you</button>
+          <button onClick={() => setSrc('target')} style={{padding:'6px 14px', borderRadius:999, border:'none', cursor:'pointer', fontFamily:'var(--font-sans)', fontWeight:700, fontSize:12, whiteSpace:'nowrap', background: src==='target' ? 'var(--action-primary)' : 'var(--surface-raised)', color: src==='target' ? '#fff' : 'var(--text-muted)'}}>Aim for this</button>
+        </div>
+      </div>
+    );
+  }
+
+  function Demo() {
+    return (
+      <div style={{display:'flex', flexDirection:'column', gap:36}}>
+        <div>
+          <SectionLabel>Behavioral states</SectionLabel>
+          <div style={{display:'flex', gap:28, flexWrap:'wrap'}}>
+            <AvatarOrb state="idle" size={140} label="Idle" />
+            <AvatarOrb state="listening" size={140} tier="singing" label="Listening" hapticStandIn />
+            <AvatarOrb state="analyzing" size={140} label="Analyzing" />
+            <AvatarOrb state="coaching" size={140} tier="speaking" label="Coaching" hapticStandIn />
+            <AvatarOrb state="celebrating" size={140} label="Celebrating" />
+          </div>
+        </div>
+
+        <div>
+          <SectionLabel>Playback comparison — option A: two orbs side by side</SectionLabel>
+          <div style={{display:'flex', gap:40}}>
+            <AvatarOrb state="playback" size={150} waveform={YOU} label="You" />
+            <AvatarOrb state="playback" size={150} waveform={TARGET} label="Target" />
+          </div>
+        </div>
+
+        <div>
+          <SectionLabel>Playback comparison — option B: one orb, toggle source</SectionLabel>
+          <Toggle />
+        </div>
+      </div>
+    );
+  }
+  const rootEl = document.getElementById('root');
+  const root = rootEl.__reactRoot || (rootEl.__reactRoot = ReactDOM.createRoot(rootEl));
+  root.render(<Demo />);
+</script>

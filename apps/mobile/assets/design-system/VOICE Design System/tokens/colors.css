@@ -1,0 +1,81 @@
+/* VOICE — Color tokens
+   Base literal values are lifted from packages/ui-tokens/src/index.ts (the app's
+   only real design tokens) and packages/avatar-state/src/index.ts (AVATAR_TIER_COLORS).
+   Those are preserved verbatim below as --voice-dark-* reference tokens.
+
+   ART-DIRECTION UPDATE: the system default is now a LIGHT, softened palette
+   (per explicit user direction) rather than the source app's dark UI — nothing
+   in the source mandates dark, and the request was for a lighter, gentler feel
+   suited to a calm coaching companion. Semantic aliases below point at the new
+   light scale; the original dark values remain available under --voice-dark-*
+   if a dark mode is wanted later. */
+
+:root {
+  /* ---- Dark reference tokens — verbatim from @voice/ui-tokens (kept, not default) ---- */
+  --voice-dark-background: #0b1020;
+  --voice-dark-surface: #151c32;
+  --voice-dark-raised: #202a4a;
+  --voice-dark-border: #2a3557;
+  --voice-dark-text: #f4f7fb;
+  --voice-dark-muted: #9aa6c1;
+
+  /* ---- Light neutral scale (new default — soft, warm-neutral, lavender-tinted) ---- */
+  --voice-bg-0: #ffffff;      /* modal / popover surface, pure white */
+  --voice-bg-1: #f6f5fb;      /* app background — soft lavender-white */
+  --voice-bg-2: #ffffff;      /* card / row surface */
+  --voice-bg-3: #eeecf6;      /* raised surface — pressed / selected rows */
+  --voice-border: #e3e0ee;    /* hairlines on light surfaces */
+
+  --voice-text: #24222f;      /* soft near-black, never pure #000 */
+  --voice-muted: #726f87;
+
+  /* ---- Accent scale (interactive / primary) — same hue, tuned for light bg ---- */
+  --voice-accent-strong: #4f5ce0;
+  --voice-accent: #6d7cff;
+  --voice-accent-soft: rgba(109, 124, 255, 0.12);
+
+  /* ---- Semantic feedback colors — softened for a light surface ---- */
+  --voice-success: #34b273;
+  --voice-success-soft: rgba(52, 178, 115, 0.12);
+  --voice-warning: #e3a53b;
+  --voice-warning-soft: rgba(227, 165, 59, 0.16);
+  --voice-danger: #e5675f;
+  --voice-danger-soft: rgba(229, 103, 95, 0.12);
+
+  /* ---- Tier colors — verbatim from AVATAR_TIER_COLORS (already light-friendly) ---- */
+  --voice-speaking-primary: #d97706;    /* amber */
+  --voice-speaking-accent: #f59e0b;     /* gold */
+  --voice-speaking-tint: #fef3c7;       /* warm cream */
+  --voice-speaking-text: #7a4a00;       /* readable label on the tint */
+
+  --voice-singing-primary: #6d28d9;     /* violet */
+  --voice-singing-accent: #8b5cf6;      /* purple */
+  --voice-singing-tint: #ede9fe;        /* lavender */
+  --voice-singing-text: #4c1d95;        /* readable label on the tint */
+
+  /* ---- Semantic aliases (use these in components) ---- */
+  --surface-app: var(--voice-bg-1);
+  --surface-card: var(--voice-bg-2);
+  --surface-raised: var(--voice-bg-3);
+  --border-hairline: var(--voice-border);
+
+  --text-primary: var(--voice-text);
+  --text-muted: var(--voice-muted);
+  --text-on-accent: #ffffff;
+
+  --action-primary: var(--voice-accent);
+  --action-primary-active: var(--voice-accent-strong);
+  --action-primary-soft: var(--voice-accent-soft);
+
+  --feedback-success: var(--voice-success);
+  --feedback-success-soft: var(--voice-success-soft);
+  --feedback-warning: var(--voice-warning);
+  --feedback-warning-soft: var(--voice-warning-soft);
+  --feedback-danger: var(--voice-danger);
+  --feedback-danger-soft: var(--voice-danger-soft);
+
+  /* ---- Card shadow (new for light theme — flat dark UI had none; a light
+     surface needs a very soft lift to separate white cards from a near-white
+     background) ---- */
+  --shadow-card: 0 1px 2px rgba(36, 34, 47, 0.04), 0 6px 20px rgba(36, 34, 47, 0.06);
+}

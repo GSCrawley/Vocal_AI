@@ -1,0 +1,322 @@
+{
+  "plugins": [
+    "react",
+    "import"
+  ],
+  "rules": {
+    "react/forbid-elements": [
+      "warn",
+      {
+        "forbid": []
+      }
+    ],
+    "no-restricted-imports": [
+      "warn",
+      {
+        "patterns": [
+          {
+            "group": [
+              "components/avatar/**",
+              "components/core/**",
+              "components/data/**",
+              "components/feedback/**",
+              "components/forms/**",
+              "ui_kits/mobile-app/**"
+            ],
+            "message": "Import design-system components from 'index.js', not component internals."
+          }
+        ]
+      }
+    ],
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "Literal[value=/#[0-9a-fA-F]{3,8}\\b/]",
+        "message": "Raw hex color — use a design-system color token via var()."
+      },
+      {
+        "selector": "Literal[value=/\\b\\d+px\\b/]",
+        "message": "Raw px value — use a design-system spacing token via var()."
+      },
+      {
+        "selector": "Literal[value=/font-family\\s*:\\s*(?!['\\\"]?(?:Manrope|JetBrains Mono))/i]",
+        "message": "Font not provided by the design system. Available: Manrope, JetBrains Mono."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='AvatarOrb'] > JSXAttribute > JSXIdentifier[name!=/^(?:state|tier|size|waveform|label|hapticStandIn|key|ref|className|style|children)$/]",
+        "message": "<AvatarOrb> doesn't accept that prop. Declared props: state, tier, size, waveform, label, hapticStandIn."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='AvatarOrb'] > JSXAttribute[name.name='state'] > Literal[value!=/^(?:idle|listening|analyzing|coaching|celebrating|playback)$/]",
+        "message": "<AvatarOrb> state must be one of 'idle' | 'listening' | 'analyzing' | 'coaching' | 'celebrating' | 'playback'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='AvatarOrb'] > JSXAttribute[name.name='tier'] > Literal[value!=/^(?:speaking|singing)$/]",
+        "message": "<AvatarOrb> tier must be one of 'speaking' | 'singing'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Badge'] > JSXAttribute > JSXIdentifier[name!=/^(?:children|tone|key|ref|className|style|children)$/]",
+        "message": "<Badge> doesn't accept that prop. Declared props: children, tone."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Badge'] > JSXAttribute[name.name='tone'] > Literal[value!=/^(?:accent|success|warning|danger)$/]",
+        "message": "<Badge> tone must be one of 'accent' | 'success' | 'warning' | 'danger'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Button'] > JSXAttribute > JSXIdentifier[name!=/^(?:children|variant|size|disabled|onClick|key|ref|className|style|children)$/]",
+        "message": "<Button> doesn't accept that prop. Declared props: children, variant, size, disabled, onClick."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Button'] > JSXAttribute[name.name='variant'] > Literal[value!=/^(?:primary|secondary|muted|danger)$/]",
+        "message": "<Button> variant must be one of 'primary' | 'secondary' | 'muted' | 'danger'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Button'] > JSXAttribute[name.name='size'] > Literal[value!=/^(?:sm|md|lg)$/]",
+        "message": "<Button> size must be one of 'sm' | 'md' | 'lg'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='CoachingCard'] > JSXAttribute > JSXIdentifier[name!=/^(?:praise|tip|key|ref|className|style|children)$/]",
+        "message": "<CoachingCard> doesn't accept that prop. Declared props: praise, tip."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='LevelMeter'] > JSXAttribute > JSXIdentifier[name!=/^(?:value|key|ref|className|style|children)$/]",
+        "message": "<LevelMeter> doesn't accept that prop. Declared props: value."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='OptionChip'] > JSXAttribute > JSXIdentifier[name!=/^(?:children|selected|onClick|key|ref|className|style|children)$/]",
+        "message": "<OptionChip> doesn't accept that prop. Declared props: children, selected, onClick."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='ScoreCard'] > JSXAttribute > JSXIdentifier[name!=/^(?:score|isBest|key|ref|className|style|children)$/]",
+        "message": "<ScoreCard> doesn't accept that prop. Declared props: score, isBest."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='ToggleRow'] > JSXAttribute > JSXIdentifier[name!=/^(?:title|description|checked|onChange|key|ref|className|style|children)$/]",
+        "message": "<ToggleRow> doesn't accept that prop. Declared props: title, description, checked, onChange."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='XPCard'] > JSXAttribute > JSXIdentifier[name!=/^(?:xp|key|ref|className|style|children)$/]",
+        "message": "<XPCard> doesn't accept that prop. Declared props: xp."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/index.js"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    }
+  ],
+  "x-omelette": {
+    "components": {
+      "AvatarOrb": {
+        "replaces": []
+      },
+      "Badge": {
+        "replaces": []
+      },
+      "Button": {
+        "replaces": []
+      },
+      "CoachingCard": {
+        "replaces": []
+      },
+      "LevelMeter": {
+        "replaces": []
+      },
+      "OptionChip": {
+        "replaces": []
+      },
+      "ScoreCard": {
+        "replaces": []
+      },
+      "ToggleRow": {
+        "replaces": []
+      },
+      "XPCard": {
+        "replaces": []
+      }
+    },
+    "tokens": [
+      "--action-primary",
+      "--action-primary-active",
+      "--action-primary-soft",
+      "--border-hairline",
+      "--border-width-hairline",
+      "--feedback-danger",
+      "--feedback-danger-soft",
+      "--feedback-success",
+      "--feedback-success-soft",
+      "--feedback-warning",
+      "--feedback-warning-soft",
+      "--font-mono",
+      "--font-sans",
+      "--leading-body",
+      "--leading-loose",
+      "--leading-tight",
+      "--meter-height",
+      "--meter-width",
+      "--radius-md",
+      "--radius-meter",
+      "--radius-pill",
+      "--radius-sm",
+      "--shadow-card",
+      "--space-1",
+      "--space-10",
+      "--space-11",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-7",
+      "--space-8",
+      "--space-9",
+      "--surface-app",
+      "--surface-card",
+      "--surface-raised",
+      "--tap-target-min",
+      "--text-2xl",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-5xl",
+      "--text-lg",
+      "--text-md",
+      "--text-muted",
+      "--text-on-accent",
+      "--text-primary",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--voice-accent",
+      "--voice-accent-soft",
+      "--voice-accent-strong",
+      "--voice-bg-0",
+      "--voice-bg-1",
+      "--voice-bg-2",
+      "--voice-bg-3",
+      "--voice-border",
+      "--voice-danger",
+      "--voice-danger-soft",
+      "--voice-dark-background",
+      "--voice-dark-border",
+      "--voice-dark-muted",
+      "--voice-dark-raised",
+      "--voice-dark-surface",
+      "--voice-dark-text",
+      "--voice-muted",
+      "--voice-singing-accent",
+      "--voice-singing-primary",
+      "--voice-singing-text",
+      "--voice-singing-tint",
+      "--voice-speaking-accent",
+      "--voice-speaking-primary",
+      "--voice-speaking-text",
+      "--voice-speaking-tint",
+      "--voice-success",
+      "--voice-success-soft",
+      "--voice-text",
+      "--voice-warning",
+      "--voice-warning-soft",
+      "--weight-bold",
+      "--weight-heavy",
+      "--weight-medium",
+      "--weight-regular",
+      "--weight-semibold"
+    ],
+    "tokenKinds": {
+      "--voice-dark-background": "color",
+      "--voice-dark-surface": "color",
+      "--voice-dark-raised": "color",
+      "--voice-dark-border": "color",
+      "--voice-dark-text": "font",
+      "--voice-dark-muted": "color",
+      "--voice-bg-0": "color",
+      "--voice-bg-1": "color",
+      "--voice-bg-2": "color",
+      "--voice-bg-3": "color",
+      "--voice-border": "color",
+      "--voice-text": "font",
+      "--voice-muted": "color",
+      "--voice-accent-strong": "color",
+      "--voice-accent": "color",
+      "--voice-accent-soft": "color",
+      "--voice-success": "color",
+      "--voice-success-soft": "color",
+      "--voice-warning": "color",
+      "--voice-warning-soft": "color",
+      "--voice-danger": "color",
+      "--voice-danger-soft": "color",
+      "--voice-speaking-primary": "color",
+      "--voice-speaking-accent": "color",
+      "--voice-speaking-tint": "color",
+      "--voice-speaking-text": "font",
+      "--voice-singing-primary": "color",
+      "--voice-singing-accent": "color",
+      "--voice-singing-tint": "color",
+      "--voice-singing-text": "font",
+      "--surface-app": "color",
+      "--surface-card": "color",
+      "--surface-raised": "color",
+      "--border-hairline": "color",
+      "--text-primary": "font",
+      "--text-muted": "font",
+      "--text-on-accent": "font",
+      "--action-primary": "color",
+      "--action-primary-active": "color",
+      "--action-primary-soft": "color",
+      "--feedback-success": "color",
+      "--feedback-success-soft": "color",
+      "--feedback-warning": "color",
+      "--feedback-warning-soft": "color",
+      "--feedback-danger": "color",
+      "--feedback-danger-soft": "color",
+      "--shadow-card": "shadow",
+      "--font-sans": "font",
+      "--font-mono": "font",
+      "--text-xs": "font",
+      "--text-sm": "font",
+      "--text-md": "font",
+      "--text-lg": "font",
+      "--text-xl": "font",
+      "--text-2xl": "font",
+      "--text-3xl": "font",
+      "--text-4xl": "font",
+      "--text-5xl": "font",
+      "--weight-regular": "font",
+      "--weight-medium": "font",
+      "--weight-semibold": "font",
+      "--weight-bold": "font",
+      "--weight-heavy": "font",
+      "--leading-tight": "font",
+      "--leading-body": "font",
+      "--leading-loose": "font",
+      "--space-1": "spacing",
+      "--space-2": "spacing",
+      "--space-3": "spacing",
+      "--space-4": "spacing",
+      "--space-5": "spacing",
+      "--space-6": "spacing",
+      "--space-7": "spacing",
+      "--space-8": "spacing",
+      "--space-9": "spacing",
+      "--space-10": "spacing",
+      "--space-11": "spacing",
+      "--radius-sm": "radius",
+      "--radius-md": "radius",
+      "--radius-pill": "radius",
+      "--radius-meter": "radius",
+      "--border-width-hairline": "spacing",
+      "--meter-width": "spacing",
+      "--meter-height": "spacing",
+      "--tap-target-min": "spacing"
+    },
+    "fontFamilies": [
+      "JetBrains Mono",
+      "Manrope"
+    ]
+  }
+}

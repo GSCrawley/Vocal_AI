@@ -1,0 +1,45 @@
+/* VOICE — base element defaults (kept minimal; components style inline / per-file) */
+body {
+  font-family: var(--font-sans);
+  background: var(--surface-app);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--action-primary);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--voice-accent-strong);
+  text-decoration: underline;
+}
+
+/* ---- Avatar orb animations (shared keyframes; components reference by name) ---- */
+@keyframes voice-orb-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.035); }
+}
+@keyframes voice-orb-ripple {
+  0% { transform: scale(0.9); opacity: 0.35; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+@keyframes voice-orb-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes voice-orb-rotate-reverse {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+@keyframes voice-orb-celebrate {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.12); }
+  50% { transform: scale(0.97); }
+  70% { transform: scale(1.06); }
+}
+@keyframes voice-haptic-pulse {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+

@@ -1,0 +1,32 @@
+/* VOICE — Spacing, radius, and layout tokens
+   Values are the literal numbers found across apps/mobile/src/screens/*.tsx
+   (padding, margin, borderRadius) — never rounded to a different grid. */
+
+:root {
+  /* ---- Spacing scale (literal paddings/margins seen in screens) ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 14px;   /* option chip vertical padding */
+  --space-5: 16px;
+  --space-6: 20px;   /* option chip horizontal padding */
+  --space-7: 24px;   /* standard screen padding */
+  --space-8: 32px;
+  --space-9: 40px;
+  --space-10: 48px;
+  --space-11: 60px;  /* settings top padding */
+
+  /* ---- Corner radii (flat design — no card ever exceeds 20px) ---- */
+  --radius-sm: 8px;   /* option chips, settings dividers */
+  --radius-md: 16px;  /* score card, coaching card, xp card */
+  --radius-pill: 999px; /* level meter capsule, badges */
+  --radius-meter: 20px; /* sustained-note vertical meter (half of 40px width) */
+
+  /* ---- Stroke ---- */
+  --border-width-hairline: 1px;
+
+  /* ---- Component sizing ---- */
+  --meter-width: 40px;
+  --meter-height: 200px;
+  --tap-target-min: 44px;
+}
