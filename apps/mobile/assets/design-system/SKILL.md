@@ -9,6 +9,7 @@ If creating visual artifacts (slides, mocks, throwaway prototypes, etc), copy as
 If the user invokes this skill without any other guidance, ask them what they want to build or design, ask some questions, and act as an expert designer who outputs HTML artifacts _or_ production code, depending on the need.
 
 Key things to know before you design:
+
 - VOICE has **no logo** and **no brand font files** — README.md explains both substitutions (Manrope/JetBrains Mono via Google Fonts; plain wordmark). Don't invent a symbol or typeface; ask the user for real assets if the work needs them.
 - The visual system is flat and dark: one dark app surface, one indigo-violet accent, no shadows, no gradients, no imagery yet. Don't add elevation, blur, or decoration that isn't in `readme.md`'s Visual Foundations section.
 - Copy is written as first-person avatar-coach dialogue: specific, warm, one correction at a time, no shame, almost no emoji. See Content Fundamentals in README.md before writing any UI copy.

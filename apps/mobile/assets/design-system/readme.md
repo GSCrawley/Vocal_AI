@@ -19,7 +19,7 @@ avatar coach:
 - **Speaking Tier** (Phase 2) — public speakers, podcasters, teachers, and creators working
   on pace, prosody, projection, resonance, filler-word reduction, and confidence markers.
 
-The product's real value, per its own docs: *not* "AI analyzes your voice" but helping a
+The product's real value, per its own docs: _not_ "AI analyzes your voice" but helping a
 person build accurate self-hearing, self-trust, and repeatable practice habits. Every
 exercise follows the same loop — **record → analyze → score → one plain-language coaching
 cue** — delivered by an animated AI avatar coach (working name **VOCA**, not yet
@@ -56,18 +56,18 @@ templates).
   coach standing next to you, not a fitness-app notification.
 - **Person**: first person from the coach ("I'm listening," "I'm having trouble hearing you
   clearly"), second person to the user ("You held within ±20 cents for 4.2 seconds").
-- **Specific > vague, always.** The spec states this as a rule, not a preference: *"You held
-  within ±20 cents for 3.2 seconds"* beats *"Nice work."* Real shipped example (developing
-  band): *"You drifted sharp about halfway through — your breath probably got lighter right
+- **Specific > vague, always.** The spec states this as a rule, not a preference: _"You held
+  within ±20 cents for 3.2 seconds"_ beats _"Nice work."_ Real shipped example (developing
+  band): _"You drifted sharp about halfway through — your breath probably got lighter right
   there. This time, keep the same breath pressure through the whole hold. Don't back off. Go
-  again."*
+  again."_
 - **One correction per attempt.** Never a list, never a dashboard of failures. Coaching copy
   is always structured praise → one correction → one action tip.
 - **Agency language.** "Want to try again?" not "You need to try again." Choices are offered,
   not demanded, per the product's autonomy-supportive coaching philosophy.
 - **No shame, ever.** No language implying failure, disappointment, or wasted effort — even
-  the lowest-scoring "retry" band template opens with something earned: *"You gave it a full
-  attempt — let's reset and try again."*
+  the lowest-scoring "retry" band template opens with something earned: _"You gave it a full
+  attempt — let's reset and try again."_
 - **Casing**: sentence case throughout, in-app and in docs. Screen titles are short noun
   phrases ("Result", "Settings", "Quick Reflection"). Buttons are short imperative verbs
   ("Ready", "Continue", "Try Again", "Grant Permission").
@@ -108,7 +108,7 @@ product is actually about: sound and vibration.
 - **Haptic stand-in** — the spec never mentions haptics, but a verbal/audio coaching
   interaction is a strong candidate for a light haptic tick each time the orb starts
   speaking. HTML can't trigger real device haptics, so `AvatarOrb`'s `hapticStandIn` prop
-  renders a small pulsing dot purely to mark *where* that tick should fire in a real build.
+  renders a small pulsing dot purely to mark _where_ that tick should fire in a real build.
 
 ## Visual foundations
 
@@ -135,7 +135,7 @@ extension built to be consistent with that seed.
   patterns anywhere in the app. No hand-drawn elements.
 - **Cards / surfaces**: the source app is flat (`surface` color flat on `background` color,
   no shadows anywhere) — on a near-white light surface that flatness stops working (a white
-  card on an off-white background needs *some* separation), so this system adds one very
+  card on an off-white background needs _some_ separation), so this system adds one very
   soft `--shadow-card` token (a 2-layer, low-opacity shadow) used only on `ScoreCard` and
   `XPCard`. Everything else stays flat, matching the source's minimal-decoration instinct.
 - **Corner radii**: small and consistent — 8px (option chips, dividers), 16px (score/coaching/
@@ -220,6 +220,6 @@ what the Build 0.1 screens actually use, plus one deliberate addition:
 - **CoachingCard** — avatar praise + tip message pair
 - **XPCard** — session XP readout
 - **LevelMeter** — live vertical recording-volume meter
-- **AvatarOrb** *(intentional addition — not sourced)* — the coach avatar, since the repo
+- **AvatarOrb** _(intentional addition — not sourced)_ — the coach avatar, since the repo
   describes an avatar character (`docs/product/ai-avatar-spec.md`) but never designs or
   builds one anywhere. See "The avatar orb" above for the reasoning.
