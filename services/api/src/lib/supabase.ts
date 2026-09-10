@@ -2,8 +2,10 @@ import { createClient } from '@supabase/supabase-js';
 
 const isTest = process.env.NODE_ENV === 'test';
 
-const supabaseUrl = process.env.SUPABASE_URL ?? (isTest ? 'https://stub-project.supabase.co' : undefined);
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? (isTest ? 'stub-service-key' : undefined);
+const supabaseUrl =
+  process.env.SUPABASE_URL ?? (isTest ? 'https://stub-project.supabase.co' : undefined);
+const supabaseServiceKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ?? (isTest ? 'stub-service-key' : undefined);
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 
 if (!supabaseUrl) {
